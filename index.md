@@ -1,6 +1,4 @@
-**这是我的个人Vlog**
+**This is my personal Github.io**
 
-
-2023年3月21日
 
 
