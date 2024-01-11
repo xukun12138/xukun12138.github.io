@@ -8,11 +8,11 @@
 
 Ph.D. Student
 
-:school: [College of Computer Science and Technology](https://cs.nuaa.edu.cn/), [Nanjing University of Aeronautics and Astronautics](https://www.nuaa.edu.cn/)
+&#x1F3EB; [College of Computer Science and Technology](https://cs.nuaa.edu.cn/), [Nanjing University of Aeronautics and Astronautics](https://www.nuaa.edu.cn/)
 
-:round_pushpin: Nanjing, 211106, China
+&#x1F4CD; Nanjing, 211106, China
 
-:email: xukun930@nuaa.edu.cn  &#124;  xukun930@gmail.com
+&#x1F4E7; xukun930@nuaa.edu.cn  &#124;  xukun930@gmail.com
 
 
 [Google Scholar](https://)  &#124;  [ORCID](https://orcid.org/0000-0002-1866-4433)  &#124;  [Github](https://github.com/xukun12138/)
