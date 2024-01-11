@@ -6,7 +6,9 @@
 
 **Kun Xu**
 
-Ph.D. Student
+I am a Ph.D. Student at NUAA, advised by Dr. [Yushu Zhang](http://yushuzhang.cn/).
+
+**Research Interests**
 
 &#x1F3EB; [College of Computer Science and Technology](https://cs.nuaa.edu.cn/), [Nanjing University of Aeronautics and Astronautics](https://www.nuaa.edu.cn/)
 
