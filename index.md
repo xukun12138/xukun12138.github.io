@@ -1,6 +1,12 @@
 **Hello World**
 
-**Kun Xu (许锟)**
+**许锟**
 
-[ORCID](https://orcid.org/0000-0002-1866-4433)
+**Kun Xu**
+
+Ph.D. Student
+
+College of Computer Science and Technology, Nanjing University of Aeronautics and Astronautics, Nanjing 211106, China
+
+[ORCID](https://orcid.org/0000-0002-1866-4433)   
 
