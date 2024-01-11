@@ -12,10 +12,10 @@ Ph.D. Student
 
 :round_pushpin: Nanjing, 211106, China
 
-:email: xukun930@nuaa.edu.cn  |  xukun930@gmail.com
+:email: xukun930@nuaa.edu.cn  &#124;  xukun930@gmail.com
 
 
-[ORCID](https://orcid.org/0000-0002-1866-4433)  |  [Github](https://github.com/xukun12138/)
+[Google Scholar](https://)  &#124;  [ORCID](https://orcid.org/0000-0002-1866-4433)  &#124;  [Github](https://github.com/xukun12138/)
 
 ---
 
