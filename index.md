@@ -31,8 +31,8 @@ I am a Ph.D. Student at NUAA, advised by [Dr. Yushu Zhang](http://yushuzhang.cn/
 
 **Publications**
 
-* Gaoming Yang; Kun Xu; Xianjin Fang; Ji Zhang. [Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z). The Visual Computer. 2023.
-* Kun Xu; Gaoming Yang; Xianjin Fang; Ji Zhang. [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4). Multimedia Tools and Applications. 2023.
+* **Kun Xu**; Gaoming Yang; Xianjin Fang; Ji Zhang. [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4). Multimedia Tools and Applications. 2023.
+* Gaoming Yang; **Kun Xu**; Xianjin Fang; Ji Zhang. [Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z). The Visual Computer. 2023.
 
 ---
 
