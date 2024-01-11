@@ -2,11 +2,9 @@
 
 ---
 
-**<font size=5 face="黑体">许锟</font>**
+**<font size=5>许锟 (Kun Xu)</font>**
 
-**Kun Xu**
-
-I am a Ph.D. Student at NUAA, advised by Dr. [Yushu Zhang](http://yushuzhang.cn/).
+I am a Ph.D. Student at NUAA, advised by [Dr. Yushu Zhang](http://yushuzhang.cn/).
 
 **Research Interests**
 
