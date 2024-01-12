@@ -4,7 +4,7 @@
 
 **<font size=5>许锟 (Kun Xu)</font>**
 
-I am a Ph.D. Student at NUAA, advised by [Dr. Yushu Zhang](http://yushuzhang.cn/).
+I am a Ph.D. student at NUAA, advised by [Dr. Yushu Zhang](http://yushuzhang.cn/).
 
 **Research Interests**
 
