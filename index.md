@@ -4,6 +4,8 @@
 
 **<font size=5>许锟 (Kun Xu)</font>**
 
+**Short Biography**
+
 I am a Ph.D. student at NUAA, advised by [Dr. Yushu Zhang](http://yushuzhang.cn/). I had received my BE and MS degrees in Computer Science and Technology from Anhui University of Science and Technology (AUST).
 
 **Research Interests**
