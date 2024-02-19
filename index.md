@@ -21,7 +21,7 @@ I am a Ph.D. student at NUAA, advised by [Dr. Yushu Zhang](http://yushuzhang.cn/
 &#x1F4E7; xukun930@nuaa.edu.cn  &#124;  xukun930@gmail.com
 
 
-[Google Scholar](https://scholar.google.com/citations?hl=zh-CN&user=yDoybB0AAAAJ)  &#124;  [ORCID](https://orcid.org/0000-0002-1866-4433)  &#124;  [Github](https://github.com/xukun12138/)
+[Google Scholar](https://scholar.google.com/citations?hl=zh-CN&user=yDoybB0AAAAJ)  &#124;  [ORCID](https://orcid.org/0000-0002-1866-4433)  &#124;  [Github](https://github.com/xukun12138/)  &#124;  [Web of Science](https://www.webofscience.com/wos/author/record/GXV-6266-2022)
 
 ---
 
