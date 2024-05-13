@@ -10,7 +10,7 @@ I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA
 
 **Research Interests**
 
-* Generate Model Security
+* Generative Model Security
 * AI Model Watermarking
 * Trustworthy Machine Learning
 
