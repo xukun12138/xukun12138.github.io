@@ -27,7 +27,8 @@ I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA
 
 **News**
 
-* Later, soon!
+* Kun Xu; Yushu Zhang; Shuren Qi; Tao Wang; Ruoyu Zhao; Zhongyun Hua; Wenying Wen; Yuming Fang. Malicious Concept Detection from Stable Diffusion via Concept QuickLook (Submitted)
+* 许锟; 祁树仁; 张玉书; 温文媖; 张华. 面向图像后处理的面部操纵对抗防御方法. 计算机工程与科学. 2024
 
 ---
 
