@@ -1,7 +1,3 @@
-**Hello World!**
-
----
-
 **<font size=5>许锟 (Kun Xu)</font>**
 
 **Short Biography**
