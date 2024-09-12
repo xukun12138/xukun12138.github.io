@@ -1,5 +1,7 @@
 **<font size=5>许锟 (Kun Xu)</font>**
 
+![Image](https://github.com/xukun12138/xukun12138.github.io/blob/1a0c66c962d85d36cd8c91faa5b461cd817c8522/avatar_scholar_128.png)
+
 **Short Biography**
 
 I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA), advised by [Dr. Yushu Zhang](http://yushuzhang.cn/). I had received my BE and MS degrees in Computer Science and Technology from Anhui University of Science and Technology (AUST).
