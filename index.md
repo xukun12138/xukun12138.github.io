@@ -1,6 +1,8 @@
 **<font size=5>许锟 (Kun Xu)</font>**
 
-![Image](https://github.com/xukun12138/xukun12138.github.io/blob/1a0c66c962d85d36cd8c91faa5b461cd817c8522/avatar_scholar_128.png)
+<div style="text-align: right;">
+  <img src="avatar_scholar_128.png" alt="right aligned image" style="float: right; margin-left: 10px;" width="300px" />
+</div>
 
 **Short Biography**
 
