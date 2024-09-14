@@ -1,7 +1,7 @@
 **<font size=5>许锟 (Kun Xu)</font>**
 
 <div style="text-align: right;">
-  <img src="avatar_scholar_128.png" alt="right aligned image" style="float: right; margin-left: 10px;" width="200px" />
+  <img src="xukun.png" alt="right aligned image" style="float: right; margin-left: 10px;" width="200px" />
 </div>
 
 **Short Biography**
