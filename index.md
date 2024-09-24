@@ -28,12 +28,12 @@ I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA
 **News**
 
 * **Kun Xu**; Yushu Zhang; Shuren Qi; Tao Wang; Ruoyu Zhao; Zhongyun Hua; Wenying Wen; Yuming Fang. Malicious Concept Detection from Stable Diffusion via Concept QuickLook (Submitted)
-* **许锟**; 祁树仁; 张玉书; 温文媖; 张华. 面向图像后处理的面部操纵对抗防御方法. 计算机工程与科学. 2024
 
 ---
 
 **Publications**
 
+* **许锟**; 祁树仁; 张玉书; 温文媖; 张华. 面向图像后处理的面部操纵对抗防御方法. 计算机工程与科学. 2024
 * **Kun Xu**; Gaoming Yang; Xianjin Fang; Ji Zhang. [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4). Multimedia Tools and Applications. 2023.
 * Gaoming Yang; **Kun Xu**; Xianjin Fang; Ji Zhang. [Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z). The Visual Computer. 2023.
 
