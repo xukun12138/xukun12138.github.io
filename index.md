@@ -6,7 +6,7 @@
 
 **Short Biography**
 
-I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA), advised by [Dr. Yushu Zhang](http://yushuzhang.cn/). I had received my BE and MS degrees in Computer Science and Technology from Anhui University of Science and Technology (AUST).
+I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA), advised by [Dr. Yushu Zhang](http://yushuzhang.cn/). I had received my BE and ME degrees in Computer Science and Technology from Anhui University of Science and Technology (AUST).
 
 **Research Interests**
 
@@ -27,7 +27,7 @@ I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA
 
 **News**
 
-* **Kun Xu**; Yushu Zhang; Shuren Qi; Tao Wang; Ruoyu Zhao; Zhongyun Hua; Wenying Wen; Yuming Fang. Malicious Concept Detection from Stable Diffusion via Concept QuickLook. (Submitted)
+* **Kun Xu**; Yushu Zhang; Shuren Qi; Tao Wang; Ruoyu Zhao; Zhongyun Hua; Wenying Wen; Yuming Fang. Malicious Concept Detection Without Generation. (Submitted)
 
 ---
 
