@@ -6,7 +6,7 @@
 
 **Short Biography**
 
-I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA), advised by [Dr. Yushu Zhang](http://yushuzhang.cn/). I had received my BE and ME degrees in Computer Science and Technology from Anhui University of Science and Technology (AUST).
+I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA), advised by [Dr. Yushu Zhang](http://yushuzhang.cn/). I had received my B.E. and M.E. degrees in Computer Science and Technology from Anhui University of Science and Technology (AUST).
 
 **Research Interests**
 
