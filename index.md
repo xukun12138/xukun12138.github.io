@@ -13,6 +13,7 @@ I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics (NUAA
 * Generative Model Security
 * AI Model Watermarking
 * Trustworthy Machine Learning
+* Uncertainty
 
 &#x1F3EB; [College of Computer Science and Technology](https://cs.nuaa.edu.cn/), [Nanjing University of Aeronautics and Astronautics](https://www.nuaa.edu.cn/)
 
