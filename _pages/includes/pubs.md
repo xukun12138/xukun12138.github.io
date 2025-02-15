@@ -85,7 +85,7 @@ datasets, existing evaluations thus tell us nothing about membership leakage of 
 Accepted.
 </blockquote>
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">    </div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  2025 TIFS  </div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
@@ -103,7 +103,7 @@ Accepted.
 
 
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">MM 2024</div><img src='images/2024MM.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">2024 MM</div><img src='images/2024MM.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [Make Privacy Renewable! Generating Privacy-Preserving Faces Supporting Cancelable Biometric Recognition](https://dl.acm.org/doi/abs/10.1145/3664647.3680704) \\
@@ -121,7 +121,7 @@ Accepted.
 
 
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">TBIOM 2024</div><img src='images/2024TBIOM.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">2024 TBIOM</div><img src='images/2024TBIOM.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [Seeing is not Believing: An Identity Hider for Human Vision Privacy Protection](https://arxiv.org/abs/2307.00481) \\
@@ -136,7 +136,7 @@ Accepted.
 
 
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">CSUR 2024</div><img src='images/2024CSUR.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">2024 CSUR</div><img src='images/2024CSUR.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [Security and Privacy on Generative Data in AIGC: A Survey](https://dl.acm.org/doi/10.1145/3703626) \\
