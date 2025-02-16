@@ -87,7 +87,7 @@ Accepted.
 
 
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  TVCJ 2023  </div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  TVCJ 2023  </div><img src='images/TVCJ2023.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
 [Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z) \\
