@@ -89,8 +89,10 @@ Accepted.
 <div class='paper-box-text' markdown="1">
 
 [Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
-<span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
 <span class="conf">[2025 IEEE TIFS]</span>, \[[code](https://github.com/daizigege/AIDPro)\] \\
+
+<span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
+
 - The paper implements a robust message embedding mechanism in face privacy protection that can support multiple image authentication capabilities while protecting the identity from disclosure, face authentication in surveillance capture.
 
 </div>
