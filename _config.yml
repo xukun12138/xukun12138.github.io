@@ -6,9 +6,9 @@
 # `jekyll serve`. If you change this file, please restart the server process.
 
 # Site Settings
-title                    : "Tao Wang"
+title                    : "Kun Xu"
 description              : "PhD student at NUAA. "
-repository               : "daizigege/daizigege.github.io"
+repository               : "https://github.com/xukun12138/xukun12138.github.io"
 google_scholar_stats_use_cdn : True
 
 # google analytics
@@ -21,14 +21,14 @@ baidu_site_verification  :
 
 # Site Author
 author:
-  name             : "Tao Wang"
+  name             : "Kun Xu"
   avatar           : "images/wangtao-x.jpg"
   bio              : #"ETH Zurich"
   location         : 
   employer         :
   pubmed           : 
-  googlescholar    : "https://scholar.google.com.hk/citations?user=6FfG_OUAAAAJ&hl=zh-CN"
-  email            : "wangtao21@nuaa.edu.cn"
+  googlescholar    : "https://scholar.google.com/citations?user=yDoybB0AAAAJ"
+  email            : "xukun930@nuaa.edu.cn"
   researchgate     :  
   uri              :
   bitbucket        :
@@ -37,7 +37,7 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  github           : "daizigege"
+  github           : "xukun12138"
   google_plus      :
   keybase          :
   instagram        :
