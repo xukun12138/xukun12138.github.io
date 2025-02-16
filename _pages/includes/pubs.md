@@ -93,7 +93,7 @@ Accepted.
 
 <span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
 
-- The paper implements a robust message embedding mechanism in face privacy protection that can support multiple image authentication capabilities while protecting the identity from disclosure, face authentication in surveillance capture.
+- The paper proposes AIDPro, which can embed  messages in a robust way for image authentication  while  altering identity for privacy protection.  
 
 </div>
 </div>
@@ -111,7 +111,7 @@ Accepted.
 <span class="conf">[2024 ACM MM]</span>,  \[[code](https://github.com/daizigege/CanFG)\] \\
 <span class="me">Tao Wang</span>, Yushu Zhang<span class="equal">*</span>, Xiangli Xiao, Lin Yuan, Zhihua Xia, Jian Weng  
 
-- We argue that MIA is fundamentally flawed for proving training data use.  We propose two solutions: using data extraction attacks or membership inference on specially crafted canary data for reliable training data proofs.
+- The paper proposes CanFG, which can embed  virtual identity  for supporting cancelable biometrics  while  removing physical identity for privacy protection.
 
 </div>
 </div>
@@ -129,7 +129,7 @@ Accepted.
 <span class="conf">[2024 TBIOM]</span>, \[[code](https://github.com/ethz-spylab/agentdojo)\] \\
 <span class="me">Tao Wang</span>, Yushu Zhang<span class="equal">*</span>, Zixuan Yang, Xiangli Xiao, Hua Zhang,  Zhongyun Hua. 
 
-- To measure the adversarial robustness of AI agents, we introduce **AgentDojo**, an evaluation framework for agents that execute tools over untrusted data. AgentDojo is an extensible environment for designing and evaluating new agent tasks, defenses, and adaptive attacks. We populate the environment with 97 realistic tasks, 629 security test cases, and various attack and defense paradigms from the literature. 
+- The paper proposes an identity hider, which can prevents a human from observing the identity but allows a machine to extract the identity.
 
 </div>
 </div>
@@ -144,8 +144,8 @@ Accepted.
 <span class="conf">[2024 CSUR]</span>
 \\
 <span class="me">Tao Wang</span>, Yushu Zhang<span class="equal">*</span>, Shuren Qi, Ruoyu Zhao, Zhihua Xia, and Jian Weng
-- Empirical defenses for private machine learning forgo the provable guarantees of differential privacy in the hope of achieving high utility on real-world data. We find that evaluations of such methods can be highly <b>misleading</b>. In this work, we thus propose a new evaluation protocol that is reliable and efficient.
-
+-  This survey reviews the security and privacy on generative data in AIGC, particularly for the first time analyzing them
+from the perspective of information security properties, including privacy, controllability, authenticity, and compliance.
 </div>
 </div>
 
