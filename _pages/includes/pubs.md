@@ -81,21 +81,6 @@ datasets, existing evaluations thus tell us nothing about membership leakage of 
 <!-- Accepted -->
 
 
-<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">
-Accepted.
-</blockquote>
-
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  2025 TIFS  </div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
-<div class='paper-box-text' markdown="1">
-
-[Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
-
-
-- The paper proposes AIDPro, which can embed  messages in a robust way for image authentication  while  altering identity for privacy protection.  
-
-</div>
-</div>
-
 
 
 
