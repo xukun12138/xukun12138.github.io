@@ -6,7 +6,7 @@
 # `jekyll serve`. If you change this file, please restart the server process.
 
 # Site Settings
-title                    : "Kun Xu (许锟)"
+title                    : "Kun Xu"
 description              : "Ph.D. student at NUAA"
 repository               : "https://github.com/xukun12138/xukun12138.github.io"
 google_scholar_stats_use_cdn : True
@@ -21,7 +21,7 @@ baidu_site_verification  :
 
 # Site Author
 author:
-  name             : "Kun Xu"
+  name             : "Kun Xu (许锟)"
   avatar           : "images/xukun.png"
   bio              : 
   location         : 
