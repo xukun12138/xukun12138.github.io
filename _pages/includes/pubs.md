@@ -89,9 +89,8 @@ Accepted.
 <div class='paper-box-text' markdown="1">
 
 [Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
-<span class="conf">[2025 IEEE TIFS]</span>, \[[code](https://github.com/daizigege/AIDPro)\] \\
 <span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
-
+<span class="conf">[2025 IEEE TIFS]</span>, \[[code](https://github.com/daizigege/AIDPro)\] \\
 - We argue that MIA is fundamentally flawed for proving training data use.  We propose two solutions: using data extraction attacks or membership inference on specially crafted canary data for reliable training data proofs.
 
 </div>
