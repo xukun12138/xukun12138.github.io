@@ -7,7 +7,7 @@
 
 # Site Settings
 title                    : "Kun Xu"
-description              : "PhD student at NUAA. "
+description              : "Ph.D. student at NUAA"
 repository               : "https://github.com/xukun12138/xukun12138.github.io"
 google_scholar_stats_use_cdn : True
 
@@ -23,7 +23,7 @@ baidu_site_verification  :
 author:
   name             : "Kun Xu"
   avatar           : "images/xukun.png"
-  bio              : #"ETH Zurich"
+  bio              : 
   location         : 
   employer         :
   pubmed           : 
