@@ -1,6 +1,6 @@
 
 # 📝 Selected Publications 
-( <span class="equal">*</span> indicates the corresponding author. Full list of  [<i class="fas fa-fw fa-graduation-cap"></i>publications](https://scholar.google.com.hk/citations?user=6FfG_OUAAAAJ&hl=zh-CN))
+( <span class="equal">*</span> indicates the corresponding author. Full list of  [<i class="fas fa-fw fa-graduation-cap"></i>publications](https://scholar.google.com/citations?hl=zh-CN&user=yDoybB0AAAAJ))
 
 
 <style>
@@ -85,18 +85,25 @@ datasets, existing evaluations thus tell us nothing about membership leakage of 
 Accepted.
 </blockquote>
 
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  2025 TIFS  </div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
+
+
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  TVCJ 2023  </div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
 
-[Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
-<span class="conf">[2025 IEEE TIFS]</span>,  \[[code](https://github.com/daizigege/AIDPro)\] \\
-<span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
+[Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z) \\
+<span class="conf">[2023 The Visual Computer]</span>,  \[[code](https://github.com/xukun12138)\] \\
+Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianjin Fang, Ji Zhang.
 
-- The paper proposes AIDPro, which can embed  messages in a robust way for image authentication  while  altering identity for privacy protection.  
+- The paper proposes DTFA.  
 
 </div>
 </div>
 
+
+
+
+
+<!--
 
 <div class='paper-box'><div class='paper-box-image'><div><div class="badge">2024 MM</div><img src='images/2024MM.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
@@ -142,6 +149,12 @@ Accepted.
 from the perspective of information security properties, including privacy, controllability, authenticity, and compliance.
 </div>
 </div>
+
+ -->
+
+
+
+
 
 <!-- <div class='paper-box'><div class='paper-box-image'><div><div class="badge">ICLR 2024</div><img src='images/iclr24.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
