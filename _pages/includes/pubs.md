@@ -89,8 +89,7 @@ Accepted.
 <div class='paper-box-text' markdown="1">
 
 [Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
-<span class="conf">[2025 IEEE TIFS]</span>,  \[[code](https://github.com/daizigege/AIDPro)\] \\
-<span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
+
 
 - The paper proposes AIDPro, which can embed  messages in a robust way for image authentication  while  altering identity for privacy protection.  
 
