@@ -16,5 +16,5 @@ Before that, I received my Bachelor's degree at Hainan University in July 2020. 
  -->
 
 
-🤔 For my PhD study,  my primary focus is on <font color="red">human-centered visual privacy protection </font>.  Specifically, I aim to design practical tools that address privacy concerns in real-world applications, such as social scenarios, where users often face significant privacy risks. By combining theoretical research with practical implementation, I hope to develop solutions that are not only effective but also user-friendly and widely adoptable.
+🤔 For my PhD study,  my primary focus is on <font color="red">human-centered visual privacy protection</font>.  Specifically, I aim to design practical tools that address privacy concerns in real-world applications, such as social scenarios, where users often face significant privacy risks. By combining theoretical research with practical implementation, I hope to develop solutions that are not only effective but also user-friendly and widely adoptable.
 
