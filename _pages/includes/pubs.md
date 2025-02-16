@@ -97,34 +97,6 @@ Accepted.
 </div>
 </div>
 
-<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">
-Accepted.
-</blockquote>
-
-
-
-
-
-
-
-
-
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge"> 2025 TIFS</div><img src='images/2025TIFS.png' alt="sym" width="100%"></div></div>
-<div class='paper-box-text' markdown="1">
-
-[Beyond Privacy: Generating Privacy-Preserving Faces Supporting Robust Image Authentication](https://ieeexplore.ieee.org/document/10884889) \\
-<span class="conf">[2025 IEEE TIFS]</span>,  \[[code](https://github.com/daizigege/AIDPro)\] \\
-<span class="me">Tao Wang</span>, Wenying Weng<span class="equal">*</span>, Xiangli Xiao, Zhongyun Hua, Yushu Zhang, Yuming Fang
-- The paper proposes CanFG, which can embed  virtual identity  for supporting cancelable biometrics  while  removing physical identity for privacy protection.
-
-</div>
-</div>
-
-
-
-
-
-
 
 <div class='paper-box'><div class='paper-box-image'><div><div class="badge">2024 MM</div><img src='images/2024MM.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
