@@ -86,6 +86,18 @@ Accepted.
 </blockquote>
 
 
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  MTAP 2023  </div><img src='images/MTAP2023.png' alt="sym" width="100%"></div></div>
+<div class='paper-box-text' markdown="1">
+
+[Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4) \\
+<span class="conf">[2023 Multimedia Tools and Applications]</span>,  \[[code](https://github.com/xukun12138)\] \\
+<span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang.
+
+- The paper proposes.  
+
+</div>
+</div>
+
 
 <div class='paper-box'><div class='paper-box-image'><div><div class="badge">  TVCJ 2023  </div><img src='images/TVCJ2023.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
@@ -98,8 +110,6 @@ Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianji
 
 </div>
 </div>
-
-
 
 
 
