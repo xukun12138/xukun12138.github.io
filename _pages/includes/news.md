@@ -7,6 +7,21 @@
   }
 </style>
 
+<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  arXiv 2025  </div><img src='images/quicklook2025.png' alt="sym" width="100%"></div></div>
+<div class='paper-box-text' markdown="1">
+
+[Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
+<span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138)\] \\
+<span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, Shuren Qi, Tao Wang, Wenying Wen, Yuming Fang.
+
+- The paper proposes.  
+
+</div>
+</div>
+
+
+
+
 <div class="scrollable">
   <ul>
      <!-- <li><strong>2024.09</strong>: 🎉 <a href="https://arxiv.org/abs/2409.19798">Membership Inference Attacks Cannot Prove that a Model Was Trained On Your Data</a> is accepted by SaTML 2025 </li>-->
