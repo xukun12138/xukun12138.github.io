@@ -11,10 +11,10 @@
 <div class='paper-box-text' markdown="1">
 
 [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
-<span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138)\] \\
+<span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, Shuren Qi, Tao Wang, Wenying Wen, Yuming Fang.
 
-- The paper proposes.  
+- The paper proposes Concept QuickLook.  
 
 </div>
 </div>
