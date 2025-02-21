@@ -93,7 +93,7 @@ Accepted.
 <span class="conf">[2023 Multimedia Tools and Applications]</span>,  \[[code](https://github.com/xukun12138)\] \\
 <span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang.
 
-- The paper proposes.  
+- The paper proposes FDFD-IG.  
 
 </div>
 </div>
