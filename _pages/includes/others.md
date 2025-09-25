@@ -6,7 +6,7 @@
 
 
 # 💬 Services
-- Journal Reviewer: 
+- Journal Reviewer: SIGPRO, JSCI
 - Conference Reviewer: 
 
 
