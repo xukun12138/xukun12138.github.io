@@ -37,19 +37,22 @@
 </blockquote>
 
 
-🔥<div class='paper-box-text' markdown="1"><span class="conf">[2025 arXiv]</span> [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
+🔥<div class='paper-box-text' markdown="1">
+<span class="conf">[2025 arXiv]</span> [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang. \\
 arXiv, \[[code](https://github.com/xukun12138/ConceptQuickLook)\]
 </div>
 
 
-📑 <div class='paper-box-text' markdown="1"><span class="conf">[2025 JCES]</span> [A Facial Manipulation Adversarial Defense Approach for Image Post-Processing](https://xukun12138.github.io/) \\
+📑 <div class='paper-box-text' markdown="1">
+<span class="conf">[2025 JCES]</span> [A Facial Manipulation Adversarial Defense Approach for Image Post-Processing](https://xukun12138.github.io/) \\
 <span class="me">Kun Xu</span>, [Shuren Qi](https://shurenqi.github.io/), Yushu Zhang<span class="equal">*</span>, Wenying Wen, Hua Zhang. \\
 Computer Engineering & Science, \[[code](https://github.com/xukun12138)\]
 </div>
 
 
-📑 <div class='paper-box-text' markdown="1"><span class="conf">[2023 MTAP]</span> [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4) \\
+📑 <div class='paper-box-text' markdown="1">
+<span class="conf">[2023 MTAP]</span> [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4) \\
 <span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang. \\
 Multimedia Tools and Applications,  \[[code](https://github.com/xukun12138)\]
 </div>
