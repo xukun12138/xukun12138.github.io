@@ -33,13 +33,12 @@
   }
 </style>
 
-<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">
-Accepted.
+<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">Journal Articles
 </blockquote>
 
 <div class='paper-box-text' markdown="1">
 🔥<span class="conf">[2025 arXiv]</span> [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
-\[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
+arXiv, \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang.
 
 </div>
