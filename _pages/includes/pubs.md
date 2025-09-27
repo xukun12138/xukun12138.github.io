@@ -44,7 +44,7 @@ arXiv, \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
 </div>
 
 <div class='paper-box-text' markdown="1">
-📑 <span class="conf">[2025 CES]</span> [A Facial Manipulation Adversarial Defense Approach for Image Post-Processing](https://xukun12138.github.io/) \\
+📑 <span class="conf">[2025 JCES]</span> [A Facial Manipulation Adversarial Defense Approach for Image Post-Processing](https://xukun12138.github.io/) \\
 Computer Engineering & Science, \[[code](https://github.com/xukun12138)\] \\
 <span class="me">Kun Xu</span>, [Shuren Qi](https://shurenqi.github.io/), Yushu Zhang<span class="equal">*</span>, Wenying Wen, Hua Zhang.
 
