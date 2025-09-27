@@ -6,10 +6,7 @@
     overflow-y: scroll; 
   }
 </style>
-
-<div class='paper-box'><div class='paper-box-image'><div><div class="badge">  arXiv 2025  </div><img src='images/quicklook2025.png' alt="sym" width="100%"></div></div>
 <div class='paper-box-text' markdown="1">
-
 [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
 <span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang.
