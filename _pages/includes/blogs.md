@@ -1,5 +1,5 @@
 
-# 📒 Blogs
+# 📒 Blogs 🧐 
 (Our lab has very nice [📚 Blogs](https://spylab.ai/blog/) about AI security and privacy, highly recommended for reading!)
 
 
