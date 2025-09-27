@@ -36,7 +36,7 @@
 <blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">Journal Articles
 </blockquote>
 
-<ul style="list-style-position: outside; padding-left: 1.5em; text-indent: -1.5em;">
+<ul style="list-style-position: outside; padding-left: 2em; text-indent: -0.5em;">
 <li>
  🔥 <span class="conf">[2025 arXiv]</span> <a href="https://arxiv.org/abs/2502.08921">Detecting Malicious Concepts Without Image Generation in AIGC</a> <br>
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, <a href="https://shurenqi.github.io/">Shuren Qi</a>, <a href="https://daizigege.github.io/">Tao Wang</a>, Wenying Wen, Yuming Fang. <br>
