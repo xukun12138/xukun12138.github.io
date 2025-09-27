@@ -36,6 +36,10 @@
 <blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">Journal Articles
 </blockquote>
 
+1. <span class="conf">[2025 arXiv]</span> [Make Identity Unextractable yet Perceptible: Synthesis-Based Privacy Protection for Subject Faces in Photos](https://arxiv.org/abs/2509.11249).             
+<span class="me">Tao Wang</span>, Yushu Zhang\*, Xiangli Xiao, Kun Xu, Lin Yuan, Wenying Wen, and Yuming Fang.        
+arXiv, \[[code](https://github.com/daizigege/PerceptFace)\] 
+
 
 🔥<span class="conf">[2025 arXiv]</span> [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921)
 
