@@ -38,8 +38,9 @@
 
 
 🔥<span class="conf">[2025 arXiv]</span> [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
+<span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang. \\
 arXiv, \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
-<span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang.
+
 
 
 📑 <span class="conf">[2025 JCES]</span> [A Facial Manipulation Adversarial Defense Approach for Image Post-Processing](https://xukun12138.github.io/) \\
