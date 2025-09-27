@@ -38,28 +38,28 @@
 
 <ul style="list-style-position: outside; padding-left: 1.5em; text-indent: -1em;">
 <li>
-🔥 <span class="conf">[2025 arXiv]</span> <a href="https://arxiv.org/abs/2502.08921">Detecting Malicious Concepts Without Image Generation in AIGC</a> <br>
+ 🔥 <span class="conf">[2025 arXiv]</span> <a href="https://arxiv.org/abs/2502.08921">Detecting Malicious Concepts Without Image Generation in AIGC</a> <br>
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, <a href="https://shurenqi.github.io/">Shuren Qi</a>, <a href="https://daizigege.github.io/">Tao Wang</a>, Wenying Wen, Yuming Fang. <br>
 arXiv, [<a href="https://github.com/xukun12138/ConceptQuickLook">code</a>]
 </li>
 
 
 <li>
-📑 <span class="conf">[2025 JCES]</span> <a href="https://xukun12138.github.io/">A Facial Manipulation Adversarial Defense Approach for Image Post-Processing</a> <br>
+ 📑 <span class="conf">[2025 JCES]</span> <a href="https://xukun12138.github.io/">A Facial Manipulation Adversarial Defense Approach for Image Post-Processing</a> <br>
 <span class="me">Kun Xu</span>, Shuren Qi, Yushu Zhang<span class="equal">*</span>, Wenying Wen, Hua Zhang. <br>
 Computer Engineering & Science, [<a href="https://github.com/xukun12138">code</a>]
 </li>
 
 
 <li>
-📑 <span class="conf">[2023 MTAP]</span> <a href="https://link.springer.com/article/10.1007/s11042-023-14626-4">Facial depth forgery detection based on image gradient</a> <br>
+ 📑 <span class="conf">[2023 MTAP]</span> <a href="https://link.springer.com/article/10.1007/s11042-023-14626-4">Facial depth forgery detection based on image gradient</a> <br>
 <span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang. <br>
 Multimedia Tools and Applications,  [<a href="https://github.com/xukun12138">code</a>]
 </li>
 
 
 <li>
-📑  <span class="conf">[2023 TVCJ]</span> <a href="https://link.springer.com/article/10.1007/s00371-022-02683-z">Video face forgery detection via facial motion-assisted capturing dense optical flow truncation]</a> <br>
+ 📑  <span class="conf">[2023 TVCJ]</span> <a href="https://link.springer.com/article/10.1007/s00371-022-02683-z">Video face forgery detection via facial motion-assisted capturing dense optical flow truncation]</a> <br>
 Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianjin Fang, Ji Zhang. <br>
 The Visual Computer,  [<a href="https://github.com/xukun12138">code</a>]
 </li>
