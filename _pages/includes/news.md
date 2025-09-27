@@ -1,30 +1,20 @@
 # News
 
-<style>
-  .scrollable {
-    max-height: 260px; 
-    overflow-y: scroll; 
-  }
-</style>
-
-<!--
-<div class='paper-box-text' markdown="1">
-🔥[Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
-<span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
-<span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang.
-
-</div>
-
--->
-
-
 <div class="scrollable">
   <ul>
      <li><strong>2025.07.18</strong>: 🎉 I am honored to be awarded the CSC Excellence Talent Program Scholarship </li>
-
+     <li><strong>2025.06.09</strong>: 🔥 A research work manuscript has been submitted for peer review </li>
+     <li><strong>2025.02.13</strong>: 🔥 A research work manuscript has been submitted for peer review and as a preprint to arXiv </li>
 
 
     
+  </ul>
+</div>
+
+
+
+
+<!--
      <!-- <li><strong>2024.09</strong>: 🎉 <a href="https://arxiv.org/abs/2406.13352">AgentDojo</a> is accepted by NeurIPS 2024 (dataset and benchmark track).  <a href="https://agentdojo.spylab.ai/">  Benchmark. </a>  </li>-->
      <!-- <li><strong>2024.07</strong>: 🎉 <a href="https://arxiv.org/abs//2404.17399">Evaluations of Machine Learning Privacy Defenses are Misleading</a> is accepted by CCS 2024.  <a href="https://spylab.ai/blog/misleading-privacy-evals/">  Blogpost. </a>  </li>-->
     <!-- <li><strong>2024.07</strong>: <a href="https://arxiv.org/abs/2403.05016"> DiffClass </a> is accepted by ECCV 2024. </li> -->
@@ -39,11 +29,4 @@
     <li><strong>2022.09</strong>: One first-authored paper is accepted by NeurIPS 2022!</li>
     <li><strong>2022.05</strong>: One first-authored paper is accepted by ICML 2022!</li>
     <li><strong>2022.03</strong>: One first-authored paper is accepted by CVPR 2022!</li> -->
-  </ul>
-</div>
-
-
-
-
-  
-
+-->
