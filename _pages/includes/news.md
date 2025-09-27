@@ -6,6 +6,8 @@
     overflow-y: scroll; 
   }
 </style>
+
+<!--
 <div class='paper-box-text' markdown="1">
 🔥[Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
 <span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
@@ -13,12 +15,16 @@
 
 </div>
 
-
+-->
 
 
 <div class="scrollable">
   <ul>
-     <!-- <li><strong>2024.09</strong>: 🎉 <a href="https://arxiv.org/abs/2409.19798">Membership Inference Attacks Cannot Prove that a Model Was Trained On Your Data</a> is accepted by SaTML 2025 </li>-->
+     <li><strong>2025.07.18</strong>: 🎉 I am honored to be awarded the CSC Excellence Talent Program Scholarship </li>
+
+
+
+    
      <!-- <li><strong>2024.09</strong>: 🎉 <a href="https://arxiv.org/abs/2406.13352">AgentDojo</a> is accepted by NeurIPS 2024 (dataset and benchmark track).  <a href="https://agentdojo.spylab.ai/">  Benchmark. </a>  </li>-->
      <!-- <li><strong>2024.07</strong>: 🎉 <a href="https://arxiv.org/abs//2404.17399">Evaluations of Machine Learning Privacy Defenses are Misleading</a> is accepted by CCS 2024.  <a href="https://spylab.ai/blog/misleading-privacy-evals/">  Blogpost. </a>  </li>-->
     <!-- <li><strong>2024.07</strong>: <a href="https://arxiv.org/abs/2403.05016"> DiffClass </a> is accepted by ECCV 2024. </li> -->
