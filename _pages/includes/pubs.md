@@ -37,6 +37,13 @@
 </blockquote>
 
 
+<li>
+🔥 <span class="conf">[2025 arXiv]</span> <a href="https://arxiv.org/abs/2502.08921">Detecting Malicious Concepts Without Image Generation in AIGC</a> \\
+<span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, <a href="https://shurenqi.github.io/">Shuren Qi</a>, <a href="https://daizigege.github.io/">Tao Wang</a>, Wenying Wen, Yuming Fang. \\
+arXiv, \[<a href="https://github.com/xukun12138/ConceptQuickLook">code</a>\]
+</li>
+
+
 <div class='paper-box-text' markdown="1">
 🔥 <span class="conf">[2025 arXiv]</span> [Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
 <span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang. \\
