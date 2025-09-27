@@ -1,6 +1,6 @@
 
 # Publications 
-(Full list of  [<i class="fas fa-fw fa-graduation-cap"></i>publications](https://scholar.google.com/citations?hl=zh-CN&user=yDoybB0AAAAJ))
+(<span class="equal">*</span> indicates the corresponding author. Full list of  [<i class="fas fa-fw fa-graduation-cap"></i>publications](https://scholar.google.com/citations?hl=zh-CN&user=yDoybB0AAAAJ))
 
 
 <style>
