@@ -56,17 +56,19 @@ Computer Engineering & Science, \[[code](https://github.com/xukun12138)\] \\
 </li>
 
 <li>
+<div>
 📑 <span class="conf">[2023 MTAP]</span> [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4) \\
 Multimedia Tools and Applications,  \[[code](https://github.com/xukun12138)\] \\
 <span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang.
-
+</div>
 </li>
 
 <li>
+<div>
 📑<span class="conf">[2023 TVCJ]</span> [Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z) \\
 The Visual Computer,  \[[code](https://github.com/xukun12138)\] \\
 Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianjin Fang, Ji Zhang.
-
+</div>
 </li>
 
 
