@@ -34,6 +34,44 @@
 </style>
 
 
+<!-- Accepted -->
+
+<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">
+Accepted.
+</blockquote>
+
+<div class='paper-box-text' markdown="1">
+🔥[Detecting Malicious Concepts Without Image Generation in AIGC](https://arxiv.org/abs/2502.08921) \\
+<span class="conf">[arXiv]</span>,  \[[code](https://github.com/xukun12138/ConceptQuickLook)\] \\
+<span class="me">Kun Xu</span>, Yushu Zhang<span class="equal">*</span>, [Shuren Qi](https://shurenqi.github.io/), [Tao Wang](https://daizigege.github.io/), Wenying Wen, Yuming Fang.
+
+</div>
+
+<div class='paper-box-text' markdown="1">
+
+📑 [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4) \\
+<span class="conf">[2023 Multimedia Tools and Applications]</span>,  \[[code](https://github.com/xukun12138)\] \\
+<span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang.
+
+</div>
+</div>
+
+<div class='paper-box-text' markdown="1">
+
+📑[Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z) \\
+<span class="conf">[2023 The Visual Computer]</span>,  \[[code](https://github.com/xukun12138)\] \\
+Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianjin Fang, Ji Zhang.
+
+</div>
+</div>
+
+
+
+
+
+
+
+
 
 
 <!--<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">
@@ -75,32 +113,3 @@ datasets, existing evaluations thus tell us nothing about membership leakage of 
 
 </div>
 </div>-->
-
-
-<!-- Accepted -->
-
-
-<blockquote style="font-size: 1em; color: blue; background-color: #f0f8ff; padding: 10px;">
-Accepted.
-</blockquote>
-
-<div class='paper-box-text' markdown="1">
-
-📑 [Facial depth forgery detection based on image gradient](https://link.springer.com/article/10.1007/s11042-023-14626-4) \\
-<span class="conf">[2023 Multimedia Tools and Applications]</span>,  \[[code](https://github.com/xukun12138)\] \\
-<span class="me">Kun Xu</span>, Gaoming Yang<span class="equal">*</span>, Xianjin Fang, Ji Zhang.
-
-</div>
-</div>
-
-<div class='paper-box-text' markdown="1">
-
-📑[Video face forgery detection via facial motion-assisted capturing dense optical flow truncation](https://link.springer.com/article/10.1007/s00371-022-02683-z) \\
-<span class="conf">[2023 The Visual Computer]</span>,  \[[code](https://github.com/xukun12138)\] \\
-Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianjin Fang, Ji Zhang.
-
-</div>
-</div>
-
-
-
