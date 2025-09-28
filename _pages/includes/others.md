@@ -7,7 +7,7 @@
 -->
 
 # Services
-- 💬 Journal Reviewer: SIGPRO, JSCI
+- 💬 Journal Reviewer: SIGPRO, JSCI, Multimedia Systems
 - 💬 Conference Reviewer: 
 
 
