@@ -59,7 +59,7 @@ Multimedia Tools and Applications,  [<a href="https://github.com/xukun12138">cod
 
 
 <li>
- 📑  <span class="conf">[2023 TVCJ]</span> <a href="https://link.springer.com/article/10.1007/s00371-022-02683-z">Video face forgery detection via facial motion-assisted capturing dense optical flow truncation]</a> <br>
+ 📑  <span class="conf">[2023 TVCJ]</span> <a href="https://link.springer.com/article/10.1007/s00371-022-02683-z">Video face forgery detection via facial motion-assisted capturing dense optical flow truncation</a> <br>
 Gaoming Yang, <span class="me">Kun Xu</span><span class="equal">*</span>, Xianjin Fang, Ji Zhang. <br>
 The Visual Computer,  [<a href="https://github.com/xukun12138">code</a>]
 </li>
