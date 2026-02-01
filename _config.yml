@@ -23,7 +23,7 @@ baidu_site_verification  :
 author:
   name             : "Kun Xu (许锟)"
   avatar           : "images/xukun_alpe_2.jpg"
-  bio              : 
+  bio              : #""
   location         : 
   employer         :
   pubmed           : 
