@@ -7,7 +7,7 @@ Email: xukun930@nuaa.edu.cn; xukun930@gmail.com; xukun12138@outlook.com
 
 If you are interested in my research, feel free to reach out by email.
 
-Research Interests: Generative Model SecurityA, Uncertainty, Trustworthy AI
+Research Interests: Generative Model Security, Uncertainty, Trustworthy AI
 
 My [OpenReview](https://openreview.net/profile?id=%7EKun_Xu10) and [ORCID](https://orcid.org/0000-0002-1866-4433).
 
