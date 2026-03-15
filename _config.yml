@@ -27,8 +27,7 @@ author:
   location         : 
   employer         :
   pubmed           : 
-  orcid            : "https://orcid.org/0000-0002-1866-4433"
-  #googlescholar    : "https://scholar.google.com/citations?user=yDoybB0AAAAJ&hl=en"
+  googlescholar    : "https://scholar.google.com/citations?user=yDoybB0AAAAJ&hl=en"
   # email            :
   researchgate     :  
   uri              :
@@ -38,14 +37,14 @@ author:
   flickr           :
   facebook         :
   foursquare       :
-  #github           : "xukun12138"
+  github           : "xukun12138"
   google_plus      :
   keybase          :
   instagram        :
   impactstory      : 
   lastfm           :
-  #linkedin         : "kun-xu-8b757b353"
-  #dblp             : "https://dblp.org/pid/29/6948-19.html"
+  linkedin         : "kun-xu-8b757b353"
+  orcid            : "https://orcid.org/0000-0002-1866-4433"
   pinterest        :
   soundcloud       :
   stackoverflow    : 
@@ -57,6 +56,8 @@ author:
   xing             :
   youtube          :
   wikipedia        :
+  dblp             : "https://dblp.org/pid/29/6948-19.html"
+  zhihu            :
 
 
 
