@@ -13,6 +13,6 @@ Research Interests:
 * Uncertainty
 * Trustworthy AI
 
-My [OpenReview](https://openreview.net/profile?id=%7EKun_Xu10), [ORCID](https://orcid.org/0000-0002-1866-4433)
+My [OpenReview](https://openreview.net/profile?id=%7EKun_Xu10) and [ORCID](https://orcid.org/0000-0002-1866-4433).
 
 
