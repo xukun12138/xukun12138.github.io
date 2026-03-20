@@ -8,7 +8,7 @@
 
 # Services
 - 💬 Journal Reviewer: SIGPRO, JSCI, Multimedia Systems
-- 💬 Conference Reviewer: ADFM
+- 💬 Conference Reviewer: [ADFM2026](https://adfmw.github.io/cvpr26/index.html)@CVPR Program Committee
 
 
 
