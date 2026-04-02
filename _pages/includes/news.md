@@ -3,7 +3,7 @@
 <div class="scrollable">
   <ul>
 
-  <li>🔥 [<strong>Mar 2026</strong>strong>] A research work manuscript has been submitted for peer review. </li>
+  <li>🔥 [<strong>Mar 2026</strong>] A research work manuscript has been submitted for peer review. </li>
   
   <li>🔥 A research work manuscript has been submitted for peer review. </li>
   <li>📅 A talk with Prof. <a href="https://samarati.di.unimi.it/">Pierangela Samarati</a> (IEEE/ACM Fellow) and Prof. <a href="https://piuri.di.unimi.it/">Vincenzo Piuri</a> (IEEE Fellow) at the Università degli Studi di Milano. </li>
