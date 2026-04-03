@@ -10,7 +10,7 @@
 - 💬 Program Committee: [ADFM2026](https://adfmw.github.io/cvpr26/index.html)@CVPR, PEARC'26
 - 💬 Journal Reviewer: SIGPRO, JSCI, Multimedia Systems
 - 💬 Conference Reviewer: ADFM
-- 💬 Membership: ACM Emerging Interest Groups EIG on Trustworthy and Responsible Systems Membership
+- 💬 Membership: ACM Emerging Interest Groups on Trustworthy and Responsible Systems (EIGTRUST) Membership
 
 
 
