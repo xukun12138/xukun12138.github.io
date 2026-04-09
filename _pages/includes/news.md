@@ -4,6 +4,8 @@
   <ul>
   <!-- Jan.  Feb.  Mar.   Apr.  May  Jun.  Jul.   Aug.  Sept.  Oct.   Nov.  Dec.    -->
 
+  <li>🎉 [<strong>Apr 2026</strong>] A research work manuscript on malicious concept detection has been accepted by IEEE TDSC.  </li>
+
   <li>🔥 [<strong>Apr 2026</strong>] A research work manuscript on concept-level risk and calibration has been submitted for peer review. </li>
   
   <li>🔥 [<strong>Jan 2026</strong>] A research work manuscript on deepfake detection has been submitted for peer review. </li>
@@ -14,7 +16,7 @@
   
   <li>🎉 [<strong>Jul 2025</strong>] I am honored to be awarded the CSC Excellence Talent Program Scholarship [<a href="https://xukun12138.github.io/pdf/CongratulatoryLetter.pdf">letter</a>]. </li>
   
-  <li>🔥 [<strong>Feb 2025</strong>] A research work manuscript on malicious concept detection has been submitted for peer review and as a preprint to arXiv. </li>
+  <!-- <li>🔥 [<strong>Feb 2025</strong>] A research work manuscript on malicious concept detection has been submitted for peer review and as a preprint to arXiv. </li>    -->
     
   </ul>
 </div>
