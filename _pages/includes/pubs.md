@@ -43,7 +43,7 @@
 <li>
  🔥 <span class="conf">[2026 TDSC]</span> <a href="https://arxiv.org/abs/2502.08921">Detecting Malicious Concepts Without Image Generation in AI-Generated Content (AIGC)</a> <br>
 <span class="me">Kun Xu</span>, Wenying Wen, <a href="https://shurenqi.github.io/">Shuren Qi</a>, <a href="https://daizigege.github.io/">Tao Wang</a>, Yushu Zhang<span class="equal">*</span>, Yuming Fang. <br>
-arXiv
+IEEE Transactions on Dependable and Secure Computing (CCF A)
 </li>
 
 
