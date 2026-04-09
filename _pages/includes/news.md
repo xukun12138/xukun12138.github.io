@@ -7,6 +7,8 @@
   <li>🎉 [<strong>Apr 2026</strong>] A research work manuscript on malicious concept detection has been accepted by IEEE TDSC.  </li>
 
   <li>🔥 [<strong>Apr 2026</strong>] A research work manuscript on concept-level risk and calibration has been submitted for peer review. </li>
+
+  <li>🔥 [<strong>Feb. 2026</strong>] A research work manuscript on uncertainty in concept-driven diffusion model has been submitted for peer review. </li>
   
   <li>🔥 [<strong>Jan 2026</strong>] A research work manuscript on deepfake detection has been submitted for peer review. </li>
   
