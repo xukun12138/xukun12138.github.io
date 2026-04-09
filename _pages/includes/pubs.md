@@ -48,6 +48,13 @@ IEEE Transactions on Dependable and Secure Computing (CCF A)
 
 
 <li>
+ 📑 <span class="conf">[2025 Arxiv]</span> <a href="https://arxiv.org/abs/2509.11249">Make Identity Unextractable yet Perceptible: Synthesis-Based Privacy Protection for Subject Faces in Photos</a> <br>
+Tao Wang, Yushu Zhang, Xiangli Xiao, <span class="me">Kun Xu</span>, Lin Yuan, Wenying Wen, Yuming Fang. <br>
+Arxiv
+</li>
+
+
+<li>
  📑 <span class="conf">[2025 JCES]</span> <a href="https://xukun12138.github.io/">A Facial Manipulation Adversarial Defense Approach for Image Post-Processing</a> <br>
 <span class="me">Kun Xu</span>, Shuren Qi, Yushu Zhang<span class="equal">*</span>, Wenying Wen, Hua Zhang. <br>
 Computer Engineering & Science
