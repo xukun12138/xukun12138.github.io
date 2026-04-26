@@ -4,11 +4,13 @@
   <ul>
   <!-- Jan.  Feb.  Mar.   Apr.  May  Jun.  Jul.   Aug.  Sept.  Oct.   Nov.  Dec.    -->
 
-  <li>🎉 [<strong>Apr 2026</strong>] A research work manuscript on malicious concept detection has been accepted by IEEE TDSC.  </li>
+  <li>🔥 [<strong>Apr 2026</strong>] A research work manuscript on Causal Concept-Driven Diffusion has been submitted for peer review. </li>
 
-  <li>🔥 [<strong>Apr 2026</strong>] A research work manuscript on concept-level risk and calibration has been submitted for peer review. </li>
+  <li>🎉 [<strong>Apr 2026</strong>] A research work manuscript on Malicious Concept Detection has been accepted by IEEE TDSC.  </li>
 
-  <li>🔥 [<strong>Feb 2026</strong>] A research work manuscript on uncertainty in concept-driven diffusion model has been submitted for peer review. </li>
+  <li>🔥 [<strong>Apr 2026</strong>] A research work manuscript on Concept-Level Risk and Calibration has been submitted for peer review. </li>
+
+  <li>🔥 [<strong>Feb 2026</strong>] A research work manuscript on Uncertainty in Concept-Driven Diffusion Model has been submitted for peer review. </li>
   
   <li>🔥 [<strong>Jan 2026</strong>] A research work manuscript on deepfake detection has been submitted for peer review. </li>
   
