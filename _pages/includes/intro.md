@@ -11,6 +11,6 @@ If you are interested in my research, feel free to reach out by email.
 
 <strong>Topic:</strong> generative concept, uncertainty analysis, causal analysis, personalized/customized text-image (T2I) generation, content toxicity detection, diffusion model, foundation model
 
-My [OpenReview](https://openreview.net/profile?id=%7EKun_Xu10) and [ORCID](https://orcid.org/0000-0002-1866-4433) homepage.
+My [OpenReview](https://openreview.net/profile?id=%7EKun_Xu10), [Semantic Scholar](https://www.semanticscholar.org/author/Kun-Xu/2346642134), and [ORCID](https://orcid.org/0000-0002-1866-4433) homepage.
 
 
