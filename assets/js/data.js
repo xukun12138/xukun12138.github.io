@@ -5,9 +5,7 @@ const SITE_DATA = {
     repository: "https://github.com/xukun12138/xukun12138.github.io"
   },
   analytics: {
-    // Set this after deploying analytics-worker, for example:
-    // workerUrl: "https://xukun-homepage-analytics.YOUR_SUBDOMAIN.workers.dev"
-    workerUrl: ""
+    workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev"
   },
   profile: {
     name: "Kun Xu",

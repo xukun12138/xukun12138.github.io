@@ -9,4 +9,4 @@ SITE_NAME = "Kun Xu Academic Homepage"
 [[d1_databases]]
 binding = "DB"
 database_name = "xukun-homepage-analytics"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "e4294c50-d4f4-424f-b7cb-8a0f3e7aff7e"

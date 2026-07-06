@@ -39,7 +39,7 @@ export default {
       }
 
       if (url.pathname === "/api/admin/login" && request.method === "POST") {
-        return handleLogin(request, env);
+        return await handleLogin(request, env);
       }
 
       if (url.pathname === "/api/admin/logout" && request.method === "POST") {
