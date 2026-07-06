@@ -233,7 +233,138 @@
     window.setTimeout(() => toast.classList.remove("visible"), 1800);
   }
 
+  const visitorIdKey = "kx-visitor-id";
   let visitorLocationLoaded = false;
+
+  function analyticsBaseUrl() {
+    return (data.analytics?.workerUrl || "").trim().replace(/\/+$/, "");
+  }
+
+  function analyticsEnabled() {
+    return Boolean(analyticsBaseUrl());
+  }
+
+  function formatCount(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "--";
+    return new Intl.NumberFormat("en-US").format(number);
+  }
+
+  function setVisitorCount(name, value) {
+    const field = $(`[data-visitor-${name}]`);
+    if (field) field.textContent = formatCount(value);
+  }
+
+  function applyVisitorStats(stats) {
+    if (!stats) return;
+    setVisitorCount("pv", stats.pv);
+    setVisitorCount("uv", stats.uv);
+  }
+
+  function getVisitorId() {
+    try {
+      let id = localStorage.getItem(visitorIdKey);
+      if (!id) {
+        id = window.crypto?.randomUUID
+          ? window.crypto.randomUUID()
+          : `v-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        localStorage.setItem(visitorIdKey, id);
+      }
+      return id;
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function updateVisitorPrivacyCopy() {
+    const note = $("[data-visitor-privacy]");
+    if (!note) return;
+    note.textContent = analyticsEnabled()
+      ? "This panel shows the current visitor's approximate public IP location. Visits are stored in a private admin-only analytics database."
+      : "This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.";
+  }
+
+  async function loadPrivateVisitorStats() {
+    const baseUrl = analyticsBaseUrl();
+    if (!baseUrl) return;
+    try {
+      const response = await fetch(`${baseUrl}/api/stats`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Stats lookup failed: ${response.status}`);
+      applyVisitorStats(await response.json());
+    } catch (error) {
+      // Keep the public counter fallback visible if the private endpoint is unavailable.
+    }
+  }
+
+  async function trackVisit() {
+    const baseUrl = analyticsBaseUrl();
+    if (!baseUrl) return;
+
+    try {
+      const payload = {
+        visitorId: getVisitorId(),
+        path: `${window.location.pathname}${window.location.search}`,
+        title: document.title,
+        referrer: document.referrer,
+        language: navigator.language,
+        screen: window.screen ? `${window.screen.width}x${window.screen.height}` : "",
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || ""
+      };
+      const response = await fetch(`${baseUrl}/api/visit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+        keepalive: true
+      });
+      if (!response.ok) throw new Error(`Visit tracking failed: ${response.status}`);
+      const result = await response.json();
+      applyVisitorStats(result.stats);
+    } catch (error) {
+      loadPrivateVisitorStats();
+    }
+  }
+
+  function normalizePrivateLocation(location) {
+    const place = [
+      location.location?.city,
+      location.location?.region,
+      location.location?.country
+    ].filter(Boolean).join(", ");
+
+    return {
+      ip: location.ip,
+      place,
+      org: location.network?.organization || location.network?.asn,
+      timezone: location.location?.timezone
+    };
+  }
+
+  function normalizeIpApiLocation(location) {
+    const place = [location.city, location.region, location.country_name]
+      .filter(Boolean)
+      .join(", ");
+
+    return {
+      ip: location.ip,
+      place,
+      org: location.org || location.asn,
+      timezone: location.timezone
+    };
+  }
+
+  async function fetchVisitorLocation() {
+    const baseUrl = analyticsBaseUrl();
+    if (baseUrl) {
+      const response = await fetch(`${baseUrl}/api/me`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`Private IP location lookup failed: ${response.status}`);
+      return normalizePrivateLocation(await response.json());
+    }
+
+    const response = await fetch("https://ipapi.co/json/", { cache: "no-store" });
+    if (!response.ok) throw new Error(`IP location lookup failed: ${response.status}`);
+    return normalizeIpApiLocation(await response.json());
+  }
 
   function setVisitorField(name, value) {
     const field = $(`[data-visitor-${name}]`);
@@ -265,18 +396,11 @@
     setVisitorStatus("Loading current visitor IP location...");
 
     try {
-      const response = await fetch("https://ipapi.co/json/", {
-        cache: "no-store"
-      });
-      if (!response.ok) throw new Error(`IP location lookup failed: ${response.status}`);
-      const location = await response.json();
-      const place = [location.city, location.region, location.country_name]
-        .filter(Boolean)
-        .join(", ");
+      const location = await fetchVisitorLocation();
 
       setVisitorField("ip", location.ip);
-      setVisitorField("place", place);
-      setVisitorField("org", location.org || location.asn);
+      setVisitorField("place", location.place);
+      setVisitorField("org", location.org);
       setVisitorField("timezone", location.timezone);
       setVisitorStatus("Approximate location loaded for the current visitor.");
       visitorLocationLoaded = true;
@@ -351,7 +475,10 @@
     $("[data-year]").textContent = new Date().getFullYear();
     applyTheme();
     applyLanguage();
+    updateVisitorPrivacyCopy();
     bindEvents();
+    trackVisit();
+    loadPrivateVisitorStats();
   }
 
   init();

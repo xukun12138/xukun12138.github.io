@@ -187,13 +187,13 @@
     <footer class="site-footer">
       <div class="footer-copy">
         <p>© <span data-year></span> Kun Xu. Built as a static GitHub Pages site.</p>
-        <p class="footer-note">Visitor statistics are provided by a lightweight third-party counter.</p>
+        <p class="footer-note">Visitor statistics are shown as aggregate counts.</p>
       </div>
       <button class="visitor-counter" type="button" data-visitor-counter aria-haspopup="dialog" aria-controls="visitor-location-panel">
         <span class="visitor-counter-label">Visitors</span>
         <span class="visitor-counts">
-          <span>PV <strong id="busuanzi_value_site_pv">--</strong></span>
-          <span>UV <strong id="busuanzi_value_site_uv">--</strong></span>
+          <span>PV <strong id="busuanzi_value_site_pv" data-visitor-pv>--</strong></span>
+          <span>UV <strong id="busuanzi_value_site_uv" data-visitor-uv>--</strong></span>
         </span>
         <span class="visitor-counter-hint">Click for IP location</span>
       </button>
@@ -229,7 +229,7 @@
             <dd data-visitor-timezone>--</dd>
           </div>
         </dl>
-        <p class="privacy-note">
+        <p class="privacy-note" data-visitor-privacy>
           This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.
         </p>
       </section>

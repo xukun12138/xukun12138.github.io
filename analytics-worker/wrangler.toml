@@ -1,0 +1,12 @@
+name = "xukun-homepage-analytics"
+main = "src/worker.js"
+compatibility_date = "2026-07-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://xukun12138.github.io,http://127.0.0.1:4173,http://localhost:4173"
+SITE_NAME = "Kun Xu Academic Homepage"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "xukun-homepage-analytics"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"

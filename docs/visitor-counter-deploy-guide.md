@@ -8,19 +8,25 @@
 - `UV`：独立访客量
 - 点击计数器后弹出“当前访问者 IP 位置”面板
 
-当前实现适合 GitHub Pages 这种纯静态网站：
+当前实现分为两个层级：
 
-- 访客总量统计由 Busuanzi 第三方脚本提供。
-- 当前访问者 IP 归属地由 `https://ipapi.co/json/` 实时查询。
-- 网站本身不保存访客 IP，也不保存历史访问记录。
+- 未配置 Cloudflare Worker 时，主页继续使用公开计数器作为兜底，不保存历史访客 IP。
+- 配置 Cloudflare Worker + D1 后，主页会把访问记录写入你的私有 D1 数据库。
+- 访客 IP、城市、国家、经纬度、运营商、访问页面和 User-Agent 只在你的 Worker 管理员后台显示。
 
-如果以后需要查看“所有访客的历史 IP、地图、访问来源、国家统计”等后台数据，需要接入带后台的统计服务，例如 Umami、GoatCounter、Statcounter、ClustrMaps，或自建后端。
+完整部署说明见：
+
+```text
+docs/cloudflare-worker-d1-analytics.md
+```
 
 ## 修改到的文件
 
-- `index.html`：增加页脚访客计数器、IP 位置弹窗、第三方统计脚本。
+- `index.html`：增加页脚访客计数器、IP 位置弹窗和统计字段。
 - `assets/css/styles.css`：增加计数器和弹窗样式，包含手机端适配。
-- `assets/js/app.js`：增加弹窗打开/关闭逻辑，以及 IP 位置查询逻辑。
+- `assets/js/app.js`：增加弹窗打开/关闭逻辑、IP 位置查询逻辑和私有统计接口调用逻辑。
+- `assets/js/data.js`：通过 `analytics.workerUrl` 配置 Cloudflare Worker 地址。
+- `analytics-worker/`：Cloudflare Worker + D1 私有访客统计后台。
 
 ## 本地预览
 
@@ -78,8 +84,8 @@ https://github.com/xukun12138/xukun12138.github.io.git
 
 ```powershell
 git status
-git add index.html assets/css/styles.css assets/js/app.js docs/visitor-counter-deploy-guide.md
-git commit -m "Add visitor counter and IP location panel"
+git add .
+git commit -m "Update visitor analytics"
 git push origin main
 ```
 
@@ -98,6 +104,8 @@ git push origin main
 
 如果 PV/UV 显示为 `--`，通常是第三方计数器脚本还没加载完成，或浏览器广告拦截插件拦截了第三方脚本。
 
-如果 IP 位置显示失败，通常是网络、隐私插件、接口限流或第三方服务临时不可用导致。页面会保留弹窗，但显示失败提示，不影响主页主体内容。
+如果已经配置 `analytics.workerUrl`，PV/UV 会优先读取你自己的 D1 数据库；如果 Worker 地址错误、D1 未初始化或 CORS 未放行当前域名，页面会保留公开计数器兜底。
 
-如果你希望以后替换成“可查看历史访客地区”的方案，建议优先使用带后台的统计服务，而不是在 GitHub Pages 静态页里直接保存 IP。
+如果 IP 位置显示失败，通常是 Worker 未部署、Worker 地址未配置、网络问题或 Cloudflare 地理信息暂不可用。页面会保留弹窗，但显示失败提示，不影响主页主体内容。
+
+IP 定位不是 GPS 精确定位。它只能给出基于公网 IP 的近似位置，通常到国家、省/州、城市和运营商级别。

@@ -4,6 +4,11 @@ const SITE_DATA = {
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io"
   },
+  analytics: {
+    // Set this after deploying analytics-worker, for example:
+    // workerUrl: "https://xukun-homepage-analytics.YOUR_SUBDOMAIN.workers.dev"
+    workerUrl: ""
+  },
   profile: {
     name: "Kun Xu",
     chineseName: "许锟",
