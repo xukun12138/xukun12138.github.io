@@ -54,7 +54,7 @@ const SITE_DATA = {
       "projects.title": "Research highlights",
       "projects.subtitle": "A more visual view of methods, artifacts, and active research directions.",
       "cv.title": "Academic timeline",
-      "cv.subtitle": "Education, honors, service, and academic activities extracted from the previous homepage.",
+      "cv.subtitle": "A concise overview of my education, honors, academic service, and professional activities.",
       "contact.title": "Open to research conversations and collaboration.",
       "contact.subtitle": "If you are interested in generative model security, uncertainty, or trustworthy AI, feel free to reach out by email."
     },
@@ -76,7 +76,7 @@ const SITE_DATA = {
       "projects.title": "研究亮点",
       "projects.subtitle": "以更可视化的方式展示方法、成果和正在推进的研究方向。",
       "cv.title": "学术经历",
-      "cv.subtitle": "教育背景、荣誉、学术服务和活动信息，来自原主页内容整理。",
+      "cv.subtitle": "教育背景、荣誉、学术服务和专业活动的简要概览。",
       "contact.title": "欢迎围绕研究问题和合作机会交流。",
       "contact.subtitle": "如果你对生成模型安全、不确定性或可信 AI 感兴趣，欢迎通过邮件联系。"
     }
