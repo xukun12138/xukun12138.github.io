@@ -918,6 +918,141 @@ button {
   margin: 0;
 }
 
+.footer-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.footer-note {
+  font-size: 0.82rem;
+}
+
+.visitor-counter {
+  display: grid;
+  gap: 0.3rem;
+  min-width: min(100%, 15rem);
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  box-shadow: var(--shadow-soft);
+}
+
+.visitor-counter:hover,
+.visitor-counter:focus-visible {
+  border-color: color-mix(in srgb, var(--teal) 60%, var(--line));
+}
+
+.visitor-counter-label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.visitor-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  font-size: 0.95rem;
+}
+
+.visitor-counts strong {
+  color: var(--teal);
+  font-size: 1.1rem;
+}
+
+.visitor-counter-hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.visitor-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.visitor-modal[hidden] {
+  display: none;
+}
+
+.visitor-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(6, 12, 10, 0.56);
+}
+
+.visitor-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 42rem);
+  max-height: calc(100svh - 2rem);
+  overflow: auto;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+.visitor-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.visitor-dialog h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.1;
+}
+
+.visitor-status,
+.privacy-note {
+  color: var(--muted);
+}
+
+.visitor-location-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.visitor-location-grid div {
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.visitor-location-grid dt {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.visitor-location-grid dd {
+  margin: 0.3rem 0 0;
+  color: var(--ink);
+  font-weight: 800;
+  word-break: break-word;
+}
+
 .toast {
   position: fixed;
   right: 1rem;
@@ -1075,6 +1210,10 @@ button {
   .project-card figure img {
     aspect-ratio: 16 / 9.8;
   }
+
+  .visitor-location-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media print {
@@ -1094,6 +1233,7 @@ button {
   .project-grid,
   .contact-section,
   .site-footer,
+  .visitor-modal,
   .toast,
   .button {
     display: none !important;

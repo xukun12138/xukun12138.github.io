@@ -185,12 +185,59 @@
     </main>
 
     <footer class="site-footer">
-      <p>© <span data-year></span> Kun Xu. Built as a static GitHub Pages site.</p>
+      <div class="footer-copy">
+        <p>© <span data-year></span> Kun Xu. Built as a static GitHub Pages site.</p>
+        <p class="footer-note">Visitor statistics are provided by a lightweight third-party counter.</p>
+      </div>
+      <button class="visitor-counter" type="button" data-visitor-counter aria-haspopup="dialog" aria-controls="visitor-location-panel">
+        <span class="visitor-counter-label">Visitors</span>
+        <span class="visitor-counts">
+          <span>PV <strong id="busuanzi_value_site_pv">--</strong></span>
+          <span>UV <strong id="busuanzi_value_site_uv">--</strong></span>
+        </span>
+        <span class="visitor-counter-hint">Click for IP location</span>
+      </button>
       <a href="#home">Back to top</a>
     </footer>
 
+    <div class="visitor-modal" data-visitor-modal hidden>
+      <button class="visitor-backdrop" type="button" data-visitor-close aria-label="Close visitor location panel"></button>
+      <section class="visitor-dialog" id="visitor-location-panel" role="dialog" aria-modal="true" aria-labelledby="visitor-location-title">
+        <div class="visitor-dialog-head">
+          <div>
+            <p class="section-kicker">Visitor Location</p>
+            <h2 id="visitor-location-title">Current visitor IP location</h2>
+          </div>
+          <button class="icon-button" type="button" data-visitor-close aria-label="Close visitor location panel">×</button>
+        </div>
+        <p class="visitor-status" data-visitor-status>Click the visitor counter to load your public IP location.</p>
+        <dl class="visitor-location-grid">
+          <div>
+            <dt>Public IP</dt>
+            <dd data-visitor-ip>--</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd data-visitor-place>--</dd>
+          </div>
+          <div>
+            <dt>Organization</dt>
+            <dd data-visitor-org>--</dd>
+          </div>
+          <div>
+            <dt>Timezone</dt>
+            <dd data-visitor-timezone>--</dd>
+          </div>
+        </dl>
+        <p class="privacy-note">
+          This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.
+        </p>
+      </section>
+    </div>
+
     <div class="toast" data-toast role="status" aria-live="polite"></div>
 
+    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <script src="assets/js/data.js"></script>
     <script src="assets/js/app.js"></script>
   </body>

@@ -233,6 +233,58 @@
     window.setTimeout(() => toast.classList.remove("visible"), 1800);
   }
 
+  let visitorLocationLoaded = false;
+
+  function setVisitorField(name, value) {
+    const field = $(`[data-visitor-${name}]`);
+    if (field) field.textContent = value || "Not available";
+  }
+
+  function setVisitorStatus(message) {
+    const status = $("[data-visitor-status]");
+    if (status) status.textContent = message;
+  }
+
+  function openVisitorModal() {
+    const modal = $("[data-visitor-modal]");
+    if (!modal) return;
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+    loadVisitorLocation();
+  }
+
+  function closeVisitorModal() {
+    const modal = $("[data-visitor-modal]");
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+
+  async function loadVisitorLocation() {
+    if (visitorLocationLoaded) return;
+    setVisitorStatus("Loading current visitor IP location...");
+
+    try {
+      const response = await fetch("https://ipapi.co/json/", {
+        cache: "no-store"
+      });
+      if (!response.ok) throw new Error(`IP location lookup failed: ${response.status}`);
+      const location = await response.json();
+      const place = [location.city, location.region, location.country_name]
+        .filter(Boolean)
+        .join(", ");
+
+      setVisitorField("ip", location.ip);
+      setVisitorField("place", place);
+      setVisitorField("org", location.org || location.asn);
+      setVisitorField("timezone", location.timezone);
+      setVisitorStatus("Approximate location loaded for the current visitor.");
+      visitorLocationLoaded = true;
+    } catch (error) {
+      setVisitorStatus("Unable to load IP location right now. Please try again later.");
+    }
+  }
+
   function bindEvents() {
     $("[data-theme-toggle]").addEventListener("click", () => {
       state.theme = state.theme === "dark" ? "light" : "dark";
@@ -273,6 +325,19 @@
     });
 
     $("[data-print-cv]").addEventListener("click", () => window.print());
+
+    const visitorCounter = $("[data-visitor-counter]");
+    if (visitorCounter) {
+      visitorCounter.addEventListener("click", openVisitorModal);
+    }
+
+    $$("[data-visitor-close]").forEach((button) => {
+      button.addEventListener("click", closeVisitorModal);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeVisitorModal();
+    });
 
     window.addEventListener("scroll", () => {
       const max = document.documentElement.scrollHeight - window.innerHeight;
