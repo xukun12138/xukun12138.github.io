@@ -150,58 +150,79 @@ const SITE_DATA = {
   ],
   news: [
     {
-      date: "Apr 2026",
-      type: "Submission",
-      title: "A research work manuscript on Causal Concept-Driven Diffusion has been submitted for peer review."
+      date: { en: "Jul 2026", zh: "2026 年 7 月" },
+      type: { en: "Accepted", zh: "接收" },
+      title: {
+        en: "A research work manuscript on Concept-Level Risk and Calibration has been accepted by ACM MM 2026 (CCF A).",
+        zh: "一项关于概念级风险与校准的研究论文已被 ACM MM 2026（CCF A）接收。"
+      },
+      highlight: true
     },
     {
-      date: "Apr 2026",
-      type: "Accepted",
-      title: "A research work manuscript on Malicious Concept Detection has been accepted by IEEE TDSC.",
-      highlight: true
+      date: { en: "Apr 2026", zh: "2026 年 4 月" },
+      type: { en: "Submission", zh: "投稿" },
+      title: {
+        en: "A research work manuscript on Causal Concept-Driven Diffusion has been submitted for peer review.",
+        zh: "一项关于因果概念驱动扩散模型的研究论文已提交同行评审。"
+      }
     },
     {
       date: { en: "Apr 2026", zh: "2026 年 4 月" },
       type: { en: "Accepted", zh: "接收" },
       title: {
-        en: "Our paper, \"Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models,\" has been accepted by ACM MM 2026 (CCF A).",
-        zh: "论文《Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models》已被 ACM MM 2026（CCF A）接收。"
+        en: "A research work manuscript on Malicious Concept Detection has been accepted by IEEE TDSC.",
+        zh: "一项关于恶意概念检测的研究论文已被 IEEE TDSC 接收。"
       },
       highlight: true
     },
     {
-      date: "Feb 2026",
-      type: "Submission",
-      title: "A research work manuscript on Uncertainty in Concept-Driven Diffusion Model has been submitted for peer review."
+      date: { en: "Feb 2026", zh: "2026 年 2 月" },
+      type: { en: "Submission", zh: "投稿" },
+      title: {
+        en: "A research work manuscript on Uncertainty in Concept-Driven Diffusion Model has been submitted for peer review.",
+        zh: "一项关于概念驱动扩散模型不确定性的研究论文已提交同行评审。"
+      }
     },
     {
-      date: "Jan 2026",
-      type: "Submission",
-      title: "A research work manuscript on deepfake detection has been submitted for peer review."
+      date: { en: "Jan 2026", zh: "2026 年 1 月" },
+      type: { en: "Submission", zh: "投稿" },
+      title: {
+        en: "A research work manuscript on deepfake detection has been submitted for peer review.",
+        zh: "一项关于深度伪造检测的研究论文已提交同行评审。"
+      }
     },
     {
-      date: "Nov 2025",
-      type: "Talk",
-      title: "A talk with Prof. Pierangela Samarati and Prof. Vincenzo Piuri at the Università degli Studi di Milano.",
+      date: { en: "Nov 2025", zh: "2025 年 11 月" },
+      type: { en: "Talk", zh: "学术交流" },
+      title: {
+        en: "A talk with Prof. Pierangela Samarati and Prof. Vincenzo Piuri at the Università degli Studi di Milano.",
+        zh: "在米兰大学与 Pierangela Samarati 教授和 Vincenzo Piuri 教授进行学术交流。"
+      },
       links: [
         { label: "Prof. Samarati", url: "https://samarati.di.unimi.it/" },
         { label: "Prof. Piuri", url: "https://piuri.di.unimi.it/" }
       ]
     },
     {
-      date: "Oct 2025",
-      type: "Talk",
-      title: "Minisymposium: Generative Concept Security in Trustworthy AIGC at the Università degli Studi dell'Insubria.",
+      date: { en: "Oct 2025", zh: "2025 年 10 月" },
+      type: { en: "Talk", zh: "报告" },
+      title: {
+        en: "Minisymposium: Generative Concept Security in Trustworthy AIGC at the Università degli Studi dell'Insubria.",
+        zh: "在因苏布里亚大学作题为“可信 AIGC 中的生成式概念安全”的专题报告。"
+      },
       links: [
-        { label: "Slides", url: "assets/pdf/Concept.pdf" }
+        { label: { en: "Slides", zh: "幻灯片" }, url: "assets/pdf/Concept.pdf" }
       ]
     },
     {
-      date: "Jul 2025",
-      type: "Award",
-      title: "Awarded the CSC Excellence Talent Program Scholarship.",
+      date: { en: "Jul 2025", zh: "2025 年 7 月" },
+      type: { en: "Award", zh: "荣誉" },
+      title: {
+        en: "Awarded the CSC Excellence Talent Program Scholarship.",
+        zh: "获中国国家留学基金管理委员会（CSC）优秀人才项目奖学金。"
+      },
       links: [
-        { label: "Letter", url: "assets/pdf/CongratulatoryLetter.pdf" }
+        { label: { en: "Letter", zh: "证明材料" }, url: "assets/pdf/CongratulatoryLetter.pdf" }
       ]
     }
   ],
