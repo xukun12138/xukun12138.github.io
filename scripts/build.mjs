@@ -34,6 +34,12 @@ function plainText(value) {
   return String(value || "").replace(/\s+/g, " ").trim();
 }
 
+function searchableText(value) {
+  if (Array.isArray(value)) return value.map(searchableText).join(" ");
+  if (value && typeof value === "object") return Object.values(value).map(searchableText).join(" ");
+  return plainText(value);
+}
+
 async function writeGeneratedFiles() {
   const now = new Date().toISOString();
   const searchIndex = [
@@ -50,14 +56,14 @@ async function writeGeneratedFiles() {
     },
     ...data.publications.map((publication) => ({
       type: "publication",
-      title: publication.title,
+      title: searchableText(publication.title),
       text: [
         publication.venue,
         publication.year,
         publication.authors.join(" "),
         publication.summary,
         publication.keywords.join(" ")
-      ].join(" "),
+      ].map(searchableText).join(" "),
       url: `#${publication.id}`
     })),
     ...data.projects.map((project) => ({

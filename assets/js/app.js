@@ -29,7 +29,7 @@
   function linkList(links, className = "link-list") {
     return `<div class="${className}">${links.map((link) => {
       const target = link.url.startsWith("http") ? ' target="_blank" rel="noreferrer"' : "";
-      return `<a href="${escapeHtml(link.url)}"${target}>${escapeHtml(link.label)}</a>`;
+      return `<a href="${escapeHtml(link.url)}"${target}>${escapeHtml(textFor(link.label))}</a>`;
     }).join("")}</div>`;
   }
 
@@ -47,13 +47,19 @@
       if (translations[key]) node.textContent = translations[key];
     });
     const langLabel = $("[data-lang-label]");
-    if (langLabel) langLabel.textContent = state.lang === "en" ? "EN" : "中";
+    if (langLabel) langLabel.textContent = state.lang === "en" ? "中" : "EN";
+    const langToggle = $("[data-lang-toggle]");
+    if (langToggle) {
+      langToggle.setAttribute("aria-label", state.lang === "en" ? "切换至中文" : "Switch to English");
+    }
     renderAll();
   }
 
   function renderProfileLinks() {
-    const primary = ["Google Scholar", "ORCID", "GitHub", "DBLP"];
-    const links = data.profile.links.filter((item) => primary.includes(item.label));
+    const primary = ["Google Scholar", "ORCID", "OpenReview", "DBLP"];
+    const links = primary
+      .map((label) => data.profile.links.find((item) => item.label === label))
+      .filter(Boolean);
     $("[data-profile-links]").innerHTML = links.map((link) => (
       `<a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`
     )).join("");
@@ -85,10 +91,10 @@
   function renderNews() {
     $("[data-news]").innerHTML = data.news.map((item) => `
       <article class="timeline-item ${item.highlight ? "highlight" : ""}">
-        <div class="timeline-date">${escapeHtml(item.date)}</div>
+        <div class="timeline-date">${escapeHtml(textFor(item.date))}</div>
         <div class="timeline-body">
-          <span class="type-pill">${escapeHtml(item.type)}</span>
-          <p>${escapeHtml(item.title)}</p>
+          <span class="type-pill">${escapeHtml(textFor(item.type))}</span>
+          <p>${escapeHtml(textFor(item.title))}</p>
           ${item.links ? linkList(item.links, "mini-links") : ""}
         </div>
       </article>
@@ -109,11 +115,13 @@
     const yearOk = state.publicationYear === "all" || String(pub.year) === state.publicationYear;
     if (!yearOk) return false;
     if (!query) return true;
+    const badges = pub.badges || (pub.badge ? [pub.badge] : []);
     const haystack = [
-      pub.title,
-      pub.venue,
-      pub.badge,
-      pub.summary,
+      textFor(pub.title),
+      textFor(pub.venue),
+      badges.map((badge) => textFor(badge)).join(" "),
+      textFor(pub.type),
+      textFor(pub.summary),
       pub.authors.join(" "),
       pub.keywords.join(" ")
     ].join(" ").toLowerCase();
@@ -131,24 +139,26 @@
     list.innerHTML = publications.map((pub) => `
       <article class="publication-card">
         <div class="pub-meta">
-          <span>${escapeHtml(pub.badge)}</span>
-          <span>${escapeHtml(pub.type)}</span>
+          ${(pub.badges || (pub.badge ? [pub.badge] : [])).map((badge) => (
+            `<span>${escapeHtml(textFor(badge))}</span>`
+          )).join("")}
+          <span>${escapeHtml(textFor(pub.type))}</span>
           <span>${escapeHtml(String(pub.year))}</span>
         </div>
-        <h3>${escapeHtml(pub.title)}</h3>
+        <h3>${escapeHtml(textFor(pub.title))}</h3>
         <p class="authors">${pub.authors.map((author) => {
           const isMe = author.replace("*", "") === data.profile.name;
           return `<span class="${isMe ? "me" : ""}">${escapeHtml(author)}</span>`;
         }).join(", ")}</p>
-        <p class="venue">${escapeHtml(pub.venue)}</p>
-        <p>${escapeHtml(pub.summary)}</p>
+        <p class="venue">${escapeHtml(textFor(pub.venue))}</p>
+        <p>${escapeHtml(textFor(pub.summary))}</p>
         <div class="tag-row">
           ${pub.keywords.map((keyword) => `<span>${escapeHtml(keyword)}</span>`).join("")}
         </div>
         <div class="card-actions">
           ${pub.links.map((link) => {
             const target = link.url.startsWith("http") ? ' target="_blank" rel="noreferrer"' : "";
-            return `<a href="${escapeHtml(link.url)}"${target}>${escapeHtml(link.label)}</a>`;
+            return `<a href="${escapeHtml(link.url)}"${target}>${escapeHtml(textFor(link.label))}</a>`;
           }).join("")}
           <button type="button" data-copy-bib="${escapeHtml(pub.id)}">BibTeX</button>
         </div>

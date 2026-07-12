@@ -42,6 +42,7 @@ const SITE_DATA = {
     en: {
       "hero.eyebrow": "Ph.D. Student · Trustworthy AIGC",
       "hero.subtitle": "I study generative model security, uncertainty, and trustworthy AI, with a focus on concept-level risks in text-to-image generation and deepfake detection.",
+      "hero.availability": "I expect to receive my Ph.D. in October 2026 and am currently seeking postdoctoral or faculty positions.",
       "hero.fact1": "Ph.D. at Cyberspace Security",
       "hero.fact2": "Visiting Ph.D. scholar in Italy",
       "hero.fact3": "Generative concept security",
@@ -52,18 +53,20 @@ const SITE_DATA = {
       "research.subtitle": "A compact map of the topics that connect my current work.",
       "news.title": "Recent updates",
       "news.subtitle": "Selected milestones, submissions, talks, and awards.",
-      "publications.title": "Journal articles and selected manuscripts",
+      "publications.title": "Publications and selected manuscripts",
       "publications.subtitle": "Filter by year, search by keyword, and copy BibTeX for each listed work.",
       "projects.title": "Research highlights",
       "projects.subtitle": "A more visual view of methods, artifacts, and active research directions.",
       "cv.title": "Academic timeline",
       "cv.subtitle": "A concise overview of my education, honors, academic service, and professional activities.",
       "contact.title": "Open to research conversations and collaboration.",
-      "contact.subtitle": "If you are interested in generative model security, uncertainty, or trustworthy AI, feel free to reach out by email."
+      "contact.subtitle": "If you are interested in generative model security, uncertainty, or trustworthy AI, feel free to reach out by email.",
+      "contact.availability": "Expected Ph.D. completion: October 2026. I welcome conversations about postdoctoral and faculty opportunities."
     },
     zh: {
       "hero.eyebrow": "博士生 · 可信 AIGC",
       "hero.subtitle": "我的研究关注生成模型安全、不确定性与可信人工智能，重点围绕文生图生成中的概念级风险、内容安全和深度伪造检测。",
+      "hero.availability": "我预计将于 2026 年 10 月获得博士学位，目前正在寻求博士后或高校教职机会。",
       "hero.fact1": "网络空间安全博士生",
       "hero.fact2": "意大利米兰访问博士生",
       "hero.fact3": "生成式概念安全",
@@ -74,21 +77,22 @@ const SITE_DATA = {
       "research.subtitle": "以下主题共同构成了我当前研究工作的主线。",
       "news.title": "近期动态",
       "news.subtitle": "论文投稿、接收、报告、访问和荣誉的精选记录。",
-      "publications.title": "期刊论文与代表性稿件",
+      "publications.title": "学术论文与代表性稿件",
       "publications.subtitle": "支持按年份筛选、关键词搜索，并可复制 BibTeX。",
       "projects.title": "研究亮点",
       "projects.subtitle": "以更可视化的方式展示方法、成果和正在推进的研究方向。",
       "cv.title": "学术经历",
       "cv.subtitle": "教育背景、荣誉、学术服务和专业活动的简要概览。",
       "contact.title": "欢迎围绕研究问题和合作机会交流。",
-      "contact.subtitle": "如果你对生成模型安全、不确定性或可信 AI 感兴趣，欢迎通过邮件联系。"
+      "contact.subtitle": "如果你对生成模型安全、不确定性或可信 AI 感兴趣，欢迎通过邮件联系。",
+      "contact.availability": "预计博士毕业时间：2026 年 10 月。欢迎就博士后或高校教职机会与我联系。"
     }
   },
   stats: [
     {
-      value: "4",
-      label: { en: "Journal articles", zh: "期刊论文" },
-      detail: { en: "TDSC, JCES, MTAP, TVCJ", zh: "覆盖 TDSC、JCES、MTAP、TVCJ" }
+      value: "5",
+      label: { en: "Publications", zh: "学术论文" },
+      detail: { en: "TDSC, ACM MM, JCES, MTAP, TVCJ", zh: "覆盖 TDSC、ACM MM、JCES、MTAP、TVCJ" }
     },
     {
       value: "2023",
@@ -157,9 +161,13 @@ const SITE_DATA = {
       highlight: true
     },
     {
-      date: "Apr 2026",
-      type: "Submission",
-      title: "A research work manuscript on Concept-Level Risk and Calibration has been submitted for peer review."
+      date: { en: "Apr 2026", zh: "2026 年 4 月" },
+      type: { en: "Accepted", zh: "接收" },
+      title: {
+        en: "Our paper, \"Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models,\" has been accepted by ACM MM 2026 (CCF A).",
+        zh: "论文《Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models》已被 ACM MM 2026（CCF A）接收。"
+      },
+      highlight: true
     },
     {
       date: "Feb 2026",
@@ -199,10 +207,30 @@ const SITE_DATA = {
   ],
   publications: [
     {
+      id: "acmmm-2026-concept-risk-calibration",
+      year: 2026,
+      type: { en: "Conference", zh: "会议论文" },
+      badges: ["ACM MM", "CCF A"],
+      title: "Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models",
+      authors: ["Kun Xu", "Yushu Zhang", "Tao Wang", "Shuren Qi", "Barbara Carminati", "Elena Ferrari", "Yuming Fang"],
+      venue: {
+        en: "34th ACM International Conference on Multimedia",
+        zh: "第 34 届 ACM 国际多媒体会议（ACM MM 2026）"
+      },
+      summary: {
+        en: "A concept-level risk assessment and calibration framework for the governance of diffusion foundation models.",
+        zh: "面向扩散基础模型治理的概念级风险评估与校准框架。"
+      },
+      selected: true,
+      keywords: ["diffusion foundation models", "concept-level risk", "calibration", "governance"],
+      links: [],
+      bibtex: "@inproceedings{anonymous2026conceptlevel,\n  title={Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models},\n  author={Kun Xu and Yushu Zhang and Tao Wang and Shuren Qi and Barbara Carminati and Elena Ferrari and Yuming Fang},\n  booktitle={34th ACM International Conference on Multimedia},\n  year={2026}\n}"
+    },
+    {
       id: "tdsc-2026-concept-detection",
       year: 2026,
-      type: "Journal",
-      badge: "IEEE TDSC · CCF A",
+      type: { en: "Journal", zh: "期刊论文" },
+      badges: ["IEEE TDSC", "CCF A"],
       title: "Detecting Malicious Concepts Without Image Generation in AI-Generated Content (AIGC)",
       authors: ["Kun Xu", "Wenying Wen*", "Shuren Qi", "Tao Wang", "Yushu Zhang", "Yuming Fang"],
       venue: "IEEE Transactions on Dependable and Secure Computing",
