@@ -368,6 +368,7 @@ const SITE_DATA = {
     {
       category: "Journal Reviewer",
       items: [
+        { label: "CVIU" },
         { label: "SIGPRO" },
         { label: "JSCI" },
         { label: "Multimedia Systems" },
