@@ -435,7 +435,8 @@ const SITE_DATA = {
     {
       category: "Membership",
       items: [
-        { label: "ACM Emerging Interest Groups on Trustworthy and Responsible Systems (EIGTRUST)", url: "https://eigtrust.acm.org/" }
+        { label: "ACM Emerging Interest Groups on Trustworthy and Responsible Systems (EIGTRUST)", url: "https://eigtrust.acm.org/" },
+        { label: "China Society of Image and Graphics (CSIG)", url: "https://www.csig.org.cn/" }
       ]
     }
   ]
