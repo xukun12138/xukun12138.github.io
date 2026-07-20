@@ -410,26 +410,27 @@ const SITE_DATA = {
       category: "Program Committee",
       items: [
         { label: "ADFM2026 @ CVPR", url: "https://adfmw.github.io/cvpr26/index.html" },
-        { label: "PEARC'26" },
-        { label: "SiMLA'26" }
+        { label: "PEARC'26", url: "https://pearc.acm.org/pearc26/"},
+        { label: "SiMLA'26", url: "https://simlaacns.github.io/"}
       ]
     },
     {
       category: "Journal Reviewer",
       items: [
-        { label: "CVIU" },
-        { label: "SIGPRO" },
-        { label: "JSCI" },
-        { label: "Multimedia Systems" },
-        { label: "Expert Systems" }
+        { label: "CVIU", url: "https://www.sciencedirect.com/journal/computer-vision-and-image-understanding"},
+        { label: "SIGPRO", url: "https://www.sciencedirect.com/journal/signal-processing"},
+        { label: "JSCI", url: "https://link.springer.com/journal/11390"},
+        { label: "Multimedia Systems", url: "https://link.springer.com/journal/530"},
+        { label: "Expert Systems", url: "https://onlinelibrary.wiley.com/journal/14680394"},
+        { label: "Scientific Reports", url: "https://www.nature.com/srep/"}
       ]
     },
     {
       category: "Conference Reviewer",
       items: [
-        { label: "ACM MM" },
-        { label: "ADFM" },
-        { label: "IECT" }
+        { label: "ACM MM", url: "https://2026.acmmm.org/"},
+        { label: "ADFM", url: "https://adfmw.github.io/cvpr26/index.html"},
+        { label: "IECT", url: ""}
       ]
     },
     {
