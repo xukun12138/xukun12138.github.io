@@ -429,8 +429,7 @@ const SITE_DATA = {
       category: "Conference Reviewer",
       items: [
         { label: "ACM MM", url: "https://2026.acmmm.org/"},
-        { label: "ADFM", url: "https://adfmw.github.io/cvpr26/index.html"},
-        { label: "IECT", url: ""}
+        { label: "ADFM", url: "https://adfmw.github.io/cvpr26/index.html"}
       ]
     },
     {
