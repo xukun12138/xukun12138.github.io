@@ -379,6 +379,7 @@ const SITE_DATA = {
       institution: "Nanjing University of Aeronautics and Astronautics",
       location: "Nanjing, China"
     },
+    /*
     {
       period: "Sep. 2020 - Jun. 2023",
       title: "M.E., Computer Science and Technology",
@@ -391,6 +392,7 @@ const SITE_DATA = {
       institution: "Anhui University of Science and Technology",
       location: "Anhui, China"
     }
+    */
   ],
   honors: [
     {
