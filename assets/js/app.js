@@ -170,14 +170,14 @@
     $("[data-projects]").innerHTML = data.projects.map((project) => `
       <article class="project-card">
         <figure>
-          <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)} visual summary" loading="lazy">
-          <figcaption>${escapeHtml(project.status)}</figcaption>
+          <img class="${project.imageFit === "contain" ? "contain" : ""}" src="${escapeHtml(project.image)}" alt="${escapeHtml(textFor(project.title))} visual summary" loading="lazy">
+          <figcaption>${escapeHtml(textFor(project.status))}</figcaption>
         </figure>
         <div class="project-body">
-          <h3>${escapeHtml(project.title)}</h3>
-          <p>${escapeHtml(project.summary)}</p>
+          <h3>${escapeHtml(textFor(project.title))}</h3>
+          <p>${escapeHtml(textFor(project.summary))}</p>
           <ul>
-            ${project.bullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}
+            ${project.bullets.map((bullet) => `<li>${escapeHtml(textFor(bullet))}</li>`).join("")}
           </ul>
           ${linkList(project.links, "card-actions")}
         </div>

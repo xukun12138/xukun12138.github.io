@@ -68,8 +68,8 @@ async function writeGeneratedFiles() {
     })),
     ...data.projects.map((project) => ({
       type: "project",
-      title: project.title,
-      text: [project.status, project.summary, project.bullets.join(" ")].join(" "),
+      title: searchableText(project.title),
+      text: [project.status, project.summary, project.bullets].map(searchableText).join(" "),
       url: "#projects"
     }))
   ].map((entry) => ({

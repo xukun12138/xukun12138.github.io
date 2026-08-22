@@ -806,6 +806,11 @@ button {
   object-fit: cover;
 }
 
+.project-card figure img.contain {
+  object-fit: contain;
+  background: #ffffff;
+}
+
 .project-card figcaption {
   position: absolute;
   left: 0.8rem;
@@ -835,6 +840,17 @@ button {
   padding-inline: max(1rem, calc((100% - var(--max)) / 2));
   background: var(--surface);
   border-block: 1px solid var(--line);
+}
+
+.cv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.cv-actions .button.compact {
+  margin-top: 0;
 }
 
 .cv-layout {

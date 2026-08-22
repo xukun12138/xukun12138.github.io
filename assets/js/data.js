@@ -59,6 +59,8 @@ const SITE_DATA = {
       "projects.subtitle": "A more visual view of methods, artifacts, and active research directions.",
       "cv.title": "Academic timeline",
       "cv.subtitle": "A concise overview of my education, honors, academic service, and professional activities.",
+      "cv.print": "Print / Save as PDF",
+      "cv.viewPdf": "View Full CV",
       "contact.title": "Open to research conversations and collaboration.",
       "contact.subtitle": "If you are interested in generative model security, uncertainty, or trustworthy AI, feel free to reach out by email.",
       "contact.availability": "Expected Ph.D. completion: October 2026. I welcome conversations about postdoctoral and faculty opportunities."
@@ -83,6 +85,8 @@ const SITE_DATA = {
       "projects.subtitle": "以更可视化的方式展示方法、成果和正在推进的研究方向。",
       "cv.title": "学术经历",
       "cv.subtitle": "教育背景、荣誉、学术服务和专业活动的简要概览。",
+      "cv.print": "打印 / 另存为 PDF",
+      "cv.viewPdf": "查看完整简历",
       "contact.title": "欢迎围绕研究问题和合作机会交流。",
       "contact.subtitle": "如果你对生成模型安全、不确定性或可信 AI 感兴趣，欢迎通过邮件联系。",
       "contact.availability": "预计博士毕业时间：2026 年 10 月。欢迎就博士后或高校教职机会与我联系。"
@@ -315,60 +319,109 @@ const SITE_DATA = {
   ],
   projects: [
     {
-      title: "ConceptQuickLook: Malicious Concept Detection",
+      title: {
+        en: "Concept-Level Risk and Calibration for Governance in Diffusion Foundation Models",
+        zh: "面向扩散基础模型治理的概念级风险与校准"
+      },
+      status: "ACM MM 2026 · CCF A",
+      image: "assets/images/CLRC.png",
+      imageFit: "contain",
+      summary: {
+        en: "CLRC is a probabilistic audit and reporting framework for concept-level governance in diffusion foundation models.",
+        zh: "CLRC 是一个面向扩散基础模型概念级治理的概率审计与报告框架。"
+      },
+      bullets: [
+        {
+          en: "Unifies risk comparison across SD1.5, SD2.1, and SDXL, including prompt, embedding, protocol, and recorded-condition pathways.",
+          zh: "统一比较 SD1.5、SD2.1 与 SDXL 在提示词、嵌入、协议及记录条件等路径下的风险。"
+        },
+        {
+          en: "Models reproduction and bypass as Bernoulli semantic events, with spillover reported as collateral risk.",
+          zh: "将复现与绕过建模为 Bernoulli 语义事件，并将溢出作为附带风险进行报告。"
+        },
+        {
+          en: "Shows that embedding access and obfuscated prompts can expose understated risks, while calibration can change actions near policy thresholds.",
+          zh: "结果表明，嵌入访问和混淆提示可能暴露被低估的风险，而校准会改变策略阈值附近的决策。"
+        }
+      ],
+      links: [
+        { label: { en: "Paper", zh: "论文" }, url: "https://doi.org/10.1145/3767308.3835863" }
+      ]
+    },
+    {
+      title: {
+        en: "ConceptQuickLook: Malicious Concept Detection",
+        zh: "ConceptQuickLook：恶意概念检测"
+      },
       status: "IEEE TDSC 2026",
       image: "assets/images/quicklook2025.png",
-      summary: "A research line on detecting malicious concepts in AI-generated content without first generating risky images.",
+      summary: {
+        en: "A research line on detecting malicious concepts in AI-generated content without first generating risky images.",
+        zh: "无需先生成潜在风险图像，即可检测 AI 生成内容中的恶意概念。"
+      },
       bullets: [
-        "Concept-file based judgment for safer AIGC moderation.",
-        "Designed around generative concept risk and direct model judgment.",
-        "Connected to the accepted IEEE TDSC work on malicious concept detection."
+        { en: "Concept-file based judgment for safer AIGC moderation.", zh: "基于概念文件进行判断，实现更安全的 AIGC 内容治理。" },
+        { en: "Designed around generative concept risk and direct model judgment.", zh: "围绕生成式概念风险与模型直接判断进行设计。" },
+        { en: "Connected to the accepted IEEE TDSC work on malicious concept detection.", zh: "对应已被 IEEE TDSC 接收的恶意概念检测研究。" }
       ],
       links: [
-        { label: "Paper", url: "https://ieeexplore.ieee.org/abstract/document/11494227" },
-        { label: "Code", url: "https://github.com/xukun12138/ConceptQuickLook" }
+        { label: { en: "Paper", zh: "论文" }, url: "https://ieeexplore.ieee.org/abstract/document/11494227" },
+        { label: { en: "Code", zh: "代码" }, url: "https://github.com/xukun12138/ConceptQuickLook" }
       ]
     },
     {
-      title: "Generative Concept Security in Trustworthy AIGC",
+      title: {
+        en: "Generative Concept Security in Trustworthy AIGC",
+        zh: "可信 AIGC 中的生成式概念安全"
+      },
       status: "Minisymposium · 2025",
-      image: "assets/images/hero-travel.jpg",
-      summary: "A talk and research framing around concept-level safety, uncertainty, and trustworthy generation.",
+      image: "assets/images/concept-slides-cover.png",
+      imageFit: "contain",
+      summary: {
+        en: "A talk and research framing around concept-level safety, uncertainty, and trustworthy generation.",
+        zh: "围绕概念级安全、不确定性与可信生成展开的专题报告和研究框架。"
+      },
       bullets: [
-        "Presented at the Università degli Studi dell'Insubria.",
-        "Connects concept security with trustworthy generative systems.",
-        "Slides are included in the project assets for direct access."
+        { en: "Presented at the Università degli Studi dell'Insubria.", zh: "报告于意大利因苏布里亚大学。" },
+        { en: "Connects concept security with trustworthy generative systems.", zh: "将概念安全与可信生成系统联系起来。" },
+        { en: "Slides are included in the project assets for direct access.", zh: "可直接访问完整报告幻灯片。" }
       ],
       links: [
-        { label: "Slides", url: "assets/pdf/Concept.pdf" }
+        { label: { en: "Slides", zh: "幻灯片" }, url: "assets/pdf/Concept.pdf" }
       ]
     },
     {
-      title: "Facial Depth Forgery Detection",
+      title: { en: "Facial Depth Forgery Detection", zh: "人脸深度伪造检测" },
       status: "MTAP 2023",
       image: "assets/images/mtap2023.png",
-      summary: "A forensic method that uses image-gradient patterns to reveal facial depth forgery artifacts.",
+      summary: {
+        en: "A forensic method that uses image-gradient patterns to reveal facial depth forgery artifacts.",
+        zh: "利用图像梯度模式揭示人脸深度伪造痕迹的取证方法。"
+      },
       bullets: [
-        "Focuses on the boundary between normal and forged facial areas.",
-        "Uses gradient cues as a compact signal for face manipulation analysis.",
-        "Published in Multimedia Tools and Applications."
+        { en: "Focuses on the boundary between normal and forged facial areas.", zh: "关注正常区域与伪造人脸区域之间的边界。" },
+        { en: "Uses gradient cues as a compact signal for face manipulation analysis.", zh: "以梯度线索作为人脸篡改分析的紧凑信号。" },
+        { en: "Published in Multimedia Tools and Applications.", zh: "发表于 Multimedia Tools and Applications。" }
       ],
       links: [
-        { label: "Paper", url: "https://link.springer.com/article/10.1007/s11042-023-14626-4" }
+        { label: { en: "Paper", zh: "论文" }, url: "https://link.springer.com/article/10.1007/s11042-023-14626-4" }
       ]
     },
     {
-      title: "Video Face Forgery Detection",
+      title: { en: "Video Face Forgery Detection", zh: "视频人脸伪造检测" },
       status: "TVCJ 2023",
       image: "assets/images/tvcj2023.png",
-      summary: "A video-level face forgery detection approach using facial motion and dense optical flow truncation.",
+      summary: {
+        en: "A video-level face forgery detection approach using facial motion and dense optical flow truncation.",
+        zh: "利用人脸运动与稠密光流截断进行视频级人脸伪造检测。"
+      },
       bullets: [
-        "Models motion differences caused by manipulated facial regions.",
-        "Uses optical-flow behavior as a forensic clue.",
-        "Published in The Visual Computer."
+        { en: "Models motion differences caused by manipulated facial regions.", zh: "建模人脸篡改区域造成的运动差异。" },
+        { en: "Uses optical-flow behavior as a forensic clue.", zh: "以光流行为作为取证线索。" },
+        { en: "Published in The Visual Computer.", zh: "发表于 The Visual Computer。" }
       ],
       links: [
-        { label: "Paper", url: "https://link.springer.com/article/10.1007/s00371-022-02683-z" }
+        { label: { en: "Paper", zh: "论文" }, url: "https://link.springer.com/article/10.1007/s00371-022-02683-z" }
       ]
     }
   ],
