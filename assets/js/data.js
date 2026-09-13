@@ -10,13 +10,13 @@ const SITE_DATA = {
   profile: {
     name: "Kun Xu",
     chineseName: "许锟",
-    role: "Ph.D. Student",
+    role: "Ph.D. Candidate",
     affiliation: "Nanjing University of Aeronautics and Astronautics",
     department: "Cyberspace Security",
-    location: "Nanjing, China / Milano, Italy",
+    location: "Nanjing, China",
     advisor: {
       name: "Prof. Yushu Zhang",
-      url: "http://yushuzhang.cn/"
+      url: "https://yushuzhang.cn/"
     },
     visitingSupervisor: {
       name: "Prof. Elena Ferrari",
@@ -40,15 +40,20 @@ const SITE_DATA = {
   },
   translations: {
     en: {
-      "hero.eyebrow": "Ph.D. Student · Trustworthy AIGC",
+      "hero.eyebrow": "Ph.D. Candidate · Trustworthy AIGC",
       "hero.subtitle": "I study generative model security, uncertainty, and trustworthy AI, with a focus on concept-level risks in text-to-image generation and deepfake detection.",
-      "hero.availability": "I expect to receive my Ph.D. in October 2026 and am currently seeking postdoctoral or faculty positions.",
-      "hero.fact1": "Ph.D. at Cyberspace Security",
-      "hero.fact2": "Visiting Ph.D. scholar in Italy",
+      "hero.availability": "I have successfully completed my Ph.D. dissertation defense and expect to receive my Ph.D. in October 2026. I am currently seeking postdoctoral or faculty positions.",
+      "hero.fact1": "Ph.D. candidate in Cyberspace Security",
+      "hero.fact2": "Based at NUAA in Nanjing, China",
       "hero.fact3": "Generative concept security",
       "about.title": "A research profile built around safer generative AI.",
-      "about.p1": "I am a Ph.D. student at Nanjing University of Aeronautics and Astronautics, advised by Prof. Yushu Zhang. I am currently studying as a visiting Ph.D. scholar in Milano, Italy, under the supervision of Prof. Elena Ferrari.",
-      "about.p2": "My work explores generative concept security, uncertainty analysis, causal analysis, personalized text-to-image generation, content toxicity detection, diffusion models, and foundation models.",
+      "about.p1.prefix": "I am a Ph.D. candidate in Cyberspace Security at Nanjing University of Aeronautics and Astronautics (NUAA), advised by ",
+      "about.p1.advisor": "Prof. Yushu Zhang",
+      "about.p1.suffix": ". I have successfully completed my Ph.D. dissertation defense and expect to receive my Ph.D. in October 2026. I am currently continuing my research at NUAA in Nanjing, China.",
+      "about.p2": "From September 2025 to August 2026, I conducted visiting doctoral research in Milan, Italy, supported by the China Scholarship Council (CSC) Excellence Talent Programme and supervised by Prof. Elena Ferrari. During the visit, I also engaged in academic exchange and research collaboration with Prof. Pierangela Samarati and Prof. Vincenzo Piuri at the University of Milan, further broadening my international research experience in trustworthy AI, security, and privacy.",
+      "about.p3": "My research focuses on the safety, evaluation, and reliability of generative AI, including concept-level risk assessment, malicious and toxic content detection, uncertainty and calibration in diffusion models, privacy-aware synthesis, and deepfake forensics. My work has appeared in or been accepted by venues including IEEE TDSC and ACM Multimedia, and I am currently seeking postdoctoral or faculty opportunities.",
+      "about.link.advisor": "Advisor",
+      "about.link.visitingSupervisor": "Former Visiting Supervisor",
       "research.title": "Research themes",
       "research.subtitle": "A compact map of the topics that connect my current work.",
       "news.title": "Recent updates",
@@ -63,18 +68,23 @@ const SITE_DATA = {
       "cv.viewPdf": "View Full CV",
       "contact.title": "Open to research conversations and collaboration.",
       "contact.subtitle": "If you are interested in generative model security, uncertainty, or trustworthy AI, feel free to reach out by email.",
-      "contact.availability": "Expected Ph.D. completion: October 2026. I welcome conversations about postdoctoral and faculty opportunities."
+      "contact.availability": "Ph.D. dissertation defense completed; degree expected in October 2026. I welcome conversations about postdoctoral and faculty opportunities."
     },
     zh: {
       "hero.eyebrow": "博士生 · 可信 AIGC",
       "hero.subtitle": "我的研究关注生成模型安全、不确定性与可信人工智能，重点围绕文生图生成中的概念级风险、内容安全和深度伪造检测。",
-      "hero.availability": "我预计将于 2026 年 10 月获得博士学位，目前正在寻求博士后或高校教职机会。",
+      "hero.availability": "我已顺利完成博士学位论文答辩，预计于 2026 年 10 月获得博士学位。目前正在寻求博士后或高校教职机会。",
       "hero.fact1": "网络空间安全博士生",
-      "hero.fact2": "意大利米兰访问博士生",
+      "hero.fact2": "目前在南京（NUAA）开展研究",
       "hero.fact3": "生成式概念安全",
       "about.title": "围绕更安全的生成式人工智能展开研究。",
-      "about.p1": "我是南京航空航天大学博士生，导师为张玉书教授。目前作为访问博士生在意大利米兰学习，由 Elena Ferrari 教授指导。",
-      "about.p2": "我的研究方向包括生成式概念安全、不确定性分析、因果分析、个性化/定制化文生图生成、内容毒性检测、扩散模型和基础模型。",
+      "about.p1.prefix": "我是南京航空航天大学网络空间安全专业博士研究生，师从",
+      "about.p1.advisor": "张玉书教授",
+      "about.p1.suffix": "。我已顺利完成博士学位论文答辩，预计于 2026 年 10 月获得博士学位，目前在中国南京（NUAA）继续开展研究工作。",
+      "about.p2": "2025 年 9 月至 2026 年 8 月，我受国家留学基金委（CSC）卓越人才计划项目资助，在意大利米兰开展访问博士研究，由 Elena Ferrari 教授指导。访学期间，我还与米兰大学 Pierangela Samarati 教授和 Vincenzo Piuri 教授开展学术交流与合作，进一步拓展了在可信人工智能、安全与隐私方向的国际研究经历。",
+      "about.p3": "我的研究聚焦生成式人工智能的安全性、评估与可靠性，涵盖概念级风险评估、恶意与有害内容检测、扩散模型中的不确定性与校准、隐私感知生成以及深度伪造取证。相关成果已发表于或被 IEEE TDSC、ACM Multimedia 等期刊和会议接收，目前正在寻求博士后或高校教职机会。",
+      "about.link.advisor": "导师",
+      "about.link.visitingSupervisor": "访学导师",
       "research.title": "研究主题",
       "research.subtitle": "以下主题共同构成了我当前研究工作的主线。",
       "news.title": "近期动态",
@@ -89,7 +99,7 @@ const SITE_DATA = {
       "cv.viewPdf": "查看完整简历",
       "contact.title": "欢迎围绕研究问题和合作机会交流。",
       "contact.subtitle": "如果你对生成模型安全、不确定性或可信 AI 感兴趣，欢迎通过邮件联系。",
-      "contact.availability": "预计博士毕业时间：2026 年 10 月。欢迎就博士后或高校教职机会与我联系。"
+      "contact.availability": "已顺利完成博士学位论文答辩，预计于 2026 年 10 月获得博士学位。欢迎就博士后或高校教职机会与我联系。"
     }
   },
   stats: [
@@ -153,6 +163,22 @@ const SITE_DATA = {
     }
   ],
   news: [
+    {
+      date: { en: "Sep 2026", zh: "2026 年 9 月" },
+      type: { en: "Milestone", zh: "学术里程碑" },
+      title: {
+        en: "I successfully completed my Ph.D. dissertation defense on September 8, 2026.",
+        zh: "2026 年 9 月 8 日，我顺利完成博士学位论文答辩。"
+      },
+      links: [
+        {
+          label: { en: "Defense Photo", zh: "现场照片" },
+          url: "assets/images/Thesis_Defense.jpg"
+        }
+      ],
+      pinned: true,
+      highlight: true
+    },
     {
       date: { en: "Jul 2026", zh: "2026 年 7 月" },
       type: { en: "Accepted", zh: "接收" },

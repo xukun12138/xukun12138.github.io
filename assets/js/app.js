@@ -89,7 +89,8 @@
   }
 
   function renderNews() {
-    $("[data-news]").innerHTML = data.news.map((item) => `
+    const newsItems = [...data.news].sort((left, right) => Number(Boolean(right.pinned)) - Number(Boolean(left.pinned)));
+    $("[data-news]").innerHTML = newsItems.map((item) => `
       <article class="timeline-item ${item.highlight ? "highlight" : ""}">
         <div class="timeline-date">${escapeHtml(textFor(item.date))}</div>
         <div class="timeline-body">
