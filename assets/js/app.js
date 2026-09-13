@@ -17,6 +17,11 @@
     return value || "";
   }
 
+  function translationFor(key) {
+    const translations = data.translations[state.lang] || data.translations.en;
+    return translations[key] || data.translations.en[key] || "";
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replaceAll("&", "&amp;")
@@ -41,10 +46,14 @@
 
   function applyLanguage() {
     document.documentElement.lang = state.lang === "zh" ? "zh-CN" : "en";
-    const translations = data.translations[state.lang] || data.translations.en;
     $$("[data-i18n]").forEach((node) => {
       const key = node.dataset.i18n;
-      if (translations[key]) node.textContent = translations[key];
+      const value = translationFor(key);
+      if (value) node.textContent = value;
+    });
+    $$("[data-i18n-aria-label]").forEach((node) => {
+      const value = translationFor(node.dataset.i18nAriaLabel);
+      if (value) node.setAttribute("aria-label", value);
     });
     const langLabel = $("[data-lang-label]");
     if (langLabel) langLabel.textContent = state.lang === "en" ? "中" : "EN";
@@ -53,6 +62,26 @@
       langToggle.setAttribute("aria-label", state.lang === "en" ? "切换至中文" : "Switch to English");
     }
     renderAll();
+    renderLastUpdated();
+    updateVisitorPrivacyCopy();
+  }
+
+  function renderLastUpdated() {
+    const field = $("[data-last-updated]");
+    const value = data.site?.lastUpdated || "";
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!field || !match) return;
+
+    const [, year, month, day] = match;
+    field.dateTime = value;
+    field.textContent = state.lang === "zh"
+      ? `${Number(year)} 年 ${Number(month)} 月 ${Number(day)} 日`
+      : new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        timeZone: "UTC"
+      }).format(new Date(`${value}T00:00:00Z`));
   }
 
   function renderProfileLinks() {
@@ -290,9 +319,9 @@
   function updateVisitorPrivacyCopy() {
     const note = $("[data-visitor-privacy]");
     if (!note) return;
-    note.textContent = analyticsEnabled()
-      ? "This panel shows the current visitor's approximate public IP location. Visits are stored in a private admin-only analytics database."
-      : "This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.";
+    const key = analyticsEnabled() ? "visitor.privacy.stored" : "visitor.privacy.notStored";
+    note.dataset.i18n = key;
+    note.textContent = translationFor(key);
   }
 
   async function loadPrivateVisitorStats() {
@@ -379,12 +408,21 @@
 
   function setVisitorField(name, value) {
     const field = $(`[data-visitor-${name}]`);
-    if (field) field.textContent = value || "Not available";
+    if (!field) return;
+    if (value) {
+      delete field.dataset.i18n;
+      field.textContent = value;
+      return;
+    }
+    field.dataset.i18n = "visitor.notAvailable";
+    field.textContent = translationFor("visitor.notAvailable");
   }
 
-  function setVisitorStatus(message) {
+  function setVisitorStatus(key) {
     const status = $("[data-visitor-status]");
-    if (status) status.textContent = message;
+    if (!status) return;
+    status.dataset.i18n = key;
+    status.textContent = translationFor(key);
   }
 
   function openVisitorModal() {
@@ -404,7 +442,7 @@
 
   async function loadVisitorLocation() {
     if (visitorLocationLoaded) return;
-    setVisitorStatus("Loading current visitor IP location...");
+    setVisitorStatus("visitor.status.loading");
 
     try {
       const location = await fetchVisitorLocation();
@@ -413,10 +451,10 @@
       setVisitorField("place", location.place);
       setVisitorField("org", location.org);
       setVisitorField("timezone", location.timezone);
-      setVisitorStatus("Approximate location loaded for the current visitor.");
+      setVisitorStatus("visitor.status.loaded");
       visitorLocationLoaded = true;
     } catch (error) {
-      setVisitorStatus("Unable to load IP location right now. Please try again later.");
+      setVisitorStatus("visitor.status.error");
     }
   }
 
@@ -486,7 +524,6 @@
     $("[data-year]").textContent = new Date().getFullYear();
     applyTheme();
     applyLanguage();
-    updateVisitorPrivacyCopy();
     bindEvents();
     trackVisit();
     loadPrivateVisitorStats();

@@ -179,69 +179,106 @@
       </section>
 
       <section class="section contact-section" id="contact" aria-labelledby="contact-title">
-        <div>
+        <div class="contact-header">
           <p class="section-kicker">Contact</p>
           <h2 id="contact-title" data-i18n="contact.title">Open to research conversations and collaboration.</h2>
-          <p data-i18n="contact.subtitle">
-            If you are interested in generative model security, uncertainty, or trustworthy AI, feel free to reach out by email.
-          </p>
-          <p class="availability-banner" data-i18n="contact.availability">
-            Expected Ph.D. completion: October 2026. I welcome conversations about postdoctoral and faculty opportunities.
-          </p>
+          <div class="contact-summary">
+            <div class="contact-copy">
+              <p class="contact-lead" data-i18n="contact.subtitle">
+                I welcome conversations about trustworthy AIGC, generative model security, concept-level safety, uncertainty and calibration, and multimedia forensics.
+              </p>
+              <p class="availability-banner" data-i18n="contact.availability">
+                Ph.D. dissertation defense completed; degree expected in October 2026. I welcome conversations about postdoctoral and faculty opportunities.
+              </p>
+            </div>
+            <aside class="contact-topics" data-i18n-aria-label="contact.topicsLabel" aria-label="Current interests">
+              <p class="contact-directory-label" data-i18n="contact.topicsLabel">Current interests</p>
+              <ul>
+                <li data-i18n="contact.topic1">Postdoctoral and faculty opportunities</li>
+                <li data-i18n="contact.topic2">Research collaboration and joint projects</li>
+                <li data-i18n="contact.topic3">Talks, visits, and academic exchange</li>
+              </ul>
+            </aside>
+          </div>
         </div>
-        <div class="contact-card">
-          <div class="email-list" data-emails></div>
-          <div class="contact-links" data-contact-links></div>
+        <div class="contact-directory">
+          <section class="contact-channel" aria-labelledby="contact-email-title">
+            <div class="contact-channel-heading">
+              <h3 id="contact-email-title" data-i18n="contact.emailTitle">Email</h3>
+              <p data-i18n="contact.emailHint">For research discussions, collaboration, and position-related enquiries.</p>
+            </div>
+            <div class="email-list" data-emails></div>
+          </section>
+          <section class="contact-channel" aria-labelledby="contact-profiles-title">
+            <div class="contact-channel-heading">
+              <h3 id="contact-profiles-title" data-i18n="contact.profilesTitle">Academic profiles</h3>
+              <p data-i18n="contact.profilesHint">Publication records, peer-review profiles, code, and professional networks.</p>
+            </div>
+            <div class="contact-links" data-contact-links></div>
+          </section>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="footer-copy">
-        <p>© <span data-year></span> Kun Xu. Built as a static GitHub Pages site.</p>
-        <p class="footer-note">Visitor statistics are shown as aggregate counts.</p>
+        <p>© <span data-year></span> Kun Xu. <span data-i18n="footer.built">Built as a static GitHub Pages site.</span></p>
+        <p class="footer-note" data-i18n="footer.note">Visitor statistics are shown as aggregate counts.</p>
       </div>
-      <button class="visitor-counter" type="button" data-visitor-counter aria-haspopup="dialog" aria-controls="visitor-location-panel">
-        <span class="visitor-counter-label">Visitors</span>
-        <span class="visitor-counts">
-          <span>PV <strong id="busuanzi_value_site_pv" data-visitor-pv>--</strong></span>
-          <span>UV <strong id="busuanzi_value_site_uv" data-visitor-uv>--</strong></span>
-        </span>
-        <span class="visitor-counter-hint">Click for IP location</span>
-      </button>
-      <a href="#home">Back to top</a>
+      <div class="footer-tools">
+        <button class="visitor-counter" type="button" data-visitor-counter aria-haspopup="dialog" aria-controls="visitor-location-panel">
+          <span class="visitor-counter-label" data-i18n="visitor.counterLabel">Visitor statistics</span>
+          <span class="visitor-counts">
+            <span>
+              <span class="visitor-metric-label" data-i18n="visitor.pageViews">Page views (PV)</span>
+              <strong id="busuanzi_value_site_pv" data-visitor-pv>--</strong>
+            </span>
+            <span>
+              <span class="visitor-metric-label" data-i18n="visitor.uniqueVisitors">Unique visitors (UV)</span>
+              <strong id="busuanzi_value_site_uv" data-visitor-uv>--</strong>
+            </span>
+          </span>
+          <span class="visitor-counter-hint" data-i18n="visitor.counterHint">View current IP location</span>
+        </button>
+        <div class="update-stamp">
+          <span class="update-stamp-label" data-i18n="footer.lastUpdated">Last updated</span>
+          <time data-last-updated datetime="2026-09-13">September 13, 2026</time>
+          <span class="update-stamp-hint" data-i18n="footer.updateHint">Content revision date</span>
+        </div>
+      </div>
+      <a class="footer-back" href="#home" data-i18n="footer.back">Back to top</a>
     </footer>
 
     <div class="visitor-modal" data-visitor-modal hidden>
-      <button class="visitor-backdrop" type="button" data-visitor-close aria-label="Close visitor location panel"></button>
+      <button class="visitor-backdrop" type="button" data-visitor-close data-i18n-aria-label="visitor.close" aria-label="Close visitor location panel"></button>
       <section class="visitor-dialog" id="visitor-location-panel" role="dialog" aria-modal="true" aria-labelledby="visitor-location-title">
         <div class="visitor-dialog-head">
           <div>
-            <p class="section-kicker">Visitor Location</p>
-            <h2 id="visitor-location-title">Current visitor IP location</h2>
+            <p class="section-kicker" data-i18n="visitor.modalKicker">Visitor location</p>
+            <h2 id="visitor-location-title" data-i18n="visitor.modalTitle">Current visitor IP location</h2>
           </div>
-          <button class="icon-button" type="button" data-visitor-close aria-label="Close visitor location panel">×</button>
+          <button class="icon-button" type="button" data-visitor-close data-i18n-aria-label="visitor.close" aria-label="Close visitor location panel">×</button>
         </div>
-        <p class="visitor-status" data-visitor-status>Click the visitor counter to load your public IP location.</p>
+        <p class="visitor-status" data-visitor-status data-i18n="visitor.status.initial">Open the visitor panel to load your public IP location.</p>
         <dl class="visitor-location-grid">
           <div>
-            <dt>Public IP</dt>
+            <dt data-i18n="visitor.publicIp">Public IP</dt>
             <dd data-visitor-ip>--</dd>
           </div>
           <div>
-            <dt>Location</dt>
+            <dt data-i18n="visitor.location">Location</dt>
             <dd data-visitor-place>--</dd>
           </div>
           <div>
-            <dt>Organization</dt>
+            <dt data-i18n="visitor.organization">Organization</dt>
             <dd data-visitor-org>--</dd>
           </div>
           <div>
-            <dt>Timezone</dt>
+            <dt data-i18n="visitor.timezone">Timezone</dt>
             <dd data-visitor-timezone>--</dd>
           </div>
         </dl>
-        <p class="privacy-note" data-visitor-privacy>
+        <p class="privacy-note" data-visitor-privacy data-i18n="visitor.privacy.notStored">
           This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.
         </p>
       </section>

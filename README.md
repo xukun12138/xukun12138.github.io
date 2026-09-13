@@ -143,6 +143,7 @@ assets/js/data.js
 
 常见更新位置：
 
+- `site.lastUpdated`：主页底部的最新更新日期；每次修改内容时同步更新，格式为 `YYYY-MM-DD`。
 - `profile`：姓名、单位、邮箱、链接。
 - `researchThemes`：研究方向。
 - `news`：近期动态。

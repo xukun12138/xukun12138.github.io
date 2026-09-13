@@ -42,6 +42,10 @@ function searchableText(value) {
 
 async function writeGeneratedFiles() {
   const now = new Date().toISOString();
+  const lastUpdated = data.site.lastUpdated || now.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(lastUpdated)) {
+    throw new Error("site.lastUpdated must use YYYY-MM-DD format");
+  }
   const searchIndex = [
     {
       type: "profile",
@@ -82,7 +86,7 @@ async function writeGeneratedFiles() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${xmlEscape(data.site.url)}</loc>
-    <lastmod>${now.slice(0, 10)}</lastmod>
+    <lastmod>${lastUpdated}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
