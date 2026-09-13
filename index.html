@@ -205,14 +205,12 @@
           <section class="contact-channel" aria-labelledby="contact-email-title">
             <div class="contact-channel-heading">
               <h3 id="contact-email-title" data-i18n="contact.emailTitle">Email</h3>
-              <p data-i18n="contact.emailHint">For research discussions, collaboration, and position-related enquiries.</p>
             </div>
             <div class="email-list" data-emails></div>
           </section>
           <section class="contact-channel" aria-labelledby="contact-profiles-title">
             <div class="contact-channel-heading">
               <h3 id="contact-profiles-title" data-i18n="contact.profilesTitle">Academic profiles</h3>
-              <p data-i18n="contact.profilesHint">Publication records, peer-review profiles, code, and professional networks.</p>
             </div>
             <div class="contact-links" data-contact-links></div>
           </section>
@@ -246,7 +244,16 @@
           <span class="update-stamp-hint" data-i18n="footer.updateHint">Content revision date</span>
         </div>
       </div>
-      <a class="footer-back" href="#home" data-i18n="footer.back">Back to top</a>
+      <a
+        class="footer-back"
+        href="#home"
+        aria-label="Back to top"
+        data-tooltip="Back to top"
+        data-i18n-aria-label="footer.back"
+        data-i18n-tooltip="footer.back"
+      >
+        <span aria-hidden="true">&uarr;</span>
+      </a>
     </footer>
 
     <div class="visitor-modal" data-visitor-modal hidden>

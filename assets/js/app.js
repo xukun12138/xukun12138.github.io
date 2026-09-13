@@ -55,6 +55,10 @@
       const value = translationFor(node.dataset.i18nAriaLabel);
       if (value) node.setAttribute("aria-label", value);
     });
+    $$("[data-i18n-tooltip]").forEach((node) => {
+      const value = translationFor(node.dataset.i18nTooltip);
+      if (value) node.dataset.tooltip = value;
+    });
     const langLabel = $("[data-lang-label]");
     if (langLabel) langLabel.textContent = state.lang === "en" ? "中" : "EN";
     const langToggle = $("[data-lang-toggle]");
