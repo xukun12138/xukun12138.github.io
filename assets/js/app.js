@@ -288,6 +288,16 @@
     return Boolean(analyticsBaseUrl());
   }
 
+  function configureAnalyticsAdminLink() {
+    const container = $("[data-visitor-admin]");
+    const link = $("[data-visitor-admin-link]");
+    if (!container || !link) return;
+
+    const baseUrl = analyticsBaseUrl();
+    container.hidden = !baseUrl;
+    if (baseUrl) link.href = `${baseUrl}/admin`;
+  }
+
   function formatCount(value) {
     const number = Number(value);
     if (!Number.isFinite(number)) return "--";
@@ -527,6 +537,7 @@
   function init() {
     $("[data-year]").textContent = new Date().getFullYear();
     applyTheme();
+    configureAnalyticsAdminLink();
     applyLanguage();
     bindEvents();
     trackVisit();

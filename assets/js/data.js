@@ -98,7 +98,10 @@ const SITE_DATA = {
       "visitor.timezone": "Timezone",
       "visitor.notAvailable": "Not available",
       "visitor.privacy.stored": "This panel shows the current visitor's approximate public IP location. Visits are stored in a private admin-only analytics database.",
-      "visitor.privacy.notStored": "This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website."
+      "visitor.privacy.notStored": "This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.",
+      "visitor.adminTitle": "Visitor analytics admin",
+      "visitor.adminHint": "Password-protected access to complete visit records.",
+      "visitor.adminLink": "Open dashboard"
     },
     zh: {
       "hero.eyebrow": "博士生 · 可信 AIGC",
@@ -158,7 +161,10 @@ const SITE_DATA = {
       "visitor.timezone": "时区",
       "visitor.notAvailable": "暂无数据",
       "visitor.privacy.stored": "本面板显示当前访客的大致公网 IP 位置；访问记录存储在仅管理员可访问的私有分析数据库中。",
-      "visitor.privacy.notStored": "本面板仅显示当前访客的大致公网 IP 位置。IP 地理定位可能存在误差，本站不会存储该信息。"
+      "visitor.privacy.notStored": "本面板仅显示当前访客的大致公网 IP 位置。IP 地理定位可能存在误差，本站不会存储该信息。",
+      "visitor.adminTitle": "访客分析后台",
+      "visitor.adminHint": "登录后可查看完整的访客记录。",
+      "visitor.adminLink": "打开管理后台"
     }
   },
   stats: [

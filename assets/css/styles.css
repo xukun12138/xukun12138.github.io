@@ -1300,6 +1300,52 @@ body.modal-open {
   word-break: break-word;
 }
 
+.visitor-admin-access {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.visitor-admin-copy {
+  min-width: 0;
+}
+
+.visitor-admin-title,
+.visitor-admin-hint {
+  margin: 0;
+}
+
+.visitor-admin-title {
+  color: var(--ink);
+  font-weight: 850;
+}
+
+.visitor-admin-hint {
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.visitor-admin-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.38rem;
+  color: var(--teal);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.visitor-admin-link:hover,
+.visitor-admin-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .toast {
   position: fixed;
   right: 1rem;
@@ -1499,6 +1545,11 @@ body.modal-open {
 
   .visitor-location-grid {
     grid-template-columns: 1fr;
+  }
+
+  .visitor-admin-access {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .site-footer {
