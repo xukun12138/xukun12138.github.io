@@ -1,6 +1,7 @@
 const SESSION_COOKIE = "kx_admin_session";
 const SESSION_SECONDS = 60 * 60 * 12;
 const MAX_BODY_LENGTH = 4096;
+const VISITS_PER_PAGE = 10;
 
 export default {
   async fetch(request, env) {
@@ -189,12 +190,27 @@ async function adminSummary(env) {
     LIMIT 10
   `).all();
 
-  const latest = await env.DB.prepare(`
-    SELECT id, visited_at, ip, country, region, city, latitude, longitude, timezone, asn,
-           as_organization, colo, path, referrer, user_agent, language, screen, client_timezone
+  const mapCountries = await env.DB.prepare(`
+    SELECT
+      country,
+      COUNT(*) AS visits,
+      COUNT(DISTINCT visitor_key) AS visitors,
+      AVG(CASE
+        WHEN latitude BETWEEN -90 AND 90
+          AND longitude BETWEEN -180 AND 180
+          AND (latitude != 0 OR longitude != 0)
+        THEN latitude
+      END) AS latitude,
+      AVG(CASE
+        WHEN latitude BETWEEN -90 AND 90
+          AND longitude BETWEEN -180 AND 180
+          AND (latitude != 0 OR longitude != 0)
+        THEN longitude
+      END) AS longitude
     FROM visits
-    ORDER BY id DESC
-    LIMIT 10
+    WHERE country IS NOT NULL AND country != ''
+    GROUP BY country
+    ORDER BY visits DESC
   `).all();
 
   return {
@@ -207,13 +223,17 @@ async function adminSummary(env) {
     },
     countries: countries.results || [],
     pages: pages.results || [],
-    latest: latest.results || []
+    mapCountries: mapCountries.results || []
   };
 }
 
 async function adminVisits(url, env) {
-  const limit = clamp(Number(url.searchParams.get("limit") || 50), 1, 200);
-  const offset = clamp(Number(url.searchParams.get("offset") || 0), 0, 1000000);
+  const requestedPage = clamp(Number(url.searchParams.get("page") || 1), 1, 1000000);
+  const totalRow = await env.DB.prepare("SELECT COUNT(*) AS total FROM visits").first();
+  const total = Number(totalRow?.total || 0);
+  const totalPages = Math.max(1, Math.ceil(total / VISITS_PER_PAGE));
+  const page = Math.min(requestedPage, totalPages);
+  const offset = (page - 1) * VISITS_PER_PAGE;
   const rows = await env.DB.prepare(`
     SELECT id, visited_at, visitor_key, ip, country, region, city, latitude, longitude,
            timezone, asn, as_organization, colo, path, title, referrer, user_agent,
@@ -221,9 +241,15 @@ async function adminVisits(url, env) {
     FROM visits
     ORDER BY id DESC
     LIMIT ? OFFSET ?
-  `).bind(limit, offset).all();
+  `).bind(VISITS_PER_PAGE, offset).all();
 
-  return { visits: rows.results || [], limit, offset };
+  return {
+    visits: rows.results || [],
+    page,
+    pageSize: VISITS_PER_PAGE,
+    total,
+    totalPages
+  };
 }
 
 async function handleLogin(request, env) {
@@ -413,6 +439,7 @@ function adminPage(env) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(title)} Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <style>
     :root { color-scheme: light dark; --bg: #f7f8f6; --ink: #17211d; --muted: #63706a; --line: #dbe2dd; --card: #ffffff; --accent: #0f766e; }
     @media (prefers-color-scheme: dark) { :root { --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --card: #161c19; --accent: #5eead4; } }
@@ -426,6 +453,7 @@ function adminPage(env) {
     button, input { font: inherit; }
     button { border: 0; border-radius: 8px; padding: 10px 14px; color: #fff; background: var(--accent); cursor: pointer; }
     button.secondary { color: var(--ink); background: transparent; border: 1px solid var(--line); }
+    button:disabled { cursor: not-allowed; opacity: 0.45; }
     input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--card); color: var(--ink); }
     .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08); }
     .login { max-width: 420px; margin: 12vh auto; display: grid; gap: 14px; }
@@ -433,14 +461,33 @@ function adminPage(env) {
     .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
     .stat strong { display: block; font-size: 28px; }
     .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 0.45fr); gap: 16px; align-items: start; }
-    table { width: 100%; border-collapse: collapse; }
+    .grid > * { min-width: 0; }
+    .map-card { margin-bottom: 16px; padding: 0; overflow: hidden; }
+    .map-heading, .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .map-heading { padding: 18px; }
+    .map-heading h2, .section-head h2 { margin-bottom: 2px; }
+    .map-heading p, .section-head p { margin: 0; }
+    .map-badge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    #visitor-map { width: 100%; height: 400px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #dce9e5; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px 18px; }
+    .map-chip { display: inline-flex; gap: 7px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--bg); font-size: 12px; }
+    .map-chip strong { color: var(--accent); }
+    .leaflet-container { color: #17211d; font: inherit; }
+    .table-scroll { max-width: 100%; overflow-x: auto; }
+    table { width: 100%; min-width: 740px; border-collapse: collapse; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { color: var(--muted); font-size: 12px; text-transform: uppercase; }
     code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
     .muted { color: var(--muted); }
     .stack { display: grid; gap: 16px; }
     .list-row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding: 8px 0; }
-    @media (max-width: 860px) { .stats, .grid { grid-template-columns: 1fr; } header { align-items: start; flex-direction: column; } }
+    .pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
+    .pagination-controls, .page-numbers { display: flex; align-items: center; gap: 6px; }
+    .pagination button { min-width: 38px; height: 38px; padding: 0 10px; }
+    .pagination button[aria-current="page"] { color: #fff; border-color: var(--accent); background: var(--accent); }
+    .page-ellipsis { padding: 0 3px; color: var(--muted); }
+    @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); } }
+    @media (max-width: 860px) { .stats, .grid { grid-template-columns: 1fr; } header, .map-heading, .section-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } }
   </style>
 </head>
 <body>
@@ -470,6 +517,18 @@ function adminPage(env) {
         </div>
       </header>
 
+      <article class="card map-card">
+        <div class="map-heading">
+          <div>
+            <h2>Visitor Map</h2>
+            <p id="map-summary">All stored visits grouped by country or region.</p>
+          </div>
+          <span class="map-badge">All-time</span>
+        </div>
+        <div id="visitor-map" role="img" aria-label="World map showing visitor countries and regions"></div>
+        <div id="map-legend" class="map-legend"></div>
+      </article>
+
       <section class="stats">
         <article class="card stat"><span class="muted">PV</span><strong id="pv">0</strong></article>
         <article class="card stat"><span class="muted">UV</span><strong id="uv">0</strong></article>
@@ -480,8 +539,13 @@ function adminPage(env) {
 
       <section class="grid">
         <article class="card">
-          <h2>Recent Visits</h2>
-          <div style="overflow:auto">
+          <div class="section-head">
+            <div>
+              <h2>Recent Visits</h2>
+              <p id="visit-range">Loading visit records...</p>
+            </div>
+          </div>
+          <div class="table-scroll">
             <table>
               <thead>
                 <tr>
@@ -496,10 +560,18 @@ function adminPage(env) {
               <tbody id="visits"></tbody>
             </table>
           </div>
+          <nav class="pagination" aria-label="Visit record pages">
+            <div class="pagination-controls">
+              <button id="previous-page" type="button" class="secondary" aria-label="Previous page" title="Previous page">&larr;</button>
+              <div id="page-numbers" class="page-numbers"></div>
+              <button id="next-page" type="button" class="secondary" aria-label="Next page" title="Next page">&rarr;</button>
+            </div>
+            <span id="page-summary" class="muted"></span>
+          </nav>
         </article>
         <aside class="stack">
           <article class="card">
-            <h2>Top Countries</h2>
+            <h2>Top Countries/Regions</h2>
             <div id="countries"></div>
           </article>
           <article class="card">
@@ -510,11 +582,14 @@ function adminPage(env) {
       </section>
     </section>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const $ = (selector) => document.querySelector(selector);
     const number = (value) => new Intl.NumberFormat("en-US").format(Number(value || 0));
-    const text = (value) => value || "-";
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
+    const regionNames = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "region" }) : null;
+    const specialRegions = { A1: "Anonymous proxy", A2: "Satellite provider", O1: "Other country or region", T1: "Tor network", XX: "Unknown country or region" };
+    const state = { page: 1, totalPages: 1, map: null, markerLayer: null, refreshTimer: null, refreshing: false };
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -525,15 +600,97 @@ function adminPage(env) {
       return response.json();
     }
 
+    function countryLabel(value) {
+      const code = String(value || "").trim().toUpperCase();
+      if (!code) return "Unknown country or region";
+      if (specialRegions[code]) return specialRegions[code] + " (" + code + ")";
+      if (regionNames && /^[A-Z]{2}$/.test(code)) {
+        try {
+          const name = regionNames.of(code);
+          if (name && name !== code) return name + " (" + code + ")";
+        } catch (error) {
+          // Fall through to a readable code when the runtime does not recognize it.
+        }
+      }
+      return code;
+    }
+
     function setLoggedIn(value) {
       $("#login").classList.toggle("hidden", value);
       $("#dashboard").classList.toggle("hidden", !value);
+      if (value && !state.refreshTimer) {
+        state.refreshTimer = window.setInterval(() => refresh().catch(() => {}), 60000);
+      }
+      if (!value && state.refreshTimer) {
+        window.clearInterval(state.refreshTimer);
+        state.refreshTimer = null;
+      }
     }
 
-    function renderList(selector, rows, labelKey) {
+    function renderList(selector, rows, labelForRow) {
       $(selector).innerHTML = rows.length
-        ? rows.map((row) => '<div class="list-row"><code>' + escapeHtml(row[labelKey] || "-") + '</code><strong>' + number(row.visits) + '</strong></div>').join("")
+        ? rows.map((row) => '<div class="list-row"><span>' + escapeHtml(labelForRow(row)) + '</span><strong>' + number(row.visits) + '</strong></div>').join("")
         : '<p class="muted">No data yet.</p>';
+    }
+
+    function initializeMap() {
+      if (state.map || !window.L) return state.map;
+      state.map = L.map("visitor-map", {
+        minZoom: 1,
+        maxZoom: 7,
+        worldCopyJump: true,
+        zoomControl: true
+      }).setView([20, 0], 2);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 7,
+        noWrap: false
+      }).addTo(state.map);
+      state.markerLayer = L.layerGroup().addTo(state.map);
+      return state.map;
+    }
+
+    function renderMap(rows) {
+      const totalVisits = rows.reduce((sum, row) => sum + Number(row.visits || 0), 0);
+      $("#map-summary").textContent = rows.length
+        ? number(rows.length) + " countries/regions across " + number(totalVisits) + " stored visits."
+        : "No geolocated visits recorded yet.";
+      $("#map-legend").innerHTML = rows.length
+        ? rows.map((row) => '<span class="map-chip"><span>' + escapeHtml(countryLabel(row.country)) + '</span><strong>' + number(row.visits) + '</strong></span>').join("")
+        : '<span class="muted">Country and region names will appear here after visits are recorded.</span>';
+
+      const map = initializeMap();
+      if (!map) {
+        $("#visitor-map").innerHTML = '<p class="muted" style="padding:18px">Map tiles are temporarily unavailable. All country and region totals remain listed below.</p>';
+        return;
+      }
+
+      state.markerLayer.clearLayers();
+      const bounds = [];
+      rows.forEach((row) => {
+        const latitude = Number(row.latitude);
+        const longitude = Number(row.longitude);
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || (latitude === 0 && longitude === 0)) return;
+        const visits = Number(row.visits || 0);
+        const visitors = Number(row.visitors || 0);
+        const coordinates = [latitude, longitude];
+        bounds.push(coordinates);
+        L.circleMarker(coordinates, {
+          radius: Math.min(22, 7 + Math.log2(visits + 1) * 2.4),
+          color: "#0b514c",
+          weight: 2,
+          fillColor: "#0f766e",
+          fillOpacity: 0.72
+        }).bindTooltip(
+          "<strong>" + escapeHtml(countryLabel(row.country)) + "</strong><br>" +
+          number(visits) + " visits &middot; " + number(visitors) + " visitors"
+        ).addTo(state.markerLayer);
+      });
+
+      if (bounds.length > 1) map.fitBounds(L.latLngBounds(bounds), { padding: [32, 32], maxZoom: 4 });
+      else if (bounds.length === 1) map.setView(bounds[0], 4);
+      else map.setView([20, 0], 2);
+      window.requestAnimationFrame(() => map.invalidateSize());
     }
 
     function renderSummary(data) {
@@ -542,26 +699,80 @@ function adminPage(env) {
       $("#ips").textContent = number(data.totals.uniqueIps);
       $("#pv24").textContent = number(data.totals.pv24h);
       $("#uv24").textContent = number(data.totals.uv24h);
-      renderList("#countries", data.countries, "country");
-      renderList("#pages", data.pages, "path");
-      $("#visits").innerHTML = data.latest.length
-        ? data.latest.map((visit) => {
-            const location = [visit.city, visit.region, visit.country].filter(Boolean).join(", ");
+      renderMap(data.mapCountries || []);
+      renderList("#countries", data.countries || [], (row) => countryLabel(row.country));
+      renderList("#pages", data.pages || [], (row) => row.path || "Unknown page");
+    }
+
+    function pageItems(current, total) {
+      const pages = new Set([1, total]);
+      for (let page = Math.max(1, current - 2); page <= Math.min(total, current + 2); page += 1) pages.add(page);
+      const sorted = Array.from(pages).filter((page) => page >= 1 && page <= total).sort((left, right) => left - right);
+      const items = [];
+      sorted.forEach((page, index) => {
+        if (index && page - sorted[index - 1] > 1) items.push("ellipsis-" + index);
+        items.push(page);
+      });
+      return items;
+    }
+
+    function renderPagination(data) {
+      state.page = data.page;
+      state.totalPages = data.totalPages;
+      $("#previous-page").disabled = data.page <= 1;
+      $("#next-page").disabled = data.page >= data.totalPages || data.total === 0;
+      $("#page-summary").textContent = "Page " + number(data.page) + " of " + number(data.totalPages);
+      $("#page-numbers").innerHTML = pageItems(data.page, data.totalPages).map((item) => {
+        if (typeof item === "string") return '<span class="page-ellipsis" aria-hidden="true">&hellip;</span>';
+        const current = item === data.page ? ' aria-current="page"' : "";
+        return '<button type="button" class="secondary" data-page="' + item + '"' + current + ' aria-label="Page ' + item + '">' + item + '</button>';
+      }).join("");
+    }
+
+    function renderVisits(data) {
+      const start = data.total ? (data.page - 1) * data.pageSize + 1 : 0;
+      const end = Math.min(data.total, data.page * data.pageSize);
+      $("#visit-range").textContent = data.total
+        ? "Showing " + number(start) + "-" + number(end) + " of " + number(data.total) + " stored visits."
+        : "No visits recorded yet.";
+      $("#visits").innerHTML = data.visits.length
+        ? data.visits.map((visit) => {
+            const location = [visit.city, visit.region, countryLabel(visit.country)].filter(Boolean).join(", ");
             const network = [visit.as_organization, visit.asn ? "AS" + visit.asn : "", visit.colo].filter(Boolean).join(" / ");
+            const coordinates = [visit.latitude, visit.longitude].filter((value) => value !== null && value !== undefined && value !== "").join(", ");
             return '<tr>' +
               '<td><code>' + escapeHtml(visit.visited_at) + '</code></td>' +
               '<td><code>' + escapeHtml(visit.ip) + '</code></td>' +
-              '<td>' + escapeHtml(location || "-") + '<br><span class="muted">' + escapeHtml([visit.latitude, visit.longitude].filter(Boolean).join(", ")) + '</span></td>' +
+              '<td>' + escapeHtml(location || "-") + '<br><span class="muted">' + escapeHtml(coordinates) + '</span></td>' +
               '<td><code>' + escapeHtml(visit.path) + '</code><br><span class="muted">' + escapeHtml(visit.referrer || "") + '</span></td>' +
               '<td>' + escapeHtml(network || "-") + '</td>' +
               '<td class="muted">' + escapeHtml(visit.user_agent || "-") + '</td>' +
             '</tr>';
           }).join("")
         : '<tr><td colspan="6" class="muted">No visits recorded yet.</td></tr>';
+      renderPagination(data);
+    }
+
+    async function loadVisits(page) {
+      const data = await api("/api/admin/visits?page=" + encodeURIComponent(page));
+      renderVisits(data);
     }
 
     async function refresh() {
-      renderSummary(await api("/api/admin/summary"));
+      if (state.refreshing) return;
+      state.refreshing = true;
+      $("#refresh-button").disabled = true;
+      try {
+        const results = await Promise.all([
+          api("/api/admin/summary"),
+          api("/api/admin/visits?page=" + encodeURIComponent(state.page))
+        ]);
+        renderSummary(results[0]);
+        renderVisits(results[1]);
+      } finally {
+        state.refreshing = false;
+        $("#refresh-button").disabled = false;
+      }
     }
 
     $("#login-button").addEventListener("click", async () => {
@@ -571,6 +782,7 @@ function adminPage(env) {
           method: "POST",
           body: JSON.stringify({ password: $("#password").value })
         });
+        state.page = 1;
         setLoggedIn(true);
         await refresh();
       } catch (error) {
@@ -582,7 +794,15 @@ function adminPage(env) {
       if (event.key === "Enter") $("#login-button").click();
     });
 
-    $("#refresh-button").addEventListener("click", refresh);
+    $("#previous-page").addEventListener("click", () => loadVisits(Math.max(1, state.page - 1)));
+    $("#next-page").addEventListener("click", () => loadVisits(Math.min(state.totalPages, state.page + 1)));
+    $("#page-numbers").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-page]");
+      if (button) loadVisits(Number(button.dataset.page));
+    });
+    $("#refresh-button").addEventListener("click", () => refresh().catch((error) => {
+      $("#visit-range").textContent = error.message;
+    }));
     $("#logout-button").addEventListener("click", async () => {
       await api("/api/admin/logout", { method: "POST", body: "{}" }).catch(() => {});
       setLoggedIn(false);

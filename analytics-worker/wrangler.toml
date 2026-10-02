@@ -1,10 +1,17 @@
 name = "xukun-homepage-analytics"
 main = "src/worker.js"
-compatibility_date = "2026-07-01"
+compatibility_date = "2026-07-06"
+preview_urls = false
 
 [vars]
 ALLOWED_ORIGINS = "https://xukun12138.github.io,http://127.0.0.1:4173,http://localhost:4173"
 SITE_NAME = "Kun Xu Academic Homepage"
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
 
 [[d1_databases]]
 binding = "DB"
