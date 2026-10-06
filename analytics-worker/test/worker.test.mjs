@@ -43,6 +43,15 @@ class MockStatement {
         }))
       };
     }
+    if (this.sql.includes("AS period_start")) {
+      this.calls.push({ type: "trend", sql: this.sql });
+      return {
+        results: [
+          { period_start: "2026-09-30", visits: 4, visitors: 3 },
+          { period_start: "2026-10-02", visits: 7, visitors: 5 }
+        ]
+      };
+    }
     if (this.sql.includes("AVG(CASE")) {
       return {
         results: [
@@ -88,16 +97,20 @@ async function authenticatedCookie(env) {
   return response.headers.get("set-cookie").split(";")[0];
 }
 
-test("admin page includes the all-time map and paginated visit controls", async () => {
+test("admin page includes the map, interval trend chart, and paginated visit controls", async () => {
   const { env } = createEnv();
   const response = await worker.fetch(new Request("https://analytics.example/admin"), env);
   const html = await response.text();
 
   assert.equal(response.status, 200);
   assert.match(html, /id="visitor-map"/);
+  assert.match(html, /id="visits-trend"/);
+  assert.match(html, /data-interval="day"/);
+  assert.match(html, /data-interval="year"/);
   assert.match(html, /id="page-numbers"/);
   assert.match(html, /Top Countries\/Regions/);
   assert.match(html, /leaflet@1\.9\.4/);
+  assert.match(html, /chart\.js@4\.4\.7/);
   assert.doesNotMatch(html, /<h2>Top Countries<\/h2>/);
 
   const inlineScripts = [...html.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
@@ -136,4 +149,29 @@ test("summary map aggregates all historical countries and regions", async () => 
   assert.equal(data.mapCountries[0].country, "CN");
   assert.equal(data.mapCountries[0].visits, 15);
   assert.equal(data.latest, undefined);
+});
+
+test("trend endpoint groups authenticated history and fills empty periods", async () => {
+  const { env, calls } = createEnv();
+  const cookie = await authenticatedCookie(env);
+  const response = await worker.fetch(new Request("https://analytics.example/api/admin/trend?interval=day", {
+    headers: { cookie }
+  }), env);
+  const data = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(data.interval, "day");
+  assert.deepEqual(data.points, [
+    { period: "2026-09-30", visits: 4, visitors: 3 },
+    { period: "2026-10-01", visits: 0, visitors: 0 },
+    { period: "2026-10-02", visits: 7, visitors: 5 }
+  ]);
+  assert.match(calls.find((call) => call.type === "trend").sql, /substr\(visited_at, 1, 10\)/);
+});
+
+test("trend endpoint rejects unauthenticated requests", async () => {
+  const { env } = createEnv();
+  const response = await worker.fetch(new Request("https://analytics.example/api/admin/trend?interval=month"), env);
+
+  assert.equal(response.status, 401);
 });

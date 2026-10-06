@@ -2,6 +2,13 @@ const SESSION_COOKIE = "kx_admin_session";
 const SESSION_SECONDS = 60 * 60 * 12;
 const MAX_BODY_LENGTH = 4096;
 const VISITS_PER_PAGE = 10;
+const MAX_TREND_POINTS = 5000;
+const TREND_BUCKETS = {
+  day: "substr(visited_at, 1, 10)",
+  week: "date(visited_at, '-' || ((CAST(strftime('%w', visited_at) AS INTEGER) + 6) % 7) || ' days')",
+  month: "substr(visited_at, 1, 7)",
+  year: "substr(visited_at, 1, 4)"
+};
 
 export default {
   async fetch(request, env) {
@@ -59,6 +66,12 @@ export default {
         const unauthorized = await unauthorizedResponse(request, env);
         if (unauthorized) return unauthorized;
         return jsonResponse(await adminSummary(env));
+      }
+
+      if (url.pathname === "/api/admin/trend" && request.method === "GET") {
+        const unauthorized = await unauthorizedResponse(request, env);
+        if (unauthorized) return unauthorized;
+        return jsonResponse(await adminTrend(url, env));
       }
 
       if (url.pathname === "/api/admin/visits" && request.method === "GET") {
@@ -252,6 +265,84 @@ async function adminVisits(url, env) {
   };
 }
 
+async function adminTrend(url, env) {
+  const requestedInterval = String(url.searchParams.get("interval") || "day").toLowerCase();
+  const interval = Object.hasOwn(TREND_BUCKETS, requestedInterval) ? requestedInterval : "day";
+  const bucket = TREND_BUCKETS[interval];
+  const rows = await env.DB.prepare(`
+    SELECT
+      ${bucket} AS period_start,
+      COUNT(*) AS visits,
+      COUNT(DISTINCT visitor_key) AS visitors
+    FROM visits
+    WHERE visited_at IS NOT NULL AND visited_at != ''
+    GROUP BY period_start
+    ORDER BY period_start ASC
+  `).all();
+
+  return {
+    interval,
+    points: fillTrendPoints(rows.results || [], interval)
+  };
+}
+
+function fillTrendPoints(rows, interval) {
+  const activePoints = rows
+    .map((row) => ({
+      period: clean(row.period_start),
+      visits: Number(row.visits || 0),
+      visitors: Number(row.visitors || 0)
+    }))
+    .filter((row) => row.period)
+    .sort((left, right) => left.period.localeCompare(right.period));
+
+  if (activePoints.length < 2) return activePoints;
+
+  const firstDate = trendPeriodDate(activePoints[0].period, interval);
+  const lastDate = trendPeriodDate(activePoints.at(-1).period, interval);
+  if (!firstDate || !lastDate) return activePoints;
+
+  const byPeriod = new Map(activePoints.map((point) => [point.period, point]));
+  const filled = [];
+  let current = firstDate;
+
+  while (current <= lastDate) {
+    const period = trendPeriodKey(current, interval);
+    filled.push(byPeriod.get(period) || { period, visits: 0, visitors: 0 });
+    if (filled.length > MAX_TREND_POINTS) return activePoints;
+    current = nextTrendPeriod(current, interval);
+  }
+
+  return filled;
+}
+
+function trendPeriodDate(period, interval) {
+  const value = interval === "year"
+    ? `${period}-01-01T00:00:00Z`
+    : interval === "month"
+      ? `${period}-01T00:00:00Z`
+      : `${period}T00:00:00Z`;
+  const date = new Date(value);
+  return Number.isNaN(date.valueOf()) ? null : date;
+}
+
+function trendPeriodKey(date, interval) {
+  const year = String(date.getUTCFullYear()).padStart(4, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  if (interval === "year") return year;
+  if (interval === "month") return `${year}-${month}`;
+  return `${year}-${month}-${day}`;
+}
+
+function nextTrendPeriod(date, interval) {
+  const next = new Date(date);
+  if (interval === "year") next.setUTCFullYear(next.getUTCFullYear() + 1);
+  else if (interval === "month") next.setUTCMonth(next.getUTCMonth() + 1);
+  else next.setUTCDate(next.getUTCDate() + (interval === "week" ? 7 : 1));
+  return next;
+}
+
 async function handleLogin(request, env) {
   const body = await readJsonBody(request);
   const expected = env.ADMIN_PASSWORD || "";
@@ -441,8 +532,8 @@ function adminPage(env) {
   <title>${escapeHtml(title)} Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    :root { color-scheme: light dark; --bg: #f7f8f6; --ink: #17211d; --muted: #63706a; --line: #dbe2dd; --card: #ffffff; --accent: #0f766e; }
-    @media (prefers-color-scheme: dark) { :root { --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --card: #161c19; --accent: #5eead4; } }
+    :root { color-scheme: light dark; --bg: #f7f8f6; --ink: #17211d; --muted: #63706a; --line: #dbe2dd; --card: #ffffff; --accent: #0f766e; --accent-2: #b45309; --chart-grid: rgba(99, 112, 106, 0.18); }
+    @media (prefers-color-scheme: dark) { :root { --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --card: #161c19; --accent: #5eead4; --accent-2: #fbbf24; --chart-grid: rgba(170, 181, 175, 0.16); } }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
@@ -473,6 +564,12 @@ function adminPage(env) {
     .map-chip { display: inline-flex; gap: 7px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--bg); font-size: 12px; }
     .map-chip strong { color: var(--accent); }
     .leaflet-container { color: #17211d; font: inherit; }
+    .trend-card { margin-bottom: 16px; }
+    .trend-controls { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+    .trend-controls button { min-width: 62px; padding: 7px 10px; border-radius: 6px; color: var(--muted); background: transparent; }
+    .trend-controls button[aria-pressed="true"] { color: #fff; background: var(--accent); }
+    .trend-chart-wrap { position: relative; width: 100%; height: 340px; margin-top: 18px; }
+    .trend-empty { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; text-align: center; }
     .table-scroll { max-width: 100%; overflow-x: auto; }
     table { width: 100%; min-width: 740px; border-collapse: collapse; }
     th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
@@ -487,7 +584,8 @@ function adminPage(env) {
     .pagination button[aria-current="page"] { color: #fff; border-color: var(--accent); background: var(--accent); }
     .page-ellipsis { padding: 0 3px; color: var(--muted); }
     @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); } }
-    @media (max-width: 860px) { .stats, .grid { grid-template-columns: 1fr; } header, .map-heading, .section-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } }
+    @media (max-width: 860px) { .stats, .grid { grid-template-columns: 1fr; } header, .map-heading, .section-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } }
+    @media (max-width: 520px) { .trend-controls { width: 100%; } .trend-controls button { min-width: 0; flex: 1; padding-inline: 6px; } }
   </style>
 </head>
 <body>
@@ -537,6 +635,25 @@ function adminPage(env) {
         <article class="card stat"><span class="muted">UV 24h</span><strong id="uv24">0</strong></article>
       </section>
 
+      <article class="card trend-card">
+        <div class="section-head">
+          <div>
+            <h2>Visit Trend</h2>
+            <p id="trend-summary" aria-live="polite">Loading all-time visit activity...</p>
+          </div>
+          <div id="trend-controls" class="trend-controls" role="group" aria-label="Trend interval">
+            <button type="button" data-interval="day" aria-pressed="true">Day</button>
+            <button type="button" data-interval="week" aria-pressed="false">Week</button>
+            <button type="button" data-interval="month" aria-pressed="false">Month</button>
+            <button type="button" data-interval="year" aria-pressed="false">Year</button>
+          </div>
+        </div>
+        <div class="trend-chart-wrap">
+          <canvas id="visits-trend" role="img" aria-label="Line chart of page views and unique visitors over time"></canvas>
+          <p id="trend-empty" class="trend-empty muted hidden">No visit activity has been recorded yet.</p>
+        </div>
+      </article>
+
       <section class="grid">
         <article class="card">
           <div class="section-head">
@@ -583,13 +700,15 @@ function adminPage(env) {
     </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script>
     const $ = (selector) => document.querySelector(selector);
     const number = (value) => new Intl.NumberFormat("en-US").format(Number(value || 0));
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
     const regionNames = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "region" }) : null;
     const specialRegions = { A1: "Anonymous proxy", A2: "Satellite provider", O1: "Other country or region", T1: "Tor network", XX: "Unknown country or region" };
-    const state = { page: 1, totalPages: 1, map: null, markerLayer: null, refreshTimer: null, refreshing: false };
+    const trendNames = { day: "day", week: "week", month: "month", year: "year" };
+    const state = { page: 1, totalPages: 1, map: null, markerLayer: null, trendChart: null, trendInterval: "day", trendRequest: 0, refreshTimer: null, refreshing: false };
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -704,6 +823,158 @@ function adminPage(env) {
       renderList("#pages", data.pages || [], (row) => row.path || "Unknown page");
     }
 
+    function trendPeriodLabel(value, interval) {
+      const source = interval === "year" ? value + "-01-01" : interval === "month" ? value + "-01" : value;
+      const date = new Date(source + "T00:00:00Z");
+      if (Number.isNaN(date.valueOf())) return value;
+      const options = interval === "year"
+        ? { year: "numeric", timeZone: "UTC" }
+        : interval === "month"
+          ? { month: "short", year: "numeric", timeZone: "UTC" }
+          : { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" };
+      const label = new Intl.DateTimeFormat("en-US", options).format(date);
+      return interval === "week" ? "Week of " + label : label;
+    }
+
+    function setTrendControls(interval, busy) {
+      document.querySelectorAll("#trend-controls button[data-interval]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.interval === interval));
+        button.disabled = Boolean(busy);
+      });
+    }
+
+    function renderTrend(data) {
+      const interval = trendNames[data.interval] ? data.interval : "day";
+      const points = Array.isArray(data.points) ? data.points : [];
+      const canvas = $("#visits-trend");
+      const empty = $("#trend-empty");
+      state.trendInterval = interval;
+      setTrendControls(interval, false);
+
+      if (state.trendChart) {
+        state.trendChart.destroy();
+        state.trendChart = null;
+      }
+
+      if (!points.length) {
+        canvas.classList.add("hidden");
+        empty.textContent = "No visit activity has been recorded yet.";
+        empty.classList.remove("hidden");
+        $("#trend-summary").textContent = "No stored visits are available for this trend.";
+        return;
+      }
+
+      if (!window.Chart) {
+        canvas.classList.add("hidden");
+        empty.textContent = "The trend chart is temporarily unavailable.";
+        empty.classList.remove("hidden");
+        $("#trend-summary").textContent = "Visit totals remain available in the dashboard summary.";
+        return;
+      }
+
+      const labels = points.map((point) => trendPeriodLabel(point.period, interval));
+      const first = labels[0];
+      const last = labels[labels.length - 1];
+      $("#trend-summary").textContent = points.length === 1
+        ? "All stored visits grouped by " + trendNames[interval] + " for " + first + "."
+        : "All stored visits grouped by " + trendNames[interval] + " from " + first + " to " + last + ".";
+      canvas.classList.remove("hidden");
+      empty.classList.add("hidden");
+
+      const styles = getComputedStyle(document.documentElement);
+      const accent = styles.getPropertyValue("--accent").trim() || "#0f766e";
+      const accentTwo = styles.getPropertyValue("--accent-2").trim() || "#b45309";
+      const ink = styles.getPropertyValue("--ink").trim() || "#17211d";
+      const muted = styles.getPropertyValue("--muted").trim() || "#63706a";
+      const grid = styles.getPropertyValue("--chart-grid").trim() || "rgba(99, 112, 106, 0.18)";
+      const pointRadius = points.length > 48 ? 0 : 2.5;
+
+      state.trendChart = new Chart(canvas, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Page views (PV)",
+              data: points.map((point) => Number(point.visits || 0)),
+              borderColor: accent,
+              backgroundColor: accent,
+              pointBackgroundColor: accent,
+              pointRadius,
+              pointHoverRadius: 4,
+              borderWidth: 2.5,
+              order: 2,
+              tension: 0.26
+            },
+            {
+              label: "Unique visitors (UV)",
+              data: points.map((point) => Number(point.visitors || 0)),
+              borderColor: accentTwo,
+              backgroundColor: accentTwo,
+              pointBackgroundColor: accentTwo,
+              pointRadius,
+              pointHoverRadius: 4,
+              borderWidth: 2.5,
+              borderDash: [7, 5],
+              order: 1,
+              tension: 0.26
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? false : { duration: 260 },
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: {
+              align: "end",
+              labels: {
+                color: ink,
+                usePointStyle: true,
+                pointStyle: "line",
+                padding: 18,
+                sort: (left, right) => left.datasetIndex - right.datasetIndex
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => context.dataset.label + ": " + number(context.parsed.y)
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: muted, autoSkip: true, maxRotation: 0, maxTicksLimit: 10 }
+            },
+            y: {
+              beginAtZero: true,
+              grid: { color: grid },
+              ticks: { color: muted, precision: 0, callback: (value) => number(value) }
+            }
+          }
+        }
+      });
+    }
+
+    async function loadTrend(requestedInterval) {
+      const interval = trendNames[requestedInterval] ? requestedInterval : "day";
+      const requestId = ++state.trendRequest;
+      state.trendInterval = interval;
+      setTrendControls(interval, true);
+      $("#trend-summary").textContent = "Loading visit activity grouped by " + trendNames[interval] + "...";
+      try {
+        const data = await api("/api/admin/trend?interval=" + encodeURIComponent(interval));
+        if (requestId === state.trendRequest) renderTrend(data);
+      } catch (error) {
+        if (requestId === state.trendRequest) {
+          $("#trend-summary").textContent = error.message;
+          setTrendControls(interval, false);
+        }
+      }
+    }
+
     function pageItems(current, total) {
       const pages = new Set([1, total]);
       for (let page = Math.max(1, current - 2); page <= Math.min(total, current + 2); page += 1) pages.add(page);
@@ -762,16 +1033,22 @@ function adminPage(env) {
       if (state.refreshing) return;
       state.refreshing = true;
       $("#refresh-button").disabled = true;
+      const trendInterval = state.trendInterval;
+      const trendRequest = ++state.trendRequest;
+      setTrendControls(trendInterval, true);
       try {
         const results = await Promise.all([
           api("/api/admin/summary"),
-          api("/api/admin/visits?page=" + encodeURIComponent(state.page))
+          api("/api/admin/visits?page=" + encodeURIComponent(state.page)),
+          api("/api/admin/trend?interval=" + encodeURIComponent(trendInterval))
         ]);
         renderSummary(results[0]);
         renderVisits(results[1]);
+        if (trendRequest === state.trendRequest) renderTrend(results[2]);
       } finally {
         state.refreshing = false;
         $("#refresh-button").disabled = false;
+        if (trendRequest === state.trendRequest) setTrendControls(state.trendInterval, false);
       }
     }
 
@@ -799,6 +1076,10 @@ function adminPage(env) {
     $("#page-numbers").addEventListener("click", (event) => {
       const button = event.target.closest("button[data-page]");
       if (button) loadVisits(Number(button.dataset.page));
+    });
+    $("#trend-controls").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-interval]");
+      if (button && button.dataset.interval !== state.trendInterval) loadTrend(button.dataset.interval);
     });
     $("#refresh-button").addEventListener("click", () => refresh().catch((error) => {
       $("#visit-range").textContent = error.message;

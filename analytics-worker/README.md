@@ -6,6 +6,7 @@ This Worker stores private visit records for `https://xukun12138.github.io/` and
 - `GET /api/stats` public aggregate PV/UV endpoint.
 - `GET /api/me` public current visitor IP location endpoint.
 - `GET /admin` password-protected admin dashboard.
+- `GET /api/admin/trend?interval=day|week|month|year` authenticated all-time PV/UV trend endpoint.
 - `GET /api/admin/visits?page=N` authenticated visit history endpoint with 10 records per page.
 
 The GitHub Pages site keeps the current public counter as a fallback until `SITE_DATA.analytics.workerUrl` is configured.
@@ -83,9 +84,10 @@ Login with `ADMIN_PASSWORD`.
 The dashboard includes:
 
 - An all-time visitor map built from every country or region stored in D1.
+- One all-time PV/UV line chart with Day, Week, Month, and Year interval controls.
 - Full country or region names with their ISO codes.
 - All visit records in reverse chronological order, paginated at 10 records per page.
 - Top Countries/Regions and Top Pages summaries.
 - Automatic data refresh every 60 seconds, plus a manual refresh button.
 
-No additional D1 migration is required for these dashboard features. Existing records are included automatically.
+No additional D1 migration is required for these dashboard features. Existing records are included automatically, and missing time buckets are displayed as zero in the trend chart.
