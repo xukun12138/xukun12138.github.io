@@ -29,7 +29,7 @@ const SITE_DATA = {
       "xukun12138@outlook.com"
     ],
     links: [
-      { label: "Google Scholar", url: "https://scholar.google.com/citations?user=yDoybB0AAAAJ&hl=en" },
+      { label: "Google Scholar", url: "https://scholar.google.com.sg/citations?user=yDoybB0AAAAJ&hl=en" },
       { label: "ORCID", url: "https://orcid.org/0000-0002-1866-4433" },
       { label: "GitHub", url: "https://github.com/xukun12138" },
       { label: "DBLP", url: "https://dblp.org/pid/29/6948-19.html" },
