@@ -68,6 +68,7 @@
     renderAll();
     renderLastUpdated();
     updateVisitorPrivacyCopy();
+    renderVisitorLocation();
   }
 
   function renderLastUpdated() {
@@ -281,6 +282,7 @@
   const mainlandProbeCacheKey = "kx-mainland-location";
   const mainlandProbeCacheMs = 6 * 60 * 60 * 1000;
   let visitorLocationLoaded = false;
+  let visitorLocationData = null;
   let mainlandProbePromise = null;
 
   function analyticsBaseUrl() {
@@ -466,28 +468,24 @@
   }
 
   function normalizePrivateLocation(location) {
-    const place = [
-      location.location?.city,
-      location.location?.region,
-      location.location?.country
-    ].filter(Boolean).join(", ");
-
     return {
       ip: location.ip,
-      place,
+      city: location.location?.city,
+      region: location.location?.region,
+      country: location.location?.country,
+      countryCode: location.location?.countryCode || location.location?.country,
       org: location.network?.organization || location.network?.asn,
       timezone: location.location?.timezone
     };
   }
 
   function normalizeIpApiLocation(location) {
-    const place = [location.city, location.region, location.country_name]
-      .filter(Boolean)
-      .join(", ");
-
     return {
       ip: location.ip,
-      place,
+      city: location.city,
+      region: location.region,
+      country: location.country_name,
+      countryCode: location.country_code,
       org: location.org || location.asn,
       timezone: location.timezone
     };
@@ -495,8 +493,12 @@
 
   function normalizeMainlandLocation(location) {
     return {
+      source: "mainland",
       ip: location.ip,
-      place: [location.city, location.region, "China"].filter(Boolean).join(", "),
+      city: location.city,
+      region: location.region,
+      country: location.country,
+      countryCode: "CN",
       org: location.isp,
       timezone: "Asia/Shanghai"
     };
@@ -537,6 +539,23 @@
     status.textContent = translationFor(key);
   }
 
+  function renderVisitorLocation() {
+    if (!visitorLocationData) return;
+    const formatter = window.VISITOR_LOCATION_FORMATTER;
+    const location = formatter?.format
+      ? formatter.format(visitorLocationData, state.lang)
+      : {
+          ...visitorLocationData,
+          place: [visitorLocationData.city, visitorLocationData.region, visitorLocationData.country]
+            .filter(Boolean)
+            .join(", ")
+        };
+    setVisitorField("ip", location.ip);
+    setVisitorField("place", location.place);
+    setVisitorField("org", location.org);
+    setVisitorField("timezone", location.timezone);
+  }
+
   function openVisitorModal() {
     const modal = $("[data-visitor-modal]");
     if (!modal) return;
@@ -557,12 +576,8 @@
     setVisitorStatus("visitor.status.loading");
 
     try {
-      const location = await fetchVisitorLocation();
-
-      setVisitorField("ip", location.ip);
-      setVisitorField("place", location.place);
-      setVisitorField("org", location.org);
-      setVisitorField("timezone", location.timezone);
+      visitorLocationData = await fetchVisitorLocation();
+      renderVisitorLocation();
       setVisitorStatus("visitor.status.loaded");
       visitorLocationLoaded = true;
     } catch (error) {
