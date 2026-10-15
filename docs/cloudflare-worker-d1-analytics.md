@@ -15,11 +15,12 @@
 
 - `analytics-worker/src/worker.js`：Worker API 和管理员后台。
 - `analytics-worker/migrations/0001_create_visits.sql`：D1 数据表结构。
+- `analytics-worker/migrations/0002_add_mainland_location.sql`：大陆省份、定位来源和 Cloudflare 出口字段升级。
 - `analytics-worker/wrangler.toml`：Cloudflare Worker 配置。
 - `analytics-worker/package.json`：Wrangler 命令。
 - `analytics-worker/.dev.vars.example`：本地开发密钥模板。
-- `assets/js/data.js`：新增 `analytics.workerUrl` 配置。
-- `assets/js/app.js`：新增私有统计接口调用逻辑。
+- `assets/js/data.js`：包含 `analytics.workerUrl` 和可选的 `analytics.mainlandProbeUrl` 配置。
+- `assets/js/app.js`：包含私有统计接口调用和中国大陆省级定位补充逻辑。
 
 ## 你需要做的额外操作
 
@@ -199,12 +200,18 @@ https://xukun-homepage-analytics.YOUR_SUBDOMAIN.workers.dev/admin
 - 访问页面
 - 来源页面
 - User-Agent
+- 中国大陆已解析访问量、访客量和省份/地区数量
+- 分省地图及省份访问列表
+- Cloudflare 边缘出口位置和定位来源
+- 只能确认大陆浏览器信号、尚不能确定省份的疑似代理访问
 
 ## 注意事项
 
 IP 地址属于个人数据。公开学术主页记录访客 IP 时，建议在主页或隐私说明中明确告知“网站会记录访问日志用于站点维护和安全分析”。
 
 IP 定位不是 GPS 精确定位。Cloudflare 能提供的是基于 IP 的近似地理位置，通常到国家、省/州、城市和运营商级别，不能保证真实物理地址。
+
+关于 `workers.dev` 在中国大陆的可达性、浏览器端补充查询和自定义域名方案，见 `docs/china-mainland-analytics.md`。
 
 如果你之后绑定自己的域名，可以把 Worker 也绑定到类似下面的地址：
 

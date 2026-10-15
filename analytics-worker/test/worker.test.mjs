@@ -18,9 +18,27 @@ class MockStatement {
   async first() {
     if (this.sql.includes("COUNT(*) AS total FROM visits")) return { total: 23 };
     if (this.sql.includes("unique_ips")) {
-      return { pv: 23, uv: 14, unique_ips: 12, pv_24h: 5, uv_24h: 4 };
+      return {
+        pv: 23,
+        uv: 14,
+        unique_ips: 12,
+        pv_24h: 5,
+        uv_24h: 4,
+        mainland_visits: 9,
+        mainland_visitors: 6,
+        mainland_provinces: 2,
+        mainland_resolved_visits: 7,
+        likely_proxy_visits: 4,
+        likely_proxy_visitors: 3
+      };
     }
+    if (this.sql.includes("COUNT(*) AS pv")) return { pv: 24, uv: 15 };
     throw new Error(`Unexpected first() query: ${this.sql}`);
+  }
+
+  async run() {
+    this.calls.push({ type: "insert", sql: this.sql, values: this.values });
+    return { success: true };
   }
 
   async all() {
@@ -35,6 +53,7 @@ class MockStatement {
           ip: `203.0.113.${offset + index + 1}`,
           country: index % 2 ? "IT" : "CN",
           region: index % 2 ? "Lombardy" : "Jiangsu",
+          region_code: index % 2 ? "25" : "JS",
           city: index % 2 ? "Milan" : "Nanjing",
           latitude: index % 2 ? 45.46 : 32.06,
           longitude: index % 2 ? 9.19 : 118.8,
@@ -52,11 +71,19 @@ class MockStatement {
         ]
       };
     }
+    if (this.sql.includes("WHERE country = 'CN'")) {
+      return {
+        results: [
+          { region: "Jiangsu", region_code: "JS", visits: 6, visitors: 4, resolved_visits: 5 },
+          { region: "Beijing", region_code: "BJ", visits: 3, visitors: 2, resolved_visits: 2 }
+        ]
+      };
+    }
     if (this.sql.includes("AVG(CASE")) {
       return {
         results: [
-          { country: "CN", visits: 15, visitors: 9, latitude: 32.06, longitude: 118.8 },
-          { country: "IT", visits: 8, visitors: 5, latitude: 45.46, longitude: 9.19 }
+          { country: "CN", region: "Jiangsu", region_code: "JS", visits: 9, visitors: 6, latitude: 32.06, longitude: 118.8 },
+          { country: "IT", region: "", region_code: "", visits: 8, visitors: 5, latitude: 45.46, longitude: 9.19 }
         ]
       };
     }
@@ -109,6 +136,8 @@ test("admin page includes the map, interval trend chart, and paginated visit con
   assert.match(html, /data-interval="year"/);
   assert.match(html, /id="page-numbers"/);
   assert.match(html, /Top Countries\/Regions/);
+  assert.match(html, /China Mainland Coverage/);
+  assert.match(html, /id="provinces"/);
   assert.match(html, /leaflet@1\.9\.4/);
   assert.match(html, /chart\.js@4\.4\.7/);
   assert.doesNotMatch(html, /<h2>Top Countries<\/h2>/);
@@ -147,8 +176,86 @@ test("summary map aggregates all historical countries and regions", async () => 
   assert.equal(response.status, 200);
   assert.equal(data.mapCountries.length, 2);
   assert.equal(data.mapCountries[0].country, "CN");
-  assert.equal(data.mapCountries[0].visits, 15);
+  assert.equal(data.mapCountries[0].region, "Jiangsu");
+  assert.equal(data.mapCountries[0].visits, 9);
+  assert.equal(data.mainland.provinces, 2);
+  assert.equal(data.provinces[0].region, "Jiangsu");
   assert.equal(data.latest, undefined);
+});
+
+test("mainland browser lookup stores the province while preserving the Cloudflare edge route", async () => {
+  const { env, calls } = createEnv();
+  const request = new Request("https://analytics.example/api/visit", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "cf-connecting-ip": "203.0.113.9",
+      "user-agent": "Mock browser"
+    },
+    body: JSON.stringify({
+      visitorId: "mainland-visitor",
+      path: "/",
+      language: "en-US",
+      timezone: "Asia/Shanghai",
+      mainlandProbe: {
+        provider: "ipip",
+        ip: "123.123.123.123",
+        country: "中国",
+        region: "江苏省",
+        city: "南京市",
+        isp: "China Telecom"
+      }
+    })
+  });
+  Object.defineProperty(request, "cf", {
+    value: {
+      country: "SG",
+      region: "Singapore",
+      city: "Singapore",
+      latitude: "1.3521",
+      longitude: "103.8198",
+      timezone: "Asia/Singapore",
+      asn: 13335,
+      asOrganization: "Cloudflare",
+      colo: "SIN"
+    }
+  });
+
+  const response = await worker.fetch(request, env);
+  const result = await response.json();
+  const insert = calls.find((call) => call.type === "insert");
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(result.stats, { pv: 24, uv: 15 });
+  assert.ok(insert);
+  assert.equal(insert.values[2], "123.123.123.123");
+  assert.equal(insert.values[3], "CN");
+  assert.equal(insert.values[4], "Jiangsu");
+  assert.equal(insert.values[5], "JS");
+  assert.equal(insert.values[6], "南京市");
+  assert.equal(insert.values[20], "203.0.113.9");
+  assert.equal(insert.values[21], "SG");
+  assert.equal(insert.values[24], "ipip-client");
+  assert.equal(insert.values[25], 1);
+  assert.equal(insert.values[26], "China Telecom");
+});
+
+test("mainland browser signal keeps a non-CN edge visit as an explicit proxy candidate", async () => {
+  const { env, calls } = createEnv();
+  const request = new Request("https://analytics.example/api/visit", {
+    method: "POST",
+    headers: { "content-type": "application/json", "cf-connecting-ip": "203.0.113.10" },
+    body: JSON.stringify({ visitorId: "proxy-visitor", path: "/", language: "zh-CN", timezone: "Asia/Shanghai" })
+  });
+  Object.defineProperty(request, "cf", { value: { country: "SG", city: "Singapore" } });
+
+  const response = await worker.fetch(request, env);
+  const insert = calls.find((call) => call.type === "insert");
+
+  assert.equal(response.status, 200);
+  assert.equal(insert.values[3], "SG");
+  assert.equal(insert.values[24], "cloudflare");
+  assert.equal(insert.values[25], 1);
 });
 
 test("trend endpoint groups authenticated history and fills empty periods", async () => {

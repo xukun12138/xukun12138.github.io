@@ -3,10 +3,11 @@ const SITE_DATA = {
     title: "Kun Xu | Academic Homepage",
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io",
-    lastUpdated: "2026-10-06"
+    lastUpdated: "2026-10-15"
   },
   analytics: {
-    workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev"
+    workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev",
+    mainlandProbeUrl: "https://myip.ipip.net/json"
   },
   profile: {
     name: "Kun Xu",
@@ -97,7 +98,7 @@ const SITE_DATA = {
       "visitor.organization": "Organization",
       "visitor.timezone": "Timezone",
       "visitor.notAvailable": "Not available",
-      "visitor.privacy.stored": "This panel shows the current visitor's approximate public IP location. Visits are stored in a private admin-only analytics database.",
+      "visitor.privacy.stored": "This panel shows the current visitor's approximate public IP location. When a mainland browser signal is present, a short browser-side lookup may improve province-level accuracy. Visits are stored in a private admin-only analytics database.",
       "visitor.privacy.notStored": "This panel shows only the current visitor's approximate public IP location. IP geolocation can be inaccurate and is not stored by this static website.",
       "visitor.adminTitle": "Visitor analytics admin",
       "visitor.adminHint": "Password-protected access to complete visit records.",
@@ -160,7 +161,7 @@ const SITE_DATA = {
       "visitor.organization": "网络组织",
       "visitor.timezone": "时区",
       "visitor.notAvailable": "暂无数据",
-      "visitor.privacy.stored": "本面板显示当前访客的大致公网 IP 位置；访问记录存储在仅管理员可访问的私有分析数据库中。",
+      "visitor.privacy.stored": "本面板显示当前访客的大致公网 IP 位置；检测到中国大陆浏览器信号时，可能通过一次简短的浏览器端查询提高省级定位准确性。访问记录存储在仅管理员可访问的私有分析数据库中。",
       "visitor.privacy.notStored": "本面板仅显示当前访客的大致公网 IP 位置。IP 地理定位可能存在误差，本站不会存储该信息。",
       "visitor.adminTitle": "访客分析后台",
       "visitor.adminHint": "登录后可查看完整的访客记录。",

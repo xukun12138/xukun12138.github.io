@@ -9,6 +9,39 @@ const TREND_BUCKETS = {
   month: "substr(visited_at, 1, 7)",
   year: "substr(visited_at, 1, 4)"
 };
+const CHINA_PROVINCES = {
+  "北京": { name: "Beijing", code: "BJ", latitude: 39.9042, longitude: 116.4074 },
+  "天津": { name: "Tianjin", code: "TJ", latitude: 39.0842, longitude: 117.2 },
+  "河北": { name: "Hebei", code: "HE", latitude: 38.0428, longitude: 114.5149 },
+  "山西": { name: "Shanxi", code: "SX", latitude: 37.8706, longitude: 112.5489 },
+  "内蒙古": { name: "Inner Mongolia", code: "NM", latitude: 40.8175, longitude: 111.7652 },
+  "辽宁": { name: "Liaoning", code: "LN", latitude: 41.8057, longitude: 123.4315 },
+  "吉林": { name: "Jilin", code: "JL", latitude: 43.8171, longitude: 125.3235 },
+  "黑龙江": { name: "Heilongjiang", code: "HL", latitude: 45.8038, longitude: 126.535 },
+  "上海": { name: "Shanghai", code: "SH", latitude: 31.2304, longitude: 121.4737 },
+  "江苏": { name: "Jiangsu", code: "JS", latitude: 32.0603, longitude: 118.7969 },
+  "浙江": { name: "Zhejiang", code: "ZJ", latitude: 30.2741, longitude: 120.1551 },
+  "安徽": { name: "Anhui", code: "AH", latitude: 31.8206, longitude: 117.2272 },
+  "福建": { name: "Fujian", code: "FJ", latitude: 26.0745, longitude: 119.2965 },
+  "江西": { name: "Jiangxi", code: "JX", latitude: 28.682, longitude: 115.8579 },
+  "山东": { name: "Shandong", code: "SD", latitude: 36.6512, longitude: 117.1201 },
+  "河南": { name: "Henan", code: "HA", latitude: 34.7466, longitude: 113.6254 },
+  "湖北": { name: "Hubei", code: "HB", latitude: 30.5928, longitude: 114.3055 },
+  "湖南": { name: "Hunan", code: "HN", latitude: 28.2282, longitude: 112.9388 },
+  "广东": { name: "Guangdong", code: "GD", latitude: 23.1291, longitude: 113.2644 },
+  "广西": { name: "Guangxi", code: "GX", latitude: 22.817, longitude: 108.3665 },
+  "海南": { name: "Hainan", code: "HI", latitude: 20.044, longitude: 110.1999 },
+  "重庆": { name: "Chongqing", code: "CQ", latitude: 29.563, longitude: 106.5516 },
+  "四川": { name: "Sichuan", code: "SC", latitude: 30.5728, longitude: 104.0668 },
+  "贵州": { name: "Guizhou", code: "GZ", latitude: 26.647, longitude: 106.6302 },
+  "云南": { name: "Yunnan", code: "YN", latitude: 25.0389, longitude: 102.7183 },
+  "西藏": { name: "Tibet", code: "XZ", latitude: 29.652, longitude: 91.1721 },
+  "陕西": { name: "Shaanxi", code: "SN", latitude: 34.3416, longitude: 108.9398 },
+  "甘肃": { name: "Gansu", code: "GS", latitude: 36.0611, longitude: 103.8343 },
+  "青海": { name: "Qinghai", code: "QH", latitude: 36.6171, longitude: 101.7782 },
+  "宁夏": { name: "Ningxia", code: "NX", latitude: 38.4872, longitude: 106.2309 },
+  "新疆": { name: "Xinjiang", code: "XJ", latitude: 43.8256, longitude: 87.6168 }
+};
 
 export default {
   async fetch(request, env) {
@@ -89,7 +122,8 @@ export default {
 
 async function recordVisit(request, env) {
   const body = await readJsonBody(request);
-  const visitor = currentVisitor(request);
+  const edgeVisitor = currentVisitor(request);
+  const visitor = resolveVisitLocation(edgeVisitor, body);
   const now = new Date().toISOString();
   const userAgent = truncate(request.headers.get("user-agent"), 500);
   const visitorKey = truncate(body.visitorId, 120) || await sha256([
@@ -101,16 +135,18 @@ async function recordVisit(request, env) {
 
   await env.DB.prepare(`
     INSERT INTO visits (
-      visited_at, visitor_key, ip, country, region, city, latitude, longitude,
+      visited_at, visitor_key, ip, country, region, region_code, city, latitude, longitude,
       timezone, asn, as_organization, colo, path, title, referrer, user_agent,
-      language, screen, client_timezone
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      language, screen, client_timezone, edge_ip, edge_country, edge_region, edge_city,
+      location_source, mainland_signal, client_isp
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     now,
     visitorKey,
     visitor.ip,
     visitor.location.countryCode,
     visitor.location.region,
+    visitor.location.regionCode,
     visitor.location.city,
     visitor.location.latitude,
     visitor.location.longitude,
@@ -124,10 +160,131 @@ async function recordVisit(request, env) {
     userAgent,
     truncate(body.language, 80),
     truncate(body.screen, 80),
-    truncate(body.timezone, 120)
+    truncate(body.timezone, 120),
+    edgeVisitor.ip,
+    edgeVisitor.location.countryCode,
+    edgeVisitor.location.region,
+    edgeVisitor.location.city,
+    visitor.locationSource,
+    visitor.mainlandSignal,
+    visitor.clientIsp
   ).run();
 
   return jsonResponse({ ok: true, stats: await stats(env) });
+}
+
+function resolveVisitLocation(edgeVisitor, body) {
+  const probe = normalizeMainlandProbe(body.mainlandProbe);
+  const browserSignal = hasMainlandBrowserSignal(body);
+  const edgeCountry = edgeVisitor.location.countryCode.toUpperCase();
+  const edgeProvince = edgeCountry === "CN"
+    ? chinaProvince(edgeVisitor.location.region || edgeVisitor.location.regionCode)
+    : null;
+
+  if (edgeCountry === "CN" && edgeProvince) {
+    return {
+      ...edgeVisitor,
+      location: {
+        ...edgeVisitor.location,
+        country: "China",
+        countryCode: "CN",
+        region: edgeProvince.name,
+        regionCode: edgeProvince.code
+      },
+      locationSource: "cloudflare-direct",
+      mainlandSignal: 1,
+      clientIsp: ""
+    };
+  }
+
+  if (probe && browserSignal) {
+    return {
+      ...edgeVisitor,
+      ip: probe.ip,
+      location: {
+        city: probe.city,
+        region: probe.province.name,
+        regionCode: probe.province.code,
+        country: "China",
+        countryCode: "CN",
+        continent: "AS",
+        postalCode: "",
+        latitude: probe.province.latitude,
+        longitude: probe.province.longitude,
+        timezone: "Asia/Shanghai"
+      },
+      locationSource: edgeCountry === "CN" ? "cloudflare+ipip" : "ipip-client",
+      mainlandSignal: 1,
+      clientIsp: probe.isp
+    };
+  }
+
+  if (edgeCountry === "CN") {
+    return {
+      ...edgeVisitor,
+      location: {
+        ...edgeVisitor.location,
+        country: "China",
+        countryCode: "CN"
+      },
+      locationSource: "cloudflare-direct",
+      mainlandSignal: 1,
+      clientIsp: ""
+    };
+  }
+
+  return {
+    ...edgeVisitor,
+    locationSource: "cloudflare",
+    mainlandSignal: browserSignal && edgeCountry !== "CN" ? 1 : 0,
+    clientIsp: ""
+  };
+}
+
+function normalizeMainlandProbe(value) {
+  if (!value || typeof value !== "object" || value.provider !== "ipip") return null;
+  const country = clean(value.country).toLowerCase();
+  const province = chinaProvince(value.region);
+  const ip = normalizeIp(value.ip);
+  if (!ip || !province || !["cn", "china", "中国"].includes(country)) return null;
+  return {
+    ip,
+    province,
+    city: truncate(value.city, 120),
+    isp: truncate(value.isp, 200)
+  };
+}
+
+function hasMainlandBrowserSignal(body) {
+  const timezone = clean(body.timezone);
+  const language = clean(body.language).toLowerCase();
+  return timezone === "Asia/Shanghai" || language === "zh-cn" || language.startsWith("zh-cn-");
+}
+
+function chinaProvince(value) {
+  const normalized = clean(value)
+    .replace(/壮族自治区$|回族自治区$|维吾尔自治区$|自治区$|特别行政区$|省$|市$/u, "")
+    .trim();
+  if (!normalized) return null;
+  const lowered = normalized.toLowerCase();
+  for (const [chineseName, province] of Object.entries(CHINA_PROVINCES)) {
+    if (normalized === chineseName || lowered === province.name.toLowerCase() || lowered === province.code.toLowerCase()) {
+      return province;
+    }
+  }
+  return null;
+}
+
+function normalizeIp(value) {
+  const ip = truncate(value, 64);
+  if (isIpv4(ip)) return ip;
+  if (ip.includes(":") && /^[0-9a-f:]+$/i.test(ip) && ip.length <= 45) return ip.toLowerCase();
+  return "";
+}
+
+function isIpv4(value) {
+  const parts = value.split(".");
+  return parts.length === 4 && parts.every((part) => /^\d{1,3}$/.test(part) && Number(part) <= 255);
 }
 
 function currentVisitor(request) {
@@ -181,7 +338,13 @@ async function adminSummary(env) {
       COUNT(DISTINCT visitor_key) AS uv,
       COUNT(DISTINCT ip) AS unique_ips,
       SUM(CASE WHEN visited_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day') THEN 1 ELSE 0 END) AS pv_24h,
-      COUNT(DISTINCT CASE WHEN visited_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day') THEN visitor_key END) AS uv_24h
+      COUNT(DISTINCT CASE WHEN visited_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day') THEN visitor_key END) AS uv_24h,
+      SUM(CASE WHEN country = 'CN' THEN 1 ELSE 0 END) AS mainland_visits,
+      COUNT(DISTINCT CASE WHEN country = 'CN' THEN visitor_key END) AS mainland_visitors,
+      COUNT(DISTINCT CASE WHEN country = 'CN' AND region IS NOT NULL AND region != '' THEN region END) AS mainland_provinces,
+      SUM(CASE WHEN country = 'CN' AND location_source IN ('ipip-client', 'cloudflare+ipip') THEN 1 ELSE 0 END) AS mainland_resolved_visits,
+      SUM(CASE WHEN mainland_signal = 1 AND country != 'CN' THEN 1 ELSE 0 END) AS likely_proxy_visits,
+      COUNT(DISTINCT CASE WHEN mainland_signal = 1 AND country != 'CN' THEN visitor_key END) AS likely_proxy_visitors
     FROM visits
   `).first();
 
@@ -203,9 +366,24 @@ async function adminSummary(env) {
     LIMIT 10
   `).all();
 
+  const provinces = await env.DB.prepare(`
+    SELECT
+      region,
+      MAX(region_code) AS region_code,
+      COUNT(*) AS visits,
+      COUNT(DISTINCT visitor_key) AS visitors,
+      SUM(CASE WHEN location_source IN ('ipip-client', 'cloudflare+ipip') THEN 1 ELSE 0 END) AS resolved_visits
+    FROM visits
+    WHERE country = 'CN' AND region IS NOT NULL AND region != ''
+    GROUP BY region
+    ORDER BY visits DESC, region ASC
+  `).all();
+
   const mapCountries = await env.DB.prepare(`
     SELECT
       country,
+      CASE WHEN country = 'CN' THEN region ELSE '' END AS region,
+      MAX(CASE WHEN country = 'CN' THEN region_code ELSE '' END) AS region_code,
       COUNT(*) AS visits,
       COUNT(DISTINCT visitor_key) AS visitors,
       AVG(CASE
@@ -222,7 +400,9 @@ async function adminSummary(env) {
       END) AS longitude
     FROM visits
     WHERE country IS NOT NULL AND country != ''
-    GROUP BY country
+    GROUP BY
+      country,
+      CASE WHEN country = 'CN' THEN region ELSE '' END
     ORDER BY visits DESC
   `).all();
 
@@ -234,7 +414,16 @@ async function adminSummary(env) {
       pv24h: Number(totals?.pv_24h || 0),
       uv24h: Number(totals?.uv_24h || 0)
     },
+    mainland: {
+      visits: Number(totals?.mainland_visits || 0),
+      visitors: Number(totals?.mainland_visitors || 0),
+      provinces: Number(totals?.mainland_provinces || 0),
+      resolvedVisits: Number(totals?.mainland_resolved_visits || 0),
+      likelyProxyVisits: Number(totals?.likely_proxy_visits || 0),
+      likelyProxyVisitors: Number(totals?.likely_proxy_visitors || 0)
+    },
     countries: countries.results || [],
+    provinces: provinces.results || [],
     pages: pages.results || [],
     mapCountries: mapCountries.results || []
   };
@@ -248,9 +437,10 @@ async function adminVisits(url, env) {
   const page = Math.min(requestedPage, totalPages);
   const offset = (page - 1) * VISITS_PER_PAGE;
   const rows = await env.DB.prepare(`
-    SELECT id, visited_at, visitor_key, ip, country, region, city, latitude, longitude,
+    SELECT id, visited_at, visitor_key, ip, country, region, region_code, city, latitude, longitude,
            timezone, asn, as_organization, colo, path, title, referrer, user_agent,
-           language, screen, client_timezone
+           language, screen, client_timezone, edge_ip, edge_country, edge_region, edge_city,
+           location_source, mainland_signal, client_isp
     FROM visits
     ORDER BY id DESC
     LIMIT ? OFFSET ?
@@ -565,6 +755,14 @@ function adminPage(env) {
     .map-chip strong { color: var(--accent); }
     .leaflet-container { color: #17211d; font: inherit; }
     .trend-card { margin-bottom: 16px; }
+    .mainland-card { margin-bottom: 16px; }
+    .mainland-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0 12px; }
+    .mainland-metric { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+    .mainland-metric strong { display: block; margin-top: 2px; font-size: 24px; }
+    .province-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 16px; }
+    .source-tag { display: inline-flex; align-items: center; margin-top: 5px; padding: 2px 6px; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--bg); font-size: 11px; font-weight: 700; }
+    .source-tag.inferred { color: var(--accent-2); border-color: var(--accent-2); }
+    .visit-meta { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; }
     .trend-controls { display: inline-flex; flex: 0 0 auto; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
     .trend-controls button { min-width: 62px; padding: 7px 10px; border-radius: 6px; color: var(--muted); background: transparent; }
     .trend-controls button[aria-pressed="true"] { color: #fff; background: var(--accent); }
@@ -584,7 +782,8 @@ function adminPage(env) {
     .pagination button[aria-current="page"] { color: #fff; border-color: var(--accent); background: var(--accent); }
     .page-ellipsis { padding: 0 3px; color: var(--muted); }
     @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); } }
-    @media (max-width: 860px) { .stats, .grid { grid-template-columns: 1fr; } header, .map-heading, .section-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } }
+    @media (max-width: 860px) { .stats, .grid, .mainland-metrics { grid-template-columns: 1fr; } .province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } header, .map-heading, .section-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } }
+    @media (max-width: 620px) { .province-list { grid-template-columns: 1fr; } }
     @media (max-width: 520px) { .trend-controls { width: 100%; } .trend-controls button { min-width: 0; flex: 1; padding-inline: 6px; } }
   </style>
 </head>
@@ -634,6 +833,24 @@ function adminPage(env) {
         <article class="card stat"><span class="muted">PV 24h</span><strong id="pv24">0</strong></article>
         <article class="card stat"><span class="muted">UV 24h</span><strong id="uv24">0</strong></article>
       </section>
+
+      <article class="card mainland-card">
+        <div class="section-head">
+          <div>
+            <h2>China Mainland Coverage</h2>
+            <p>Verified mainland locations are separated from Cloudflare edge exits and proxy indicators.</p>
+          </div>
+          <span class="map-badge">Best effort</span>
+        </div>
+        <div class="mainland-metrics">
+          <div class="mainland-metric"><span class="muted">Resolved visits</span><strong id="mainland-visits">0</strong></div>
+          <div class="mainland-metric"><span class="muted">Resolved visitors</span><strong id="mainland-visitors">0</strong></div>
+          <div class="mainland-metric"><span class="muted">Provinces/regions</span><strong id="mainland-provinces">0</strong></div>
+          <div class="mainland-metric"><span class="muted">Likely via proxy</span><strong id="mainland-proxy">0</strong></div>
+        </div>
+        <p id="mainland-note" class="muted">Loading mainland coverage...</p>
+        <div id="provinces" class="province-list"></div>
+      </article>
 
       <article class="card trend-card">
         <div class="section-head">
@@ -734,6 +951,26 @@ function adminPage(env) {
       return code;
     }
 
+    function mapLocationLabel(row) {
+      const country = countryLabel(row.country);
+      return String(row.country || "").toUpperCase() === "CN" && row.region
+        ? row.region + ", " + country
+        : country;
+    }
+
+    function locationSourceLabel(visit) {
+      const labels = {
+        "cloudflare-direct": "Direct Cloudflare location",
+        "cloudflare+ipip": "Cloudflare + mainland lookup",
+        "ipip-client": "Mainland browser lookup",
+        cloudflare: "Cloudflare edge location"
+      };
+      if (Number(visit.mainland_signal) === 1 && String(visit.country || "").toUpperCase() !== "CN") {
+        return "Likely mainland via proxy";
+      }
+      return labels[visit.location_source] || "Stored location";
+    }
+
     function setLoggedIn(value) {
       $("#login").classList.toggle("hidden", value);
       $("#dashboard").classList.toggle("hidden", !value);
@@ -772,10 +1009,10 @@ function adminPage(env) {
     function renderMap(rows) {
       const totalVisits = rows.reduce((sum, row) => sum + Number(row.visits || 0), 0);
       $("#map-summary").textContent = rows.length
-        ? number(rows.length) + " countries/regions across " + number(totalVisits) + " stored visits."
+        ? number(rows.length) + " mapped locations across " + number(totalVisits) + " stored visits."
         : "No geolocated visits recorded yet.";
       $("#map-legend").innerHTML = rows.length
-        ? rows.map((row) => '<span class="map-chip"><span>' + escapeHtml(countryLabel(row.country)) + '</span><strong>' + number(row.visits) + '</strong></span>').join("")
+        ? rows.map((row) => '<span class="map-chip"><span>' + escapeHtml(mapLocationLabel(row)) + '</span><strong>' + number(row.visits) + '</strong></span>').join("")
         : '<span class="muted">Country and region names will appear here after visits are recorded.</span>';
 
       const map = initializeMap();
@@ -801,7 +1038,7 @@ function adminPage(env) {
           fillColor: "#0f766e",
           fillOpacity: 0.72
         }).bindTooltip(
-          "<strong>" + escapeHtml(countryLabel(row.country)) + "</strong><br>" +
+          "<strong>" + escapeHtml(mapLocationLabel(row)) + "</strong><br>" +
           number(visits) + " visits &middot; " + number(visitors) + " visitors"
         ).addTo(state.markerLayer);
       });
@@ -818,8 +1055,20 @@ function adminPage(env) {
       $("#ips").textContent = number(data.totals.uniqueIps);
       $("#pv24").textContent = number(data.totals.pv24h);
       $("#uv24").textContent = number(data.totals.uv24h);
+      const mainland = data.mainland || {};
+      $("#mainland-visits").textContent = number(mainland.visits);
+      $("#mainland-visitors").textContent = number(mainland.visitors);
+      $("#mainland-provinces").textContent = number(mainland.provinces);
+      $("#mainland-proxy").textContent = number(mainland.likelyProxyVisits);
+      $("#mainland-note").textContent = number(mainland.resolvedVisits) +
+        " visits were resolved by the mainland lookup; " + number(mainland.likelyProxyVisitors) +
+        " visitors currently have only a mainland browser signal and a non-CN edge exit.";
       renderMap(data.mapCountries || []);
       renderList("#countries", data.countries || [], (row) => countryLabel(row.country));
+      renderList("#provinces", data.provinces || [], (row) => {
+        const code = row.region_code ? " (" + row.region_code + ")" : "";
+        return (row.region || "Unknown province/region") + code;
+      });
       renderList("#pages", data.pages || [], (row) => row.path || "Unknown page");
     }
 
@@ -1011,12 +1260,24 @@ function adminPage(env) {
             const location = [visit.city, visit.region, countryLabel(visit.country)].filter(Boolean).join(", ");
             const network = [visit.as_organization, visit.asn ? "AS" + visit.asn : "", visit.colo].filter(Boolean).join(" / ");
             const coordinates = [visit.latitude, visit.longitude].filter((value) => value !== null && value !== undefined && value !== "").join(", ");
+            const edgeLocation = [visit.edge_city, visit.edge_region, countryLabel(visit.edge_country)].filter(Boolean).join(", ");
+            const edgeDiffers = visit.edge_country && (
+              String(visit.edge_country).toUpperCase() !== String(visit.country || "").toUpperCase() ||
+              visit.edge_region !== visit.region ||
+              visit.edge_city !== visit.city
+            );
+            const sourceClass = Number(visit.mainland_signal) === 1 && String(visit.country || "").toUpperCase() !== "CN" ? " inferred" : "";
+            const edgeMeta = edgeDiffers
+              ? '<span class="visit-meta">Edge: ' + escapeHtml(edgeLocation || visit.edge_country) + (visit.edge_ip ? " / " + escapeHtml(visit.edge_ip) : "") + '</span>'
+              : "";
+            const clientIsp = visit.client_isp ? '<span class="visit-meta">Client ISP: ' + escapeHtml(visit.client_isp) + '</span>' : "";
             return '<tr>' +
               '<td><code>' + escapeHtml(visit.visited_at) + '</code></td>' +
               '<td><code>' + escapeHtml(visit.ip) + '</code></td>' +
-              '<td>' + escapeHtml(location || "-") + '<br><span class="muted">' + escapeHtml(coordinates) + '</span></td>' +
+              '<td>' + escapeHtml(location || "-") + '<br><span class="muted">' + escapeHtml(coordinates) + '</span>' +
+                '<br><span class="source-tag' + sourceClass + '">' + escapeHtml(locationSourceLabel(visit)) + '</span>' + edgeMeta + '</td>' +
               '<td><code>' + escapeHtml(visit.path) + '</code><br><span class="muted">' + escapeHtml(visit.referrer || "") + '</span></td>' +
-              '<td>' + escapeHtml(network || "-") + '</td>' +
+              '<td>' + escapeHtml(network || "-") + clientIsp + '</td>' +
               '<td class="muted">' + escapeHtml(visit.user_agent || "-") + '</td>' +
             '</tr>';
           }).join("")

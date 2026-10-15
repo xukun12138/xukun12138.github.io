@@ -278,7 +278,10 @@
   }
 
   const visitorIdKey = "kx-visitor-id";
+  const mainlandProbeCacheKey = "kx-mainland-location";
+  const mainlandProbeCacheMs = 6 * 60 * 60 * 1000;
   let visitorLocationLoaded = false;
+  let mainlandProbePromise = null;
 
   function analyticsBaseUrl() {
     return (data.analytics?.workerUrl || "").trim().replace(/\/+$/, "");
@@ -286,6 +289,87 @@
 
   function analyticsEnabled() {
     return Boolean(analyticsBaseUrl());
+  }
+
+  function mainlandProbeUrl() {
+    return (data.analytics?.mainlandProbeUrl || "").trim();
+  }
+
+  function browserTimezone() {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function shouldProbeMainland() {
+    const language = (navigator.language || "").toLowerCase();
+    return browserTimezone() === "Asia/Shanghai" || language === "zh-cn" || language.startsWith("zh-cn-");
+  }
+
+  function readMainlandProbeCache() {
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(mainlandProbeCacheKey) || "null");
+      return cached && Date.now() - Number(cached.savedAt || 0) < mainlandProbeCacheMs
+        ? cached.value || null
+        : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function writeMainlandProbeCache(value) {
+    try {
+      sessionStorage.setItem(mainlandProbeCacheKey, JSON.stringify({ savedAt: Date.now(), value }));
+    } catch (error) {
+      // Analytics remains functional when browser storage is unavailable.
+    }
+  }
+
+  async function requestMainlandProbe() {
+    const url = mainlandProbeUrl();
+    if (!url || !shouldProbeMainland()) return null;
+
+    const cached = readMainlandProbeCache();
+    if (cached) return cached;
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 1800);
+    try {
+      const response = await fetch(url, {
+        cache: "no-store",
+        credentials: "omit",
+        referrerPolicy: "no-referrer",
+        signal: controller.signal
+      });
+      if (!response.ok) return null;
+      const payload = await response.json();
+      const location = Array.isArray(payload?.data?.location) ? payload.data.location : [];
+      const country = String(location[0] || "").trim();
+      if (payload?.ret !== "ok" || !payload?.data?.ip || !["cn", "china", "中国"].includes(country.toLowerCase())) {
+        return null;
+      }
+      const result = {
+        provider: "ipip",
+        ip: String(payload.data.ip),
+        country,
+        region: String(location[1] || ""),
+        city: String(location[2] || ""),
+        isp: String(location[4] || location[3] || "")
+      };
+      writeMainlandProbeCache(result);
+      return result;
+    } catch (error) {
+      return null;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  function loadMainlandProbe() {
+    if (!mainlandProbePromise) mainlandProbePromise = requestMainlandProbe();
+    return mainlandProbePromise;
   }
 
   function configureAnalyticsAdminLink() {
@@ -355,6 +439,7 @@
     if (!baseUrl) return;
 
     try {
+      const mainlandProbe = await loadMainlandProbe();
       const payload = {
         visitorId: getVisitorId(),
         path: `${window.location.pathname}${window.location.search}`,
@@ -362,7 +447,8 @@
         referrer: document.referrer,
         language: navigator.language,
         screen: window.screen ? `${window.screen.width}x${window.screen.height}` : "",
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || ""
+        timezone: browserTimezone(),
+        mainlandProbe
       };
       const response = await fetch(`${baseUrl}/api/visit`, {
         method: "POST",
@@ -407,7 +493,19 @@
     };
   }
 
+  function normalizeMainlandLocation(location) {
+    return {
+      ip: location.ip,
+      place: [location.city, location.region, "China"].filter(Boolean).join(", "),
+      org: location.isp,
+      timezone: "Asia/Shanghai"
+    };
+  }
+
   async function fetchVisitorLocation() {
+    const mainlandLocation = await loadMainlandProbe();
+    if (mainlandLocation) return normalizeMainlandLocation(mainlandLocation);
+
     const baseUrl = analyticsBaseUrl();
     if (baseUrl) {
       const response = await fetch(`${baseUrl}/api/me`, { cache: "no-store" });
