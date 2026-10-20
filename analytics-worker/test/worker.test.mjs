@@ -175,6 +175,11 @@ test("admin page includes reference-style overview, filters, maps, trends, and p
   const html = await response.text();
 
   assert.equal(response.status, 200);
+  assert.match(html, /<html lang="en" data-theme="light">/);
+  assert.match(html, /id="theme-button"/);
+  assert.match(html, /kx_admin_theme/);
+  assert.match(html, /:root\[data-theme="dark"\]/);
+  assert.doesNotMatch(html, /prefers-color-scheme/);
   assert.match(html, /id="visitor-map"/);
   assert.match(html, /Traffic Overview/);
   assert.match(html, /data-range="30d"/);

@@ -872,15 +872,25 @@ function clamp(value, min, max) {
 function adminPage(env) {
   const title = env.SITE_NAME || "Homepage Analytics";
   return `<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta id="theme-color" name="theme-color" content="#f5f7f6">
   <title>${escapeHtml(title)} Admin</title>
+  <script>
+    (() => {
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("kx_admin_theme") === "dark" ? "dark" : "light";
+      } catch (error) {
+        document.documentElement.dataset.theme = "light";
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    :root { color-scheme: light dark; --bg: #f5f7f6; --ink: #16201c; --muted: #66736d; --line: #d8dfdb; --line-strong: #c4cec8; --card: #ffffff; --soft: #eef3f0; --accent: #0f766e; --accent-dark: #0b514c; --accent-2: #b45309; --alert: #c2413a; --chart-grid: rgba(99, 112, 106, 0.18); }
-    @media (prefers-color-scheme: dark) { :root { --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --line-strong: #425048; --card: #161c19; --soft: #1d2521; --accent: #5eead4; --accent-dark: #2dd4bf; --accent-2: #fbbf24; --alert: #fb7185; --chart-grid: rgba(170, 181, 175, 0.16); } }
+    :root { color-scheme: light; --bg: #f5f7f6; --ink: #16201c; --muted: #66736d; --line: #d8dfdb; --line-strong: #c4cec8; --card: #ffffff; --soft: #eef3f0; --accent: #0f766e; --accent-dark: #0b514c; --accent-2: #b45309; --alert: #c2413a; --chart-grid: rgba(99, 112, 106, 0.18); }
+    :root[data-theme="dark"] { color-scheme: dark; --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --line-strong: #425048; --card: #161c19; --soft: #1d2521; --accent: #5eead4; --accent-dark: #2dd4bf; --accent-2: #fbbf24; --alert: #fb7185; --chart-grid: rgba(170, 181, 175, 0.16); }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     main { width: min(1280px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
@@ -940,6 +950,7 @@ function adminPage(env) {
     .page-ellipsis { padding: 0 3px; color: var(--muted); }
     .eyebrow { display: block; margin-bottom: 4px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
     .header-actions { display: flex; gap: 8px; }
+    .theme-button { min-width: 104px; }
     .overview-card { margin-bottom: 16px; padding: 0; overflow: hidden; }
     .overview-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
     .overview-head h2, .overview-head p { margin: 0; }
@@ -1008,7 +1019,7 @@ function adminPage(env) {
     .rank-row code { overflow-wrap: anywhere; }
     .rank-meta { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-    @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); } }
+    :root[data-theme="dark"] .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); }
     @media (max-width: 1040px) { .overview-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } .overview-item:nth-child(4) { border-right: 0; } .overview-item:nth-child(n+5) { border-top: 1px solid var(--line); } }
     @media (max-width: 860px) { .stats, .grid, .mainland-metrics, .secondary-grid { grid-template-columns: 1fr; } .province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } header, .map-heading, .section-head, .overview-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 18px; } }
     @media (max-width: 620px) { .province-list { grid-template-columns: 1fr; } }
@@ -1039,6 +1050,7 @@ function adminPage(env) {
           <p>Live and historical visitor intelligence for the academic homepage.</p>
         </div>
         <div class="header-actions">
+          <button id="theme-button" type="button" class="secondary theme-button" aria-pressed="false" title="Switch to dark background">Dark mode</button>
           <button id="refresh-button" type="button">Refresh</button>
           <button id="logout-button" type="button" class="secondary">Log out</button>
         </div>
@@ -1242,17 +1254,50 @@ function adminPage(env) {
       mapMarkers: [],
       heatMap: null,
       heatLayer: null,
+      heatCountries: null,
       worldGeoJson: null,
       worldGeoJsonPromise: null,
       heatRequest: 0,
       trendChart: null,
+      lastTrendData: null,
       trendInterval: "day",
       trendRequest: 0,
+      theme: document.documentElement.dataset.theme === "dark" ? "dark" : "light",
       range: { from: "", to: "", preset: "all" },
       refreshTimer: null,
       refreshing: false,
       pendingRefresh: false
     };
+
+    const themeStorageKey = "kx_admin_theme";
+
+    function updateThemeControl() {
+      const dark = state.theme === "dark";
+      const button = $("#theme-button");
+      button.textContent = dark ? "Light mode" : "Dark mode";
+      button.setAttribute("aria-pressed", String(dark));
+      button.title = dark ? "Switch to light background" : "Switch to dark background";
+      $("#theme-color").content = dark ? "#101412" : "#f5f7f6";
+    }
+
+    function applyTheme(theme, persist = true) {
+      state.theme = theme === "dark" ? "dark" : "light";
+      document.documentElement.dataset.theme = state.theme;
+      if (persist) {
+        try {
+          localStorage.setItem(themeStorageKey, state.theme);
+        } catch (error) {
+          // Theme switching still works when browser storage is unavailable.
+        }
+      }
+      updateThemeControl();
+      if (state.lastTrendData) renderTrend(state.lastTrendData);
+      if (state.heatCountries) renderHeatMap(state.heatCountries);
+      window.requestAnimationFrame(() => {
+        if (state.map) state.map.invalidateSize();
+        if (state.heatMap) state.heatMap.invalidateSize();
+      });
+    }
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -1565,6 +1610,7 @@ function adminPage(env) {
     }
 
     async function renderHeatMap(countries) {
+      state.heatCountries = countries;
       const requestId = ++state.heatRequest;
       const status = $("#geo-map-status");
       const map = initializeHeatMap();
@@ -1592,7 +1638,7 @@ function adminPage(env) {
         const visitsByName = new Map();
         countries.forEach((row) => visitsByName.set(countryGeoName(row.country), Number(row.visits || 0)));
         const maximum = Math.max(1, ...countries.map((row) => Number(row.visits || 0)));
-        const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const dark = state.theme === "dark";
         if (state.heatLayer) state.heatLayer.remove();
         state.heatLayer = L.geoJSON(world, {
           style(feature) {
@@ -1730,6 +1776,7 @@ function adminPage(env) {
     }
 
     function renderTrend(data) {
+      state.lastTrendData = data;
       const interval = trendNames[data.interval] ? data.interval : "day";
       const points = Array.isArray(data.points) ? data.points : [];
       const canvas = $("#visits-trend");
@@ -2090,6 +2137,9 @@ function adminPage(env) {
       const button = event.target.closest("button[data-interval]");
       if (button && button.dataset.interval !== state.trendInterval) loadTrend(button.dataset.interval);
     });
+    $("#theme-button").addEventListener("click", () => {
+      applyTheme(state.theme === "dark" ? "light" : "dark");
+    });
     $("#refresh-button").addEventListener("click", () => refresh().catch((error) => {
       $("#visit-range").textContent = error.message;
     }));
@@ -2098,6 +2148,7 @@ function adminPage(env) {
       setLoggedIn(false);
     });
 
+    updateThemeControl();
     syncRangeControls();
     api("/api/admin/session")
       .then(async () => { setLoggedIn(true); await refresh(); })

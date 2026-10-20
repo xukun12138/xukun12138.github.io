@@ -97,6 +97,7 @@ The dashboard includes:
 - Full country or region names with their ISO codes and English display names for recognized mainland cities.
 - All visit records in reverse chronological order, paginated at 10 records per page.
 - Top Pages and province/region summaries for the selected range.
+- A light theme by default with a persistent Dark mode / Light mode button in the dashboard header.
 - Automatic data refresh every 60 seconds, plus a manual refresh button.
 
 Migration `0002_add_mainland_location.sql` must be applied before deploying this Worker version. It preserves the original Cloudflare-observed IP/location in `edge_*` columns and marks historical non-CN visits with an `Asia/Shanghai` client timezone as likely mainland proxy traffic. It does not invent a province for historical records.
