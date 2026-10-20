@@ -22,8 +22,22 @@ class MockStatement {
         pv: 23,
         uv: 14,
         unique_ips: 12,
+        first_visit: "2026-09-01T00:00:00.000Z",
+        last_visit: "2026-10-02T00:00:00.000Z",
         pv_24h: 5,
         uv_24h: 4,
+        today_pv: 3,
+        today_uv: 2,
+        yesterday_pv: 4,
+        yesterday_uv: 3,
+        last_7_pv: 11,
+        last_7_uv: 8,
+        previous_7_pv: 7,
+        previous_7_uv: 5,
+        last_30_pv: 20,
+        last_30_uv: 12,
+        previous_30_pv: 3,
+        previous_30_uv: 2,
         mainland_visits: 9,
         mainland_visitors: 6,
         mainland_provinces: 2,
@@ -58,12 +72,27 @@ class MockStatement {
           latitude: index % 2 ? 45.46 : 32.06,
           longitude: index % 2 ? 9.19 : 118.8,
           path: "/",
-          user_agent: "Mock browser"
+          title: "Mock page",
+          referrer: "https://example.edu/",
+          user_agent: "Mozilla/5.0 Chrome/124.0",
+          as_organization: "Mock Network",
+          asn: 64500,
+          location_source: "cloudflare-direct",
+          is_new: index === 0 ? 1 : 0,
+          daily_pageviews: 2
         }))
       };
     }
     if (this.sql.includes("AS period_start")) {
       this.calls.push({ type: "trend", sql: this.sql });
+      if (this.sql.includes("substr(visited_at, 1, 13)")) {
+        return {
+          results: [
+            { period_start: "2026-10-02T00:00:00Z", visits: 2, visitors: 2 },
+            { period_start: "2026-10-02T02:00:00Z", visits: 3, visitors: 2 }
+          ]
+        };
+      }
       return {
         results: [
           { period_start: "2026-09-30", visits: 4, visitors: 3 },
@@ -84,6 +113,22 @@ class MockStatement {
         results: [
           { country: "CN", region: "Jiangsu", region_code: "JS", visits: 9, visitors: 6, latitude: 32.06, longitude: 118.8 },
           { country: "IT", region: "", region_code: "", visits: 8, visitors: 5, latitude: 45.46, longitude: 9.19 }
+        ]
+      };
+    }
+    if (this.sql.includes("GROUP BY country, location")) {
+      return {
+        results: [
+          { country: "CN", location: "Jiangsu", region: "Jiangsu", city: "", visits: 9, visitors: 6, last_visit: "2026-10-02T00:00:00.000Z" },
+          { country: "IT", location: "Milan", region: "Lombardy", city: "Milan", visits: 8, visitors: 5, last_visit: "2026-09-28T00:00:00.000Z" }
+        ]
+      };
+    }
+    if (this.sql.includes("AS locations")) {
+      return {
+        results: [
+          { country: "CN", locations: 2, visits: 15, visitors: 9, last_visit: "2026-10-02T00:00:00.000Z" },
+          { country: "IT", locations: 1, visits: 8, visitors: 5, last_visit: "2026-09-28T00:00:00.000Z" }
         ]
       };
     }
@@ -124,21 +169,28 @@ async function authenticatedCookie(env) {
   return response.headers.get("set-cookie").split(";")[0];
 }
 
-test("admin page includes the map, interval trend chart, and paginated visit controls", async () => {
+test("admin page includes reference-style overview, filters, maps, trends, and paginated visits", async () => {
   const { env } = createEnv();
   const response = await worker.fetch(new Request("https://analytics.example/admin"), env);
   const html = await response.text();
 
   assert.equal(response.status, 200);
   assert.match(html, /id="visitor-map"/);
+  assert.match(html, /Traffic Overview/);
+  assert.match(html, /data-range="30d"/);
+  assert.match(html, /id="from-date"/);
+  assert.match(html, /id="geography"/);
+  assert.match(html, /id="geo-heatmap"/);
   assert.match(html, /id="visits-trend"/);
+  assert.match(html, /data-interval="hour"/);
   assert.match(html, /data-interval="day"/);
   assert.match(html, /data-interval="year"/);
   assert.match(html, /id="page-numbers"/);
-  assert.match(html, /Top Countries\/Regions/);
+  assert.match(html, /Audience Geolocation/);
   assert.match(html, /China Mainland Coverage/);
   assert.match(html, /id="provinces"/);
   assert.match(html, /leaflet@1\.9\.4/);
+  assert.match(html, /topojson-client@3\.1\.0/);
   assert.match(html, /chart\.js@4\.4\.7/);
   assert.doesNotMatch(html, /<h2>Top Countries<\/h2>/);
 
@@ -165,6 +217,22 @@ test("visit history returns every record through ten-row pages", async () => {
   assert.deepEqual(calls.find((call) => call.type === "visits").values, [10, 10]);
 });
 
+test("visit history applies inclusive date-range filters before pagination", async () => {
+  const { env, calls } = createEnv();
+  const cookie = await authenticatedCookie(env);
+  const response = await worker.fetch(new Request("https://analytics.example/api/admin/visits?from=2026-09-01&to=2026-09-30", {
+    headers: { cookie }
+  }), env);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(calls.find((call) => call.type === "visits").values, [
+    "2026-09-01T00:00:00.000Z",
+    "2026-10-01T00:00:00.000Z",
+    10,
+    0
+  ]);
+});
+
 test("summary map aggregates all historical countries and regions", async () => {
   const { env } = createEnv();
   const cookie = await authenticatedCookie(env);
@@ -180,6 +248,9 @@ test("summary map aggregates all historical countries and regions", async () => 
   assert.equal(data.mapCountries[0].visits, 9);
   assert.equal(data.mainland.provinces, 2);
   assert.equal(data.provinces[0].region, "Jiangsu");
+  assert.deepEqual(data.periods.today, { pv: 3, uv: 2 });
+  assert.equal(data.geography.countries.length, 2);
+  assert.equal(data.geography.locations[0].location, "Jiangsu");
   assert.equal(data.latest, undefined);
 });
 
@@ -274,6 +345,25 @@ test("trend endpoint groups authenticated history and fills empty periods", asyn
     { period: "2026-10-02", visits: 7, visitors: 5 }
   ]);
   assert.match(calls.find((call) => call.type === "trend").sql, /substr\(visited_at, 1, 10\)/);
+});
+
+test("live trend endpoint groups the last 24 hours and fills missing hours", async () => {
+  const { env, calls } = createEnv();
+  const cookie = await authenticatedCookie(env);
+  const response = await worker.fetch(new Request("https://analytics.example/api/admin/trend?interval=hour", {
+    headers: { cookie }
+  }), env);
+  const data = await response.json();
+
+  assert.equal(response.status, 200);
+  assert.equal(data.interval, "hour");
+  assert.equal(data.scope, "last-24-hours");
+  assert.deepEqual(data.points, [
+    { period: "2026-10-02T00:00:00Z", visits: 2, visitors: 2 },
+    { period: "2026-10-02T01:00:00Z", visits: 0, visitors: 0 },
+    { period: "2026-10-02T02:00:00Z", visits: 3, visitors: 2 }
+  ]);
+  assert.match(calls.find((call) => call.type === "trend").sql, /datetime\('now', '-24 hours'\)/);
 });
 
 test("trend endpoint rejects unauthenticated requests", async () => {

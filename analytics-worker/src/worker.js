@@ -4,6 +4,7 @@ const MAX_BODY_LENGTH = 4096;
 const VISITS_PER_PAGE = 10;
 const MAX_TREND_POINTS = 5000;
 const TREND_BUCKETS = {
+  hour: "substr(visited_at, 1, 13) || ':00:00Z'",
   day: "substr(visited_at, 1, 10)",
   week: "date(visited_at, '-' || ((CAST(strftime('%w', visited_at) AS INTEGER) + 6) % 7) || ' days')",
   month: "substr(visited_at, 1, 7)",
@@ -98,7 +99,7 @@ export default {
       if (url.pathname === "/api/admin/summary" && request.method === "GET") {
         const unauthorized = await unauthorizedResponse(request, env);
         if (unauthorized) return unauthorized;
-        return jsonResponse(await adminSummary(env));
+        return jsonResponse(await adminSummary(url, env));
       }
 
       if (url.pathname === "/api/admin/trend" && request.method === "GET") {
@@ -331,14 +332,40 @@ async function stats(env) {
   };
 }
 
-async function adminSummary(env) {
-  const totals = await env.DB.prepare(`
+async function adminSummary(url, env) {
+  const range = readDateRange(url);
+  const rangeFilter = visitRangeFilter(range);
+  const totals = await queryFirst(env, `
     SELECT
       COUNT(*) AS pv,
       COUNT(DISTINCT visitor_key) AS uv,
       COUNT(DISTINCT ip) AS unique_ips,
-      SUM(CASE WHEN visited_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day') THEN 1 ELSE 0 END) AS pv_24h,
-      COUNT(DISTINCT CASE WHEN visited_at >= strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day') THEN visitor_key END) AS uv_24h,
+      MIN(visited_at) AS first_visit,
+      MAX(visited_at) AS last_visit,
+      SUM(CASE WHEN datetime(visited_at) >= datetime('now', '-1 day') THEN 1 ELSE 0 END) AS pv_24h,
+      COUNT(DISTINCT CASE WHEN datetime(visited_at) >= datetime('now', '-1 day') THEN visitor_key END) AS uv_24h,
+      SUM(CASE WHEN substr(visited_at, 1, 10) = date('now') THEN 1 ELSE 0 END) AS today_pv,
+      COUNT(DISTINCT CASE WHEN substr(visited_at, 1, 10) = date('now') THEN visitor_key END) AS today_uv,
+      SUM(CASE WHEN substr(visited_at, 1, 10) = date('now', '-1 day') THEN 1 ELSE 0 END) AS yesterday_pv,
+      COUNT(DISTINCT CASE WHEN substr(visited_at, 1, 10) = date('now', '-1 day') THEN visitor_key END) AS yesterday_uv,
+      SUM(CASE WHEN substr(visited_at, 1, 10) >= date('now', '-7 days') AND substr(visited_at, 1, 10) < date('now') THEN 1 ELSE 0 END) AS last_7_pv,
+      COUNT(DISTINCT CASE WHEN substr(visited_at, 1, 10) >= date('now', '-7 days') AND substr(visited_at, 1, 10) < date('now') THEN visitor_key END) AS last_7_uv,
+      SUM(CASE WHEN substr(visited_at, 1, 10) >= date('now', '-14 days') AND substr(visited_at, 1, 10) < date('now', '-7 days') THEN 1 ELSE 0 END) AS previous_7_pv,
+      COUNT(DISTINCT CASE WHEN substr(visited_at, 1, 10) >= date('now', '-14 days') AND substr(visited_at, 1, 10) < date('now', '-7 days') THEN visitor_key END) AS previous_7_uv,
+      SUM(CASE WHEN substr(visited_at, 1, 10) >= date('now', '-30 days') AND substr(visited_at, 1, 10) < date('now') THEN 1 ELSE 0 END) AS last_30_pv,
+      COUNT(DISTINCT CASE WHEN substr(visited_at, 1, 10) >= date('now', '-30 days') AND substr(visited_at, 1, 10) < date('now') THEN visitor_key END) AS last_30_uv,
+      SUM(CASE WHEN substr(visited_at, 1, 10) >= date('now', '-60 days') AND substr(visited_at, 1, 10) < date('now', '-30 days') THEN 1 ELSE 0 END) AS previous_30_pv,
+      COUNT(DISTINCT CASE WHEN substr(visited_at, 1, 10) >= date('now', '-60 days') AND substr(visited_at, 1, 10) < date('now', '-30 days') THEN visitor_key END) AS previous_30_uv
+    FROM visits
+  `);
+
+  const rangeTotals = await queryFirst(env, `
+    SELECT
+      COUNT(*) AS pv,
+      COUNT(DISTINCT visitor_key) AS uv,
+      COUNT(DISTINCT ip) AS unique_ips,
+      MIN(visited_at) AS first_visit,
+      MAX(visited_at) AS last_visit,
       SUM(CASE WHEN country = 'CN' THEN 1 ELSE 0 END) AS mainland_visits,
       COUNT(DISTINCT CASE WHEN country = 'CN' THEN visitor_key END) AS mainland_visitors,
       COUNT(DISTINCT CASE WHEN country = 'CN' AND region IS NOT NULL AND region != '' THEN region END) AS mainland_provinces,
@@ -346,46 +373,45 @@ async function adminSummary(env) {
       SUM(CASE WHEN mainland_signal = 1 AND country != 'CN' THEN 1 ELSE 0 END) AS likely_proxy_visits,
       COUNT(DISTINCT CASE WHEN mainland_signal = 1 AND country != 'CN' THEN visitor_key END) AS likely_proxy_visitors
     FROM visits
-  `).first();
+    ${rangeFilter.sql}
+  `, rangeFilter.values);
 
-  const countries = await env.DB.prepare(`
-    SELECT country, COUNT(*) AS visits, COUNT(DISTINCT visitor_key) AS visitors
+  const countriesFilter = visitRangeFilter(range, ["country IS NOT NULL", "country != ''"]);
+  const pagesFilter = visitRangeFilter(range, ["path IS NOT NULL", "path != ''"]);
+  const pages = await queryAll(env, `
+    SELECT path, COUNT(*) AS visits, COUNT(DISTINCT visitor_key) AS visitors, MAX(visited_at) AS last_visit
     FROM visits
-    WHERE country IS NOT NULL AND country != ''
-    GROUP BY country
-    ORDER BY visits DESC
-    LIMIT 10
-  `).all();
-
-  const pages = await env.DB.prepare(`
-    SELECT path, COUNT(*) AS visits, COUNT(DISTINCT visitor_key) AS visitors
-    FROM visits
-    WHERE path IS NOT NULL AND path != ''
+    ${pagesFilter.sql}
     GROUP BY path
-    ORDER BY visits DESC
+    ORDER BY visits DESC, path ASC
     LIMIT 10
-  `).all();
+  `, pagesFilter.values);
 
-  const provinces = await env.DB.prepare(`
+  const provincesFilter = visitRangeFilter(range, ["country = 'CN'", "region IS NOT NULL", "region != ''"]);
+  const provinces = await queryAll(env, `
     SELECT
       region,
       MAX(region_code) AS region_code,
       COUNT(*) AS visits,
       COUNT(DISTINCT visitor_key) AS visitors,
+      MAX(visited_at) AS last_visit,
       SUM(CASE WHEN location_source IN ('ipip-client', 'cloudflare+ipip') THEN 1 ELSE 0 END) AS resolved_visits
     FROM visits
-    WHERE country = 'CN' AND region IS NOT NULL AND region != ''
+    ${provincesFilter.sql}
     GROUP BY region
     ORDER BY visits DESC, region ASC
-  `).all();
+  `, provincesFilter.values);
 
-  const mapCountries = await env.DB.prepare(`
+  const mapFilter = visitRangeFilter(range, ["country IS NOT NULL", "country != ''"]);
+  const mapCountries = await queryAll(env, `
     SELECT
       country,
       CASE WHEN country = 'CN' THEN region ELSE '' END AS region,
       MAX(CASE WHEN country = 'CN' THEN region_code ELSE '' END) AS region_code,
       COUNT(*) AS visits,
       COUNT(DISTINCT visitor_key) AS visitors,
+      COUNT(DISTINCT COALESCE(NULLIF(city, ''), NULLIF(region, ''), country)) AS locations,
+      MAX(visited_at) AS last_visit,
       AVG(CASE
         WHEN latitude BETWEEN -90 AND 90
           AND longitude BETWEEN -180 AND 180
@@ -399,59 +425,127 @@ async function adminSummary(env) {
         THEN longitude
       END) AS longitude
     FROM visits
-    WHERE country IS NOT NULL AND country != ''
+    ${mapFilter.sql}
     GROUP BY
       country,
       CASE WHEN country = 'CN' THEN region ELSE '' END
     ORDER BY visits DESC
-  `).all();
+  `, mapFilter.values);
+
+  const geographyCountries = await queryAll(env, `
+    SELECT
+      country,
+      COUNT(DISTINCT CASE
+        WHEN country = 'CN' THEN COALESCE(NULLIF(region, ''), country)
+        ELSE COALESCE(NULLIF(city, ''), NULLIF(region, ''), country)
+      END) AS locations,
+      COUNT(*) AS visits,
+      COUNT(DISTINCT visitor_key) AS visitors,
+      MAX(visited_at) AS last_visit
+    FROM visits
+    ${countriesFilter.sql}
+    GROUP BY country
+    ORDER BY visits DESC, country ASC
+  `, countriesFilter.values);
+
+  const locationsFilter = visitRangeFilter(range, ["country IS NOT NULL", "country != ''"]);
+  const geographyLocations = await queryAll(env, `
+    SELECT
+      country,
+      CASE
+        WHEN country = 'CN' THEN COALESCE(NULLIF(region, ''), 'Unknown location')
+        ELSE COALESCE(NULLIF(city, ''), NULLIF(region, ''), 'Unknown location')
+      END AS location,
+      MAX(region) AS region,
+      CASE WHEN country = 'CN' THEN '' ELSE MAX(city) END AS city,
+      COUNT(*) AS visits,
+      COUNT(DISTINCT visitor_key) AS visitors,
+      MAX(visited_at) AS last_visit
+    FROM visits
+    ${locationsFilter.sql}
+    GROUP BY country, location
+    ORDER BY visits DESC, country ASC, location ASC
+    LIMIT 500
+  `, locationsFilter.values);
 
   return {
+    generatedAt: new Date().toISOString(),
     totals: {
       pv: Number(totals?.pv || 0),
       uv: Number(totals?.uv || 0),
       uniqueIps: Number(totals?.unique_ips || 0),
       pv24h: Number(totals?.pv_24h || 0),
-      uv24h: Number(totals?.uv_24h || 0)
+      uv24h: Number(totals?.uv_24h || 0),
+      firstVisit: clean(totals?.first_visit),
+      lastVisit: clean(totals?.last_visit)
+    },
+    periods: {
+      today: periodValues(totals, "today"),
+      yesterday: periodValues(totals, "yesterday"),
+      last7: periodValues(totals, "last_7"),
+      previous7: periodValues(totals, "previous_7"),
+      last30: periodValues(totals, "last_30"),
+      previous30: periodValues(totals, "previous_30")
+    },
+    range: {
+      from: range.from,
+      to: range.to,
+      pv: Number(rangeTotals?.pv || 0),
+      uv: Number(rangeTotals?.uv || 0),
+      uniqueIps: Number(rangeTotals?.unique_ips || 0),
+      firstVisit: clean(rangeTotals?.first_visit),
+      lastVisit: clean(rangeTotals?.last_visit)
     },
     mainland: {
-      visits: Number(totals?.mainland_visits || 0),
-      visitors: Number(totals?.mainland_visitors || 0),
-      provinces: Number(totals?.mainland_provinces || 0),
-      resolvedVisits: Number(totals?.mainland_resolved_visits || 0),
-      likelyProxyVisits: Number(totals?.likely_proxy_visits || 0),
-      likelyProxyVisitors: Number(totals?.likely_proxy_visitors || 0)
+      visits: Number(rangeTotals?.mainland_visits || 0),
+      visitors: Number(rangeTotals?.mainland_visitors || 0),
+      provinces: Number(rangeTotals?.mainland_provinces || 0),
+      resolvedVisits: Number(rangeTotals?.mainland_resolved_visits || 0),
+      likelyProxyVisits: Number(rangeTotals?.likely_proxy_visits || 0),
+      likelyProxyVisitors: Number(rangeTotals?.likely_proxy_visitors || 0)
     },
-    countries: countries.results || [],
     provinces: provinces.results || [],
     pages: pages.results || [],
-    mapCountries: mapCountries.results || []
+    mapCountries: mapCountries.results || [],
+    geography: {
+      countries: geographyCountries.results || [],
+      locations: geographyLocations.results || []
+    }
   };
 }
 
 async function adminVisits(url, env) {
   const requestedPage = clamp(Number(url.searchParams.get("page") || 1), 1, 1000000);
-  const totalRow = await env.DB.prepare("SELECT COUNT(*) AS total FROM visits").first();
+  const range = readDateRange(url);
+  const totalFilter = visitRangeFilter(range);
+  const totalRow = await queryFirst(env, `SELECT COUNT(*) AS total FROM visits ${totalFilter.sql}`, totalFilter.values);
   const total = Number(totalRow?.total || 0);
   const totalPages = Math.max(1, Math.ceil(total / VISITS_PER_PAGE));
   const page = Math.min(requestedPage, totalPages);
   const offset = (page - 1) * VISITS_PER_PAGE;
-  const rows = await env.DB.prepare(`
-    SELECT id, visited_at, visitor_key, ip, country, region, region_code, city, latitude, longitude,
-           timezone, asn, as_organization, colo, path, title, referrer, user_agent,
-           language, screen, client_timezone, edge_ip, edge_country, edge_region, edge_city,
-           location_source, mainland_signal, client_isp
-    FROM visits
-    ORDER BY id DESC
+  const rowFilter = visitRangeFilter(range, [], "v.visited_at");
+  const rows = await queryAll(env, `
+    SELECT v.id, v.visited_at, v.visitor_key, v.ip, v.country, v.region, v.region_code, v.city, v.latitude, v.longitude,
+           v.timezone, v.asn, v.as_organization, v.colo, v.path, v.title, v.referrer, v.user_agent,
+           v.language, v.screen, v.client_timezone, v.edge_ip, v.edge_country, v.edge_region, v.edge_city,
+           v.location_source, v.mainland_signal, v.client_isp,
+           CASE WHEN v.id = (SELECT MIN(first_visit.id) FROM visits first_visit WHERE first_visit.visitor_key = v.visitor_key) THEN 1 ELSE 0 END AS is_new,
+           (SELECT COUNT(*) FROM visits daily_visit
+             WHERE daily_visit.visitor_key = v.visitor_key
+               AND substr(daily_visit.visited_at, 1, 10) = substr(v.visited_at, 1, 10)) AS daily_pageviews
+    FROM visits v
+    ${rowFilter.sql}
+    ORDER BY v.id DESC
     LIMIT ? OFFSET ?
-  `).bind(VISITS_PER_PAGE, offset).all();
+  `, [...rowFilter.values, VISITS_PER_PAGE, offset]);
 
   return {
     visits: rows.results || [],
     page,
     pageSize: VISITS_PER_PAGE,
     total,
-    totalPages
+    totalPages,
+    range
   };
 }
 
@@ -459,21 +553,80 @@ async function adminTrend(url, env) {
   const requestedInterval = String(url.searchParams.get("interval") || "day").toLowerCase();
   const interval = Object.hasOwn(TREND_BUCKETS, requestedInterval) ? requestedInterval : "day";
   const bucket = TREND_BUCKETS[interval];
-  const rows = await env.DB.prepare(`
+  const range = readDateRange(url);
+  const filter = interval === "hour"
+    ? { sql: "WHERE visited_at IS NOT NULL AND visited_at != '' AND datetime(visited_at) >= datetime('now', '-24 hours')", values: [] }
+    : visitRangeFilter(range, ["visited_at IS NOT NULL", "visited_at != ''"]);
+  const rows = await queryAll(env, `
     SELECT
       ${bucket} AS period_start,
       COUNT(*) AS visits,
       COUNT(DISTINCT visitor_key) AS visitors
     FROM visits
-    WHERE visited_at IS NOT NULL AND visited_at != ''
+    ${filter.sql}
     GROUP BY period_start
     ORDER BY period_start ASC
-  `).all();
+  `, filter.values);
 
   return {
     interval,
+    range,
+    scope: interval === "hour" ? "last-24-hours" : "selected-range",
     points: fillTrendPoints(rows.results || [], interval)
   };
+}
+
+function periodValues(row, prefix) {
+  return {
+    pv: Number(row?.[`${prefix}_pv`] || 0),
+    uv: Number(row?.[`${prefix}_uv`] || 0)
+  };
+}
+
+function readDateRange(url) {
+  let from = validDateKey(url.searchParams.get("from"));
+  let to = validDateKey(url.searchParams.get("to"));
+  if (from && to && from > to) [from, to] = [to, from];
+  return { from, to };
+}
+
+function validDateKey(value) {
+  const candidate = clean(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(candidate)) return "";
+  const date = new Date(`${candidate}T00:00:00Z`);
+  return Number.isNaN(date.valueOf()) || date.toISOString().slice(0, 10) !== candidate ? "" : candidate;
+}
+
+function visitRangeFilter(range, extraClauses = [], column = "visited_at") {
+  const clauses = [...extraClauses];
+  const values = [];
+  if (range.from) {
+    clauses.push(`${column} >= ?`);
+    values.push(`${range.from}T00:00:00.000Z`);
+  }
+  if (range.to) {
+    const exclusive = new Date(`${range.to}T00:00:00.000Z`);
+    exclusive.setUTCDate(exclusive.getUTCDate() + 1);
+    clauses.push(`${column} < ?`);
+    values.push(exclusive.toISOString());
+  }
+  return {
+    sql: clauses.length ? `WHERE ${clauses.join(" AND ")}` : "",
+    values
+  };
+}
+
+function queryStatement(env, sql, values) {
+  const statement = env.DB.prepare(sql);
+  return values.length ? statement.bind(...values) : statement;
+}
+
+function queryFirst(env, sql, values = []) {
+  return queryStatement(env, sql, values).first();
+}
+
+function queryAll(env, sql, values = []) {
+  return queryStatement(env, sql, values).all();
 }
 
 function fillTrendPoints(rows, interval) {
@@ -507,7 +660,9 @@ function fillTrendPoints(rows, interval) {
 }
 
 function trendPeriodDate(period, interval) {
-  const value = interval === "year"
+  const value = interval === "hour"
+    ? period
+    : interval === "year"
     ? `${period}-01-01T00:00:00Z`
     : interval === "month"
       ? `${period}-01T00:00:00Z`
@@ -520,6 +675,7 @@ function trendPeriodKey(date, interval) {
   const year = String(date.getUTCFullYear()).padStart(4, "0");
   const month = String(date.getUTCMonth() + 1).padStart(2, "0");
   const day = String(date.getUTCDate()).padStart(2, "0");
+  if (interval === "hour") return `${year}-${month}-${day}T${String(date.getUTCHours()).padStart(2, "0")}:00:00Z`;
   if (interval === "year") return year;
   if (interval === "month") return `${year}-${month}`;
   return `${year}-${month}-${day}`;
@@ -527,7 +683,8 @@ function trendPeriodKey(date, interval) {
 
 function nextTrendPeriod(date, interval) {
   const next = new Date(date);
-  if (interval === "year") next.setUTCFullYear(next.getUTCFullYear() + 1);
+  if (interval === "hour") next.setUTCHours(next.getUTCHours() + 1);
+  else if (interval === "year") next.setUTCFullYear(next.getUTCFullYear() + 1);
   else if (interval === "month") next.setUTCMonth(next.getUTCMonth() + 1);
   else next.setUTCDate(next.getUTCDate() + (interval === "week" ? 7 : 1));
   return next;
@@ -722,13 +879,13 @@ function adminPage(env) {
   <title>${escapeHtml(title)} Admin</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    :root { color-scheme: light dark; --bg: #f7f8f6; --ink: #17211d; --muted: #63706a; --line: #dbe2dd; --card: #ffffff; --accent: #0f766e; --accent-2: #b45309; --chart-grid: rgba(99, 112, 106, 0.18); }
-    @media (prefers-color-scheme: dark) { :root { --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --card: #161c19; --accent: #5eead4; --accent-2: #fbbf24; --chart-grid: rgba(170, 181, 175, 0.16); } }
+    :root { color-scheme: light dark; --bg: #f5f7f6; --ink: #16201c; --muted: #66736d; --line: #d8dfdb; --line-strong: #c4cec8; --card: #ffffff; --soft: #eef3f0; --accent: #0f766e; --accent-dark: #0b514c; --accent-2: #b45309; --alert: #c2413a; --chart-grid: rgba(99, 112, 106, 0.18); }
+    @media (prefers-color-scheme: dark) { :root { --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --line-strong: #425048; --card: #161c19; --soft: #1d2521; --accent: #5eead4; --accent-dark: #2dd4bf; --accent-2: #fbbf24; --alert: #fb7185; --chart-grid: rgba(170, 181, 175, 0.16); } }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+    main { width: min(1280px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
     header { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 24px; }
-    h1 { margin: 0; font-size: clamp(26px, 4vw, 42px); letter-spacing: 0; }
+    h1 { margin: 0; font-size: 30px; letter-spacing: 0; }
     h2 { margin: 0 0 12px; font-size: 18px; }
     p { color: var(--muted); }
     button, input { font: inherit; }
@@ -736,7 +893,7 @@ function adminPage(env) {
     button.secondary { color: var(--ink); background: transparent; border: 1px solid var(--line); }
     button:disabled { cursor: not-allowed; opacity: 0.45; }
     input { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--card); color: var(--ink); }
-    .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; box-shadow: 0 18px 48px rgba(15, 23, 42, 0.08); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045); }
     .login { max-width: 420px; margin: 12vh auto; display: grid; gap: 14px; }
     .hidden { display: none !important; }
     .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -781,10 +938,82 @@ function adminPage(env) {
     .pagination button { min-width: 38px; height: 38px; padding: 0 10px; }
     .pagination button[aria-current="page"] { color: #fff; border-color: var(--accent); background: var(--accent); }
     .page-ellipsis { padding: 0 3px; color: var(--muted); }
+    .eyebrow { display: block; margin-bottom: 4px; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
+    .header-actions { display: flex; gap: 8px; }
+    .overview-card { margin-bottom: 16px; padding: 0; overflow: hidden; }
+    .overview-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+    .overview-head h2, .overview-head p { margin: 0; }
+    .overview-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .overview-item { min-width: 0; padding: 16px 14px 18px; border-right: 1px solid var(--line); text-align: center; }
+    .overview-item:last-child { border-right: 0; }
+    .overview-item span { display: block; min-height: 36px; color: var(--muted); font-size: 12px; }
+    .overview-item strong { display: block; margin: 2px 0; font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .overview-item small { display: block; min-height: 30px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+    .overview-item .positive { color: var(--accent); }
+    .overview-item .negative { color: var(--alert); }
+    .range-bar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--line); background: var(--soft); }
+    .range-presets, .custom-range { display: flex; flex-wrap: wrap; align-items: end; gap: 6px; }
+    .range-presets { padding: 3px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); }
+    .range-presets button { min-width: 64px; padding: 7px 10px; border-radius: 6px; color: var(--muted); background: transparent; }
+    .range-presets button[aria-pressed="true"] { color: #fff; background: var(--accent); }
+    .date-field { display: grid; gap: 3px; color: var(--muted); font-size: 11px; font-weight: 700; }
+    .date-field input { width: 142px; padding: 7px 9px; border-radius: 6px; background: var(--card); }
+    .range-error { width: 100%; margin: 0; color: var(--alert); font-size: 12px; }
+    .map-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 18px 16px; }
+    .map-legend { padding: 0; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+    .legend-dot.recent { background: var(--alert); }
+    .activity-card, .geo-card { margin-bottom: 16px; }
+    .activity-card .section-head, .geo-card .section-head { margin-bottom: 10px; }
+    .activity-table { min-width: 860px; }
+    .activity-table th:last-child, .activity-table td:last-child { width: 46px; text-align: right; }
+    .activity-table tr.visit-detail td { padding: 0; border-bottom: 1px solid var(--line-strong); background: var(--soft); text-align: left; }
+    .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 24px; padding: 16px 18px 18px 48px; }
+    .detail-item { min-width: 0; }
+    .detail-item span { display: block; margin-bottom: 3px; color: var(--muted); font-size: 11px; font-weight: 750; text-transform: uppercase; }
+    .detail-item strong, .detail-item code { overflow-wrap: anywhere; font-weight: 500; }
+    .visit-identity { display: flex; gap: 10px; align-items: flex-start; }
+    .country-code { display: inline-grid; width: 34px; height: 24px; flex: 0 0 34px; place-items: center; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: var(--soft); font-size: 10px; font-weight: 800; }
+    .visit-label { min-width: 0; }
+    .visit-label strong { display: block; }
+    .visit-label span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .new-tag { display: inline-block !important; width: fit-content; margin: 0 5px 0 0 !important; padding: 1px 5px; border-radius: 4px; color: #7c3f05 !important; background: #fef3c7; font-size: 10px !important; font-weight: 800; text-transform: uppercase; }
+    .location-button { margin: 0; padding: 0; border: 0; color: var(--accent); background: transparent; text-align: left; }
+    .expand-button { width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: transparent; font-size: 18px; line-height: 1; }
+    .expand-button:hover { border-color: var(--accent); color: var(--accent); }
+    .time-cell { white-space: nowrap; }
+    .time-cell strong, .time-cell span { display: block; }
+    .time-cell span { color: var(--muted); font-size: 12px; }
+    .ua-cell strong, .ua-cell span { display: block; }
+    .ua-cell span { margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .trend-card { padding: 18px; }
+    .geo-scale { display: flex; width: 180px; height: 7px; overflow: hidden; border-radius: 4px; background: linear-gradient(90deg, #d9ebe8, var(--accent)); }
+    .geo-head-meta { display: grid; justify-items: end; gap: 8px; }
+    #geo-heatmap { position: relative; width: 100%; height: 300px; margin: 4px 0 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
+    #geo-heatmap.leaflet-container { background: var(--soft); }
+    .geo-map-status { position: absolute; inset: 0; z-index: 500; display: grid; place-items: center; margin: 0; background: var(--soft); text-align: center; }
+    .geo-table { min-width: 900px; }
+    .geo-table .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+    .geo-country-row { cursor: pointer; }
+    .geo-country-row:hover { background: var(--soft); }
+    .geo-toggle { display: inline-flex; align-items: center; gap: 9px; color: var(--ink); }
+    .geo-location-row td { color: var(--muted); background: var(--soft); }
+    .geo-location-row td:first-child { padding-left: 56px; }
+    .share-track { width: 86px; height: 5px; overflow: hidden; border-radius: 3px; background: var(--line); }
+    .share-fill { display: block; height: 100%; background: var(--accent); }
+    .secondary-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr); gap: 16px; align-items: start; }
+    .rank-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+    .rank-row:last-child { border-bottom: 0; }
+    .rank-row code { overflow-wrap: anywhere; }
+    .rank-meta { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
     @media (prefers-color-scheme: dark) { .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); } }
-    @media (max-width: 860px) { .stats, .grid, .mainland-metrics { grid-template-columns: 1fr; } .province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } header, .map-heading, .section-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } }
+    @media (max-width: 1040px) { .overview-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } .overview-item:nth-child(4) { border-right: 0; } .overview-item:nth-child(n+5) { border-top: 1px solid var(--line); } }
+    @media (max-width: 860px) { .stats, .grid, .mainland-metrics, .secondary-grid { grid-template-columns: 1fr; } .province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } header, .map-heading, .section-head, .overview-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 18px; } }
     @media (max-width: 620px) { .province-list { grid-template-columns: 1fr; } }
-    @media (max-width: 520px) { .trend-controls { width: 100%; } .trend-controls button { min-width: 0; flex: 1; padding-inline: 6px; } }
+    @media (max-width: 620px) { main { width: min(100% - 20px, 1280px); padding-top: 18px; } .overview-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .overview-item { border-top: 1px solid var(--line); } .overview-item:nth-child(-n+2) { border-top: 0; } .overview-item:nth-child(even) { border-right: 0; } .overview-item:nth-child(4) { border-right: 0; } .custom-range { width: 100%; } .date-field { flex: 1; } .date-field input { width: 100%; } .activity-table { min-width: 0; } .activity-table th:nth-child(2), .activity-table th:nth-child(3), .activity-table th:nth-child(4), .activity-table .visit-main td:nth-child(2), .activity-table .visit-main td:nth-child(3), .activity-table .visit-main td:nth-child(4) { display: none; } .activity-table th:nth-child(5), .activity-table .visit-main td:nth-child(5) { width: 112px; } .detail-grid { grid-template-columns: 1fr; padding: 15px 12px; } #geo-heatmap { height: 235px; } }
+    @media (max-width: 520px) { .trend-controls { width: 100%; } .trend-controls button { min-width: 0; flex: 1; padding-inline: 6px; } .range-presets { width: 100%; } .range-presets button { min-width: 0; flex: 1; } .header-actions { width: 100%; } .header-actions button { flex: 1; } }
   </style>
 </head>
 <body>
@@ -805,60 +1034,105 @@ function adminPage(env) {
     <section id="dashboard" class="hidden">
       <header>
         <div>
+          <span class="eyebrow">Private analytics</span>
           <h1>${escapeHtml(title)}</h1>
-          <p>Visitor IPs, approximate locations, pages, referrers, and recent visits.</p>
+          <p>Live and historical visitor intelligence for the academic homepage.</p>
         </div>
-        <div>
+        <div class="header-actions">
           <button id="refresh-button" type="button">Refresh</button>
           <button id="logout-button" type="button" class="secondary">Log out</button>
         </div>
       </header>
 
+      <section class="card overview-card" aria-labelledby="overview-title">
+        <div class="overview-head">
+          <div>
+            <h2 id="overview-title">Traffic Overview</h2>
+            <p>Page views with unique visitors shown beneath each period.</p>
+          </div>
+          <p id="last-refresh" class="muted">Waiting for the first refresh.</p>
+        </div>
+        <div class="overview-strip">
+          <div class="overview-item"><span>Today</span><strong id="today-pv">0</strong><small id="today-meta">0 unique visitors</small></div>
+          <div class="overview-item"><span>Yesterday</span><strong id="yesterday-pv">0</strong><small id="yesterday-meta">0 unique visitors</small></div>
+          <div class="overview-item"><span>Last 7 days</span><strong id="last7-pv">0</strong><small id="last7-meta">0 unique visitors</small></div>
+          <div class="overview-item"><span>Previous 7 days</span><strong id="previous7-pv">0</strong><small id="previous7-meta">0 unique visitors</small></div>
+          <div class="overview-item"><span>Last 30 days</span><strong id="last30-pv">0</strong><small id="last30-meta">0 unique visitors</small></div>
+          <div class="overview-item"><span>Previous 30 days</span><strong id="previous30-pv">0</strong><small id="previous30-meta">0 unique visitors</small></div>
+          <div class="overview-item"><span>Total page views</span><strong id="total-pv">0</strong><small id="total-meta">No visits yet</small></div>
+        </div>
+      </section>
+
       <article class="card map-card">
         <div class="map-heading">
           <div>
             <h2>Visitor Map</h2>
-            <p id="map-summary">All stored visits grouped by country or region.</p>
+            <p id="map-summary">Loading mapped visitor locations...</p>
           </div>
-          <span class="map-badge">All-time</span>
+          <span id="range-label" class="map-badge">All time</span>
+        </div>
+        <div class="range-bar">
+          <div id="range-presets" class="range-presets" role="group" aria-label="Date range">
+            <button type="button" data-range="today" aria-pressed="false">Today</button>
+            <button type="button" data-range="7d" aria-pressed="false">7 days</button>
+            <button type="button" data-range="30d" aria-pressed="false">30 days</button>
+            <button type="button" data-range="year" aria-pressed="false">This year</button>
+            <button type="button" data-range="all" aria-pressed="true">All time</button>
+          </div>
+          <div class="custom-range">
+            <label class="date-field">From <input id="from-date" type="date" aria-label="Start date"></label>
+            <label class="date-field">To <input id="to-date" type="date" aria-label="End date"></label>
+            <button id="apply-range" type="button">Apply</button>
+          </div>
+          <p id="range-error" class="range-error hidden" role="alert"></p>
         </div>
         <div id="visitor-map" role="img" aria-label="World map showing visitor countries and regions"></div>
-        <div id="map-legend" class="map-legend"></div>
+        <div class="map-footer">
+          <div id="map-legend" class="map-legend" aria-label="Map legend"></div>
+          <span id="range-summary" class="muted">No range data loaded.</span>
+        </div>
       </article>
 
-      <section class="stats">
-        <article class="card stat"><span class="muted">PV</span><strong id="pv">0</strong></article>
-        <article class="card stat"><span class="muted">UV</span><strong id="uv">0</strong></article>
-        <article class="card stat"><span class="muted">Unique IPs</span><strong id="ips">0</strong></article>
-        <article class="card stat"><span class="muted">PV 24h</span><strong id="pv24">0</strong></article>
-        <article class="card stat"><span class="muted">UV 24h</span><strong id="uv24">0</strong></article>
-      </section>
-
-      <article class="card mainland-card">
+      <article class="card activity-card">
         <div class="section-head">
           <div>
-            <h2>China Mainland Coverage</h2>
-            <p>Verified mainland locations are separated from Cloudflare edge exits and proxy indicators.</p>
+            <h2>Visitor Activity</h2>
+            <p id="visit-range">Loading visit records...</p>
           </div>
-          <span class="map-badge">Best effort</span>
         </div>
-        <div class="mainland-metrics">
-          <div class="mainland-metric"><span class="muted">Resolved visits</span><strong id="mainland-visits">0</strong></div>
-          <div class="mainland-metric"><span class="muted">Resolved visitors</span><strong id="mainland-visitors">0</strong></div>
-          <div class="mainland-metric"><span class="muted">Provinces/regions</span><strong id="mainland-provinces">0</strong></div>
-          <div class="mainland-metric"><span class="muted">Likely via proxy</span><strong id="mainland-proxy">0</strong></div>
+        <div class="table-scroll">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Visitor</th>
+                <th>Browser</th>
+                <th>OS</th>
+                <th>IP</th>
+                <th>Time</th>
+                <th><span class="sr-only">Details</span></th>
+              </tr>
+            </thead>
+            <tbody id="visits"></tbody>
+          </table>
         </div>
-        <p id="mainland-note" class="muted">Loading mainland coverage...</p>
-        <div id="provinces" class="province-list"></div>
+        <nav class="pagination" aria-label="Visit record pages">
+          <div class="pagination-controls">
+            <button id="previous-page" type="button" class="secondary" aria-label="Previous page" title="Previous page">&larr;</button>
+            <div id="page-numbers" class="page-numbers"></div>
+            <button id="next-page" type="button" class="secondary" aria-label="Next page" title="Next page">&rarr;</button>
+          </div>
+          <span id="page-summary" class="muted"></span>
+        </nav>
       </article>
 
       <article class="card trend-card">
         <div class="section-head">
           <div>
             <h2>Visit Trend</h2>
-            <p id="trend-summary" aria-live="polite">Loading all-time visit activity...</p>
+            <p id="trend-summary" aria-live="polite">Loading visit activity...</p>
           </div>
           <div id="trend-controls" class="trend-controls" role="group" aria-label="Trend interval">
+            <button type="button" data-interval="hour" aria-pressed="false">Live</button>
             <button type="button" data-interval="day" aria-pressed="true">Day</button>
             <button type="button" data-interval="week" aria-pressed="false">Week</button>
             <button type="button" data-interval="month" aria-pressed="false">Month</button>
@@ -871,52 +1145,65 @@ function adminPage(env) {
         </div>
       </article>
 
-      <section class="grid">
-        <article class="card">
+      <article class="card geo-card">
+        <div class="section-head">
+          <div>
+            <h2>Audience Geolocation</h2>
+            <p id="geo-summary">Loading countries, regions, and visit depth...</p>
+          </div>
+          <div class="geo-head-meta">
+            <span id="geo-range" class="map-badge">All time</span>
+            <div class="geo-scale" aria-hidden="true"></div>
+          </div>
+        </div>
+        <div id="geo-heatmap" role="img" aria-label="World heatmap showing visits by country or region">
+          <p id="geo-map-status" class="geo-map-status muted">Loading geographic heatmap...</p>
+        </div>
+        <div class="table-scroll">
+          <table class="geo-table">
+            <thead>
+              <tr>
+                <th>Country/Region</th>
+                <th class="numeric">Locations</th>
+                <th class="numeric">Visits</th>
+                <th class="numeric">Uniques</th>
+                <th class="numeric">Visit depth</th>
+                <th>Share</th>
+                <th>Last visit</th>
+              </tr>
+            </thead>
+            <tbody id="geography"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <section class="secondary-grid">
+        <article class="card mainland-card">
           <div class="section-head">
             <div>
-              <h2>Recent Visits</h2>
-              <p id="visit-range">Loading visit records...</p>
+              <h2>China Mainland Coverage</h2>
+              <p>Verified mainland locations are separated from Cloudflare edge exits and proxy indicators.</p>
             </div>
+            <span class="map-badge">Best effort</span>
           </div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>IP</th>
-                  <th>Location</th>
-                  <th>Page</th>
-                  <th>Network</th>
-                  <th>User Agent</th>
-                </tr>
-              </thead>
-              <tbody id="visits"></tbody>
-            </table>
+          <div class="mainland-metrics">
+            <div class="mainland-metric"><span class="muted">Mainland visits</span><strong id="mainland-visits">0</strong></div>
+            <div class="mainland-metric"><span class="muted">Resolved visitors</span><strong id="mainland-visitors">0</strong></div>
+            <div class="mainland-metric"><span class="muted">Provinces/regions</span><strong id="mainland-provinces">0</strong></div>
+            <div class="mainland-metric"><span class="muted">Likely via proxy</span><strong id="mainland-proxy">0</strong></div>
           </div>
-          <nav class="pagination" aria-label="Visit record pages">
-            <div class="pagination-controls">
-              <button id="previous-page" type="button" class="secondary" aria-label="Previous page" title="Previous page">&larr;</button>
-              <div id="page-numbers" class="page-numbers"></div>
-              <button id="next-page" type="button" class="secondary" aria-label="Next page" title="Next page">&rarr;</button>
-            </div>
-            <span id="page-summary" class="muted"></span>
-          </nav>
+          <p id="mainland-note" class="muted">Loading mainland coverage...</p>
+          <div id="provinces" class="province-list"></div>
         </article>
-        <aside class="stack">
-          <article class="card">
-            <h2>Top Countries/Regions</h2>
-            <div id="countries"></div>
-          </article>
-          <article class="card">
-            <h2>Top Pages</h2>
-            <div id="pages"></div>
-          </article>
-        </aside>
+        <article class="card">
+          <h2>Top Pages</h2>
+          <div id="pages"></div>
+        </article>
       </section>
     </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script>
     const $ = (selector) => document.querySelector(selector);
@@ -924,8 +1211,48 @@ function adminPage(env) {
     const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]));
     const regionNames = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames(["en"], { type: "region" }) : null;
     const specialRegions = { A1: "Anonymous proxy", A2: "Satellite provider", O1: "Other country or region", T1: "Tor network", XX: "Unknown country or region" };
-    const trendNames = { day: "day", week: "week", month: "month", year: "year" };
-    const state = { page: 1, totalPages: 1, map: null, markerLayer: null, trendChart: null, trendInterval: "day", trendRequest: 0, refreshTimer: null, refreshing: false };
+    const mainlandCityNames = {
+      "北京": "Beijing", "北京市": "Beijing", "上海": "Shanghai", "上海市": "Shanghai",
+      "天津": "Tianjin", "天津市": "Tianjin", "重庆": "Chongqing", "重庆市": "Chongqing",
+      "南京": "Nanjing", "南京市": "Nanjing", "广州": "Guangzhou", "广州市": "Guangzhou",
+      "深圳": "Shenzhen", "深圳市": "Shenzhen", "杭州": "Hangzhou", "杭州市": "Hangzhou",
+      "武汉": "Wuhan", "武汉市": "Wuhan", "成都": "Chengdu", "成都市": "Chengdu",
+      "西安": "Xi'an", "西安市": "Xi'an"
+    };
+    const trendNames = { hour: "hour", day: "day", week: "week", month: "month", year: "year" };
+    const rangeNames = { today: "Today", "7d": "Last 7 days", "30d": "Last 30 days", year: "This year", all: "All time", custom: "Custom range" };
+    const worldTopologyUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json";
+    const geographicAliases = {
+      "united states": "united states of america",
+      "russia": "russian federation",
+      "czechia": "czech republic",
+      "north korea": "democratic people s republic of korea",
+      "south korea": "korea",
+      "tanzania": "united republic of tanzania",
+      "vietnam": "viet nam",
+      "laos": "lao people s democratic republic",
+      "moldova": "republic of moldova",
+      "brunei": "brunei darussalam"
+    };
+    const state = {
+      page: 1,
+      totalPages: 1,
+      map: null,
+      markerLayer: null,
+      mapMarkers: [],
+      heatMap: null,
+      heatLayer: null,
+      worldGeoJson: null,
+      worldGeoJsonPromise: null,
+      heatRequest: 0,
+      trendChart: null,
+      trendInterval: "day",
+      trendRequest: 0,
+      range: { from: "", to: "", preset: "all" },
+      refreshTimer: null,
+      refreshing: false,
+      pendingRefresh: false
+    };
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -958,6 +1285,17 @@ function adminPage(env) {
         : country;
     }
 
+    function mainlandCityLabel(value) {
+      const city = String(value || "").trim();
+      if (!city) return "";
+      if (mainlandCityNames[city]) return mainlandCityNames[city];
+      const containsHan = Array.from(city).some((char) => {
+        const code = char.codePointAt(0);
+        return code >= 0x3400 && code <= 0x9fff;
+      });
+      return containsHan ? "" : city;
+    }
+
     function locationSourceLabel(visit) {
       const labels = {
         "cloudflare-direct": "Direct Cloudflare location",
@@ -969,6 +1307,96 @@ function adminPage(env) {
         return "Likely mainland via proxy";
       }
       return labels[visit.location_source] || "Stored location";
+    }
+
+    function dateKey(date) {
+      return date.toISOString().slice(0, 10);
+    }
+
+    function shiftedDate(days) {
+      const date = new Date();
+      date.setUTCHours(0, 0, 0, 0);
+      date.setUTCDate(date.getUTCDate() + days);
+      return dateKey(date);
+    }
+
+    function formatDate(value, options = {}) {
+      if (!value) return "";
+      const normalized = /^\\d{4}-\\d{2}-\\d{2}$/.test(value) ? value + "T00:00:00Z" : value;
+      const date = new Date(normalized);
+      if (Number.isNaN(date.valueOf())) return value;
+      return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: options.short ? "short" : "long",
+        day: "numeric",
+        ...(options.time ? { hour: "numeric", minute: "2-digit", second: "2-digit" } : {})
+      }).format(date);
+    }
+
+    function relativeTime(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.valueOf())) return "Unknown";
+      const seconds = Math.round((date.valueOf() - Date.now()) / 1000);
+      const ranges = [
+        { limit: 60, unit: "second", size: 1 },
+        { limit: 3600, unit: "minute", size: 60 },
+        { limit: 86400, unit: "hour", size: 3600 },
+        { limit: 604800, unit: "day", size: 86400 },
+        { limit: 2629800, unit: "week", size: 604800 },
+        { limit: 31557600, unit: "month", size: 2629800 },
+        { limit: Infinity, unit: "year", size: 31557600 }
+      ];
+      const range = ranges.find((item) => Math.abs(seconds) < item.limit) || ranges.at(-1);
+      return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(Math.round(seconds / range.size), range.unit);
+    }
+
+    function rangeQuery() {
+      const params = new URLSearchParams();
+      if (state.range.from) params.set("from", state.range.from);
+      if (state.range.to) params.set("to", state.range.to);
+      return params.toString();
+    }
+
+    function withRange(path) {
+      const query = rangeQuery();
+      if (!query) return path;
+      return path + (path.includes("?") ? "&" : "?") + query;
+    }
+
+    function activeRangeLabel() {
+      if (state.range.preset !== "custom") return rangeNames[state.range.preset] || rangeNames.all;
+      if (state.range.from && state.range.to) return formatDate(state.range.from, { short: true }) + " - " + formatDate(state.range.to, { short: true });
+      if (state.range.from) return "Since " + formatDate(state.range.from, { short: true });
+      if (state.range.to) return "Through " + formatDate(state.range.to, { short: true });
+      return rangeNames.all;
+    }
+
+    function syncRangeControls() {
+      $("#from-date").value = state.range.from;
+      $("#to-date").value = state.range.to;
+      document.querySelectorAll("#range-presets button[data-range]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.range === state.range.preset));
+      });
+      const label = activeRangeLabel();
+      $("#range-label").textContent = label;
+      $("#geo-range").textContent = label;
+    }
+
+    function rangeForPreset(preset) {
+      const today = shiftedDate(0);
+      if (preset === "today") return { from: today, to: today, preset };
+      if (preset === "7d") return { from: shiftedDate(-6), to: today, preset };
+      if (preset === "30d") return { from: shiftedDate(-29), to: today, preset };
+      if (preset === "year") return { from: today.slice(0, 4) + "-01-01", to: today, preset };
+      return { from: "", to: "", preset: "all" };
+    }
+
+    async function selectRange(range) {
+      state.range = range;
+      state.page = 1;
+      $("#range-error").classList.add("hidden");
+      syncRangeControls();
+      await refresh();
     }
 
     function setLoggedIn(value) {
@@ -985,7 +1413,9 @@ function adminPage(env) {
 
     function renderList(selector, rows, labelForRow) {
       $(selector).innerHTML = rows.length
-        ? rows.map((row) => '<div class="list-row"><span>' + escapeHtml(labelForRow(row)) + '</span><strong>' + number(row.visits) + '</strong></div>').join("")
+        ? rows.map((row) => '<div class="rank-row"><div><span>' + escapeHtml(labelForRow(row)) + '</span>' +
+            '<small class="rank-meta">' + number(row.visitors) + ' unique visitors</small></div>' +
+            '<strong>' + number(row.visits) + '</strong></div>').join("")
         : '<p class="muted">No data yet.</p>';
     }
 
@@ -993,15 +1423,21 @@ function adminPage(env) {
       if (state.map || !window.L) return state.map;
       state.map = L.map("visitor-map", {
         minZoom: 1,
-        maxZoom: 7,
+        maxZoom: 9,
         worldCopyJump: true,
         zoomControl: true
       }).setView([20, 0], 2);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      const street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 7,
+        maxZoom: 9,
         noWrap: false
       }).addTo(state.map);
+      const humanitarian = L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, tiles by HOT',
+        maxZoom: 9,
+        noWrap: false
+      });
+      L.control.layers({ "Street map": street, "Humanitarian map": humanitarian }, null, { position: "topright" }).addTo(state.map);
       state.markerLayer = L.layerGroup().addTo(state.map);
       return state.map;
     }
@@ -1009,11 +1445,12 @@ function adminPage(env) {
     function renderMap(rows) {
       const totalVisits = rows.reduce((sum, row) => sum + Number(row.visits || 0), 0);
       $("#map-summary").textContent = rows.length
-        ? number(rows.length) + " mapped locations across " + number(totalVisits) + " stored visits."
+        ? number(rows.length) + " mapped country or region groups across " + number(totalVisits) + " visits."
         : "No geolocated visits recorded yet.";
       $("#map-legend").innerHTML = rows.length
-        ? rows.map((row) => '<span class="map-chip"><span>' + escapeHtml(mapLocationLabel(row)) + '</span><strong>' + number(row.visits) + '</strong></span>').join("")
-        : '<span class="muted">Country and region names will appear here after visits are recorded.</span>';
+        ? '<span class="legend-item"><span class="legend-dot recent"></span>Active within 24 hours</span>' +
+          '<span class="legend-item"><span class="legend-dot"></span>Historical activity</span>'
+        : '<span class="muted">Locations will appear after visits are recorded.</span>';
 
       const map = initializeMap();
       if (!map) {
@@ -1022,6 +1459,7 @@ function adminPage(env) {
       }
 
       state.markerLayer.clearLayers();
+      state.mapMarkers = [];
       const bounds = [];
       rows.forEach((row) => {
         const latitude = Number(row.latitude);
@@ -1030,17 +1468,22 @@ function adminPage(env) {
         const visits = Number(row.visits || 0);
         const visitors = Number(row.visitors || 0);
         const coordinates = [latitude, longitude];
+        const isRecent = row.last_visit && Date.now() - new Date(row.last_visit).valueOf() <= 86400000;
+        const fillColor = isRecent ? "#c2413a" : "#0f766e";
         bounds.push(coordinates);
-        L.circleMarker(coordinates, {
+        const marker = L.circleMarker(coordinates, {
           radius: Math.min(22, 7 + Math.log2(visits + 1) * 2.4),
-          color: "#0b514c",
+          color: isRecent ? "#8f2d28" : "#0b514c",
           weight: 2,
-          fillColor: "#0f766e",
+          fillColor,
           fillOpacity: 0.72
-        }).bindTooltip(
+        }).bindPopup(
           "<strong>" + escapeHtml(mapLocationLabel(row)) + "</strong><br>" +
-          number(visits) + " visits &middot; " + number(visitors) + " visitors"
+          number(visits) + " visits &middot; " + number(visitors) + " unique visitors<br>" +
+          number(row.locations) + " recorded locations<br>" +
+          '<span style="color:#63706a">Last visit ' + escapeHtml(relativeTime(row.last_visit)) + "</span>"
         ).addTo(state.markerLayer);
+        state.mapMarkers.push({ latitude, longitude, marker });
       });
 
       if (bounds.length > 1) map.fitBounds(L.latLngBounds(bounds), { padding: [32, 32], maxZoom: 4 });
@@ -1049,12 +1492,204 @@ function adminPage(env) {
       window.requestAnimationFrame(() => map.invalidateSize());
     }
 
+    function focusMap(latitude, longitude, label) {
+      const map = initializeMap();
+      const lat = Number(latitude);
+      const lng = Number(longitude);
+      if (!map || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      map.setView([lat, lng], Math.max(map.getZoom(), 6), { animate: true });
+      const match = state.mapMarkers.find((item) => Math.abs(item.latitude - lat) < 0.2 && Math.abs(item.longitude - lng) < 0.2);
+      if (match) match.marker.openPopup();
+      else L.popup().setLatLng([lat, lng]).setContent("<strong>" + escapeHtml(label || "Visitor location") + "</strong>").openOn(map);
+      $("#visitor-map").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function renderPeriod(id, current, comparison, comparisonLabel) {
+      const value = current || { pv: 0, uv: 0 };
+      const previous = comparison || null;
+      $("#" + id + "-pv").textContent = number(value.pv);
+      const meta = $("#" + id + "-meta");
+      let text = number(value.uv) + " unique";
+      meta.className = "";
+      if (previous) {
+        const difference = Number(value.pv || 0) - Number(previous.pv || 0);
+        if (difference) {
+          text += " / " + (difference > 0 ? "+" : "") + number(difference) + " vs " + comparisonLabel;
+          meta.classList.add(difference > 0 ? "positive" : "negative");
+        }
+      }
+      meta.textContent = text;
+    }
+
+    function normalizedGeoName(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replaceAll("&", " and ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function countryGeoName(code) {
+      const normalizedCode = String(code || "").toUpperCase();
+      const label = countryLabel(normalizedCode);
+      const suffix = " (" + normalizedCode + ")";
+      const name = label.endsWith(suffix) ? label.slice(0, -suffix.length) : label;
+      const normalized = normalizedGeoName(name);
+      return geographicAliases[normalized] || normalized;
+    }
+
+    function heatColor(visits, maximum, dark) {
+      if (!visits) return dark ? "#26312c" : "#edf1ef";
+      const ratio = visits / Math.max(1, maximum);
+      if (ratio >= 0.75) return dark ? "#5eead4" : "#0b514c";
+      if (ratio >= 0.45) return dark ? "#2dd4bf" : "#0f766e";
+      if (ratio >= 0.2) return dark ? "#5eead4" : "#57aaa1";
+      return dark ? "#99f6e4" : "#b7dcd7";
+    }
+
+    function initializeHeatMap() {
+      if (state.heatMap || !window.L) return state.heatMap;
+      state.heatMap = L.map("geo-heatmap", {
+        minZoom: 1,
+        maxZoom: 4,
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        tap: false
+      }).setView([18, 0], 1);
+      return state.heatMap;
+    }
+
+    async function renderHeatMap(countries) {
+      const requestId = ++state.heatRequest;
+      const status = $("#geo-map-status");
+      const map = initializeHeatMap();
+      if (!map || !window.topojson) {
+        status.textContent = "The geographic heatmap is temporarily unavailable.";
+        status.classList.remove("hidden");
+        return;
+      }
+
+      status.textContent = "Loading geographic heatmap...";
+      status.classList.remove("hidden");
+      if (!state.worldGeoJsonPromise) {
+        state.worldGeoJsonPromise = fetch(worldTopologyUrl)
+          .then((response) => {
+            if (!response.ok) throw new Error("World map data could not be loaded.");
+            return response.json();
+          })
+          .then((topology) => window.topojson.feature(topology, topology.objects.countries));
+      }
+
+      try {
+        const world = await state.worldGeoJsonPromise;
+        if (requestId !== state.heatRequest) return;
+        state.worldGeoJson = world;
+        const visitsByName = new Map();
+        countries.forEach((row) => visitsByName.set(countryGeoName(row.country), Number(row.visits || 0)));
+        const maximum = Math.max(1, ...countries.map((row) => Number(row.visits || 0)));
+        const dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (state.heatLayer) state.heatLayer.remove();
+        state.heatLayer = L.geoJSON(world, {
+          style(feature) {
+            const visits = visitsByName.get(normalizedGeoName(feature.properties?.name)) || 0;
+            return {
+              color: dark ? "#48564f" : "#cbd5d0",
+              weight: 0.7,
+              fillColor: heatColor(visits, maximum, dark),
+              fillOpacity: 1
+            };
+          },
+          onEachFeature(feature, layer) {
+            const name = feature.properties?.name || "Unknown country or region";
+            const visits = visitsByName.get(normalizedGeoName(name)) || 0;
+            if (visits) layer.bindTooltip("<strong>" + escapeHtml(name) + "</strong><br>" + number(visits) + " visits");
+          }
+        }).addTo(map);
+        map.fitBounds(state.heatLayer.getBounds(), { padding: [4, 4], maxZoom: 2 });
+        status.classList.add("hidden");
+        window.requestAnimationFrame(() => map.invalidateSize());
+      } catch (error) {
+        state.worldGeoJsonPromise = null;
+        status.textContent = "The heatmap could not be loaded; geographic totals remain available below.";
+        status.classList.remove("hidden");
+      }
+    }
+
+    function renderGeography(geography) {
+      const countries = Array.isArray(geography?.countries) ? geography.countries : [];
+      const locations = Array.isArray(geography?.locations) ? geography.locations : [];
+      const locationsByCountry = new Map();
+      locations.forEach((row) => {
+        const code = String(row.country || "").toUpperCase();
+        if (!locationsByCountry.has(code)) locationsByCountry.set(code, []);
+        locationsByCountry.get(code).push(row);
+      });
+      const maxVisits = Math.max(1, ...countries.map((row) => Number(row.visits || 0)));
+      const totalVisits = countries.reduce((sum, row) => sum + Number(row.visits || 0), 0);
+      renderHeatMap(countries);
+      $("#geo-summary").textContent = countries.length
+        ? number(countries.length) + " countries/regions, " + number(locations.length) + " locations, and " + number(totalVisits) + " visits."
+        : "No geolocation data is available for this range.";
+
+      $("#geography").innerHTML = countries.length
+        ? countries.map((row) => {
+            const code = String(row.country || "XX").toUpperCase();
+            const visits = Number(row.visits || 0);
+            const visitors = Number(row.visitors || 0);
+            const depth = visitors ? (visits / visitors).toFixed(2) : "0.00";
+            const share = Math.max(3, Math.round((visits / maxVisits) * 100));
+            const childRows = (locationsByCountry.get(code) || []).map((location) => {
+              const city = code === "CN" ? mainlandCityLabel(location.city) : location.city;
+              const parts = [city, location.region].filter((value, index, values) => value && values.indexOf(value) === index);
+              const label = parts.join(", ") || location.location || "Unknown location";
+              const locationVisitors = Number(location.visitors || 0);
+              const locationDepth = locationVisitors ? (Number(location.visits || 0) / locationVisitors).toFixed(2) : "0.00";
+              return '<tr class="geo-location-row hidden" data-parent="' + escapeHtml(code) + '">' +
+                '<td>' + escapeHtml(label) + '</td>' +
+                '<td class="numeric">-</td>' +
+                '<td class="numeric">' + number(location.visits) + '</td>' +
+                '<td class="numeric">' + number(location.visitors) + '</td>' +
+                '<td class="numeric">' + locationDepth + '</td>' +
+                '<td></td>' +
+                '<td>' + escapeHtml(relativeTime(location.last_visit)) + '</td>' +
+              '</tr>';
+            }).join("");
+            return '<tr class="geo-country-row">' +
+              '<td><button type="button" class="location-button geo-toggle" data-country="' + escapeHtml(code) + '" aria-expanded="false">' +
+                '<span class="country-code">' + escapeHtml(code) + '</span><strong>' + escapeHtml(countryLabel(code)) + '</strong></button></td>' +
+              '<td class="numeric">' + number(row.locations) + '</td>' +
+              '<td class="numeric">' + number(visits) + '</td>' +
+              '<td class="numeric">' + number(visitors) + '</td>' +
+              '<td class="numeric">' + depth + '</td>' +
+              '<td><div class="share-track" title="' + number(visits) + ' visits"><span class="share-fill" style="width:' + share + '%"></span></div></td>' +
+              '<td>' + escapeHtml(relativeTime(row.last_visit)) + '</td>' +
+            '</tr>' + childRows;
+          }).join("")
+        : '<tr><td colspan="7" class="muted">No geolocation data is available for this range.</td></tr>';
+    }
+
     function renderSummary(data) {
-      $("#pv").textContent = number(data.totals.pv);
-      $("#uv").textContent = number(data.totals.uv);
-      $("#ips").textContent = number(data.totals.uniqueIps);
-      $("#pv24").textContent = number(data.totals.pv24h);
-      $("#uv24").textContent = number(data.totals.uv24h);
+      const periods = data.periods || {};
+      renderPeriod("today", periods.today, periods.yesterday, "yesterday");
+      renderPeriod("yesterday", periods.yesterday);
+      renderPeriod("last7", periods.last7, periods.previous7, "previous period");
+      renderPeriod("previous7", periods.previous7);
+      renderPeriod("last30", periods.last30, periods.previous30, "previous period");
+      renderPeriod("previous30", periods.previous30);
+      $("#total-pv").textContent = number(data.totals?.pv);
+      $("#total-meta").textContent = data.totals?.firstVisit
+        ? "Since " + formatDate(data.totals.firstVisit, { short: true })
+        : "No visits yet";
+      $("#last-refresh").textContent = "Updated " + formatDate(data.generatedAt, { short: true, time: true });
+      const selected = data.range || {};
+      $("#range-summary").textContent = number(selected.pv) + " page views / " +
+        number(selected.uv) + " unique visitors / " + number(selected.uniqueIps) + " IPs";
+
       const mainland = data.mainland || {};
       $("#mainland-visits").textContent = number(mainland.visits);
       $("#mainland-visitors").textContent = number(mainland.visitors);
@@ -1064,7 +1699,7 @@ function adminPage(env) {
         " visits were resolved by the mainland lookup; " + number(mainland.likelyProxyVisitors) +
         " visitors currently have only a mainland browser signal and a non-CN edge exit.";
       renderMap(data.mapCountries || []);
-      renderList("#countries", data.countries || [], (row) => countryLabel(row.country));
+      renderGeography(data.geography || {});
       renderList("#provinces", data.provinces || [], (row) => {
         const code = row.region_code ? " (" + row.region_code + ")" : "";
         return (row.region || "Unknown province/region") + code;
@@ -1073,10 +1708,12 @@ function adminPage(env) {
     }
 
     function trendPeriodLabel(value, interval) {
-      const source = interval === "year" ? value + "-01-01" : interval === "month" ? value + "-01" : value;
-      const date = new Date(source + "T00:00:00Z");
+      const source = interval === "hour" ? value : interval === "year" ? value + "-01-01" : interval === "month" ? value + "-01" : value + "T00:00:00Z";
+      const date = new Date(source);
       if (Number.isNaN(date.valueOf())) return value;
-      const options = interval === "year"
+      const options = interval === "hour"
+        ? { month: "short", day: "numeric", hour: "numeric", timeZone: "UTC" }
+        : interval === "year"
         ? { year: "numeric", timeZone: "UTC" }
         : interval === "month"
           ? { month: "short", year: "numeric", timeZone: "UTC" }
@@ -1107,9 +1744,9 @@ function adminPage(env) {
 
       if (!points.length) {
         canvas.classList.add("hidden");
-        empty.textContent = "No visit activity has been recorded yet.";
+        empty.textContent = interval === "hour" ? "No visits were recorded in the last 24 hours." : "No visit activity was recorded in this range.";
         empty.classList.remove("hidden");
-        $("#trend-summary").textContent = "No stored visits are available for this trend.";
+        $("#trend-summary").textContent = interval === "hour" ? "No visit activity in the last 24 hours." : "No stored visits are available for this trend.";
         return;
       }
 
@@ -1124,9 +1761,11 @@ function adminPage(env) {
       const labels = points.map((point) => trendPeriodLabel(point.period, interval));
       const first = labels[0];
       const last = labels[labels.length - 1];
-      $("#trend-summary").textContent = points.length === 1
-        ? "All stored visits grouped by " + trendNames[interval] + " for " + first + "."
-        : "All stored visits grouped by " + trendNames[interval] + " from " + first + " to " + last + ".";
+      $("#trend-summary").textContent = interval === "hour"
+        ? "Live view of the last 24 hours, grouped by hour."
+        : points.length === 1
+          ? "Selected visits grouped by " + trendNames[interval] + " for " + first + "."
+          : "Selected visits grouped by " + trendNames[interval] + " from " + first + " to " + last + ".";
       canvas.classList.remove("hidden");
       empty.classList.add("hidden");
 
@@ -1214,7 +1853,7 @@ function adminPage(env) {
       setTrendControls(interval, true);
       $("#trend-summary").textContent = "Loading visit activity grouped by " + trendNames[interval] + "...";
       try {
-        const data = await api("/api/admin/trend?interval=" + encodeURIComponent(interval));
+        const data = await api(withRange("/api/admin/trend?interval=" + encodeURIComponent(interval)));
         if (requestId === state.trendRequest) renderTrend(data);
       } catch (error) {
         if (requestId === state.trendRequest) {
@@ -1249,15 +1888,49 @@ function adminPage(env) {
       }).join("");
     }
 
+    function browserName(userAgent) {
+      const value = String(userAgent || "");
+      if (/HeadlessChrome/i.test(value)) return "Headless Chrome";
+      if (/EdgA|EdgiOS|Edg\\//i.test(value)) return "Microsoft Edge";
+      if (/OPR\\//i.test(value)) return "Opera";
+      if (/Firefox|FxiOS/i.test(value)) return "Firefox";
+      if (/CriOS|Chrome/i.test(value)) return "Chrome";
+      if (/Version\\/[\\d.]+.*Safari/i.test(value)) return "Safari";
+      if (/bot|crawler|spider/i.test(value)) return "Bot";
+      return "Other";
+    }
+
+    function operatingSystem(userAgent) {
+      const value = String(userAgent || "");
+      if (/Windows NT 10/i.test(value)) return "Windows";
+      if (/Windows NT/i.test(value)) return "Windows";
+      if (/Android/i.test(value)) return "Android";
+      if (/iPhone|iPad|iPod/i.test(value)) return "iOS / iPadOS";
+      if (/Mac OS X/i.test(value)) return "macOS";
+      if (/CrOS/i.test(value)) return "ChromeOS";
+      if (/Linux/i.test(value)) return "Linux";
+      if (/bot|crawler|spider/i.test(value)) return "Automated";
+      return "Other";
+    }
+
+    function deviceType(userAgent) {
+      const value = String(userAgent || "");
+      if (/bot|crawler|spider|Headless/i.test(value)) return "Automated";
+      if (/iPad|Tablet/i.test(value)) return "Tablet";
+      if (/Mobile|Android|iPhone|iPod/i.test(value)) return "Mobile";
+      return "Desktop";
+    }
+
     function renderVisits(data) {
       const start = data.total ? (data.page - 1) * data.pageSize + 1 : 0;
       const end = Math.min(data.total, data.page * data.pageSize);
       $("#visit-range").textContent = data.total
-        ? "Showing " + number(start) + "-" + number(end) + " of " + number(data.total) + " stored visits."
+        ? "Showing " + number(start) + "-" + number(end) + " of " + number(data.total) + " visits in " + activeRangeLabel().toLowerCase() + "."
         : "No visits recorded yet.";
       $("#visits").innerHTML = data.visits.length
         ? data.visits.map((visit) => {
-            const location = [visit.city, visit.region, countryLabel(visit.country)].filter(Boolean).join(", ");
+            const city = String(visit.country || "").toUpperCase() === "CN" ? mainlandCityLabel(visit.city) : visit.city;
+            const location = [city, visit.region, countryLabel(visit.country)].filter(Boolean).join(", ");
             const network = [visit.as_organization, visit.asn ? "AS" + visit.asn : "", visit.colo].filter(Boolean).join(" / ");
             const coordinates = [visit.latitude, visit.longitude].filter((value) => value !== null && value !== undefined && value !== "").join(", ");
             const edgeLocation = [visit.edge_city, visit.edge_region, countryLabel(visit.edge_country)].filter(Boolean).join(", ");
@@ -1267,49 +1940,79 @@ function adminPage(env) {
               visit.edge_city !== visit.city
             );
             const sourceClass = Number(visit.mainland_signal) === 1 && String(visit.country || "").toUpperCase() !== "CN" ? " inferred" : "";
-            const edgeMeta = edgeDiffers
-              ? '<span class="visit-meta">Edge: ' + escapeHtml(edgeLocation || visit.edge_country) + (visit.edge_ip ? " / " + escapeHtml(visit.edge_ip) : "") + '</span>'
-              : "";
-            const clientIsp = visit.client_isp ? '<span class="visit-meta">Client ISP: ' + escapeHtml(visit.client_isp) + '</span>' : "";
-            return '<tr>' +
-              '<td><code>' + escapeHtml(visit.visited_at) + '</code></td>' +
-              '<td><code>' + escapeHtml(visit.ip) + '</code></td>' +
-              '<td>' + escapeHtml(location || "-") + '<br><span class="muted">' + escapeHtml(coordinates) + '</span>' +
-                '<br><span class="source-tag' + sourceClass + '">' + escapeHtml(locationSourceLabel(visit)) + '</span>' + edgeMeta + '</td>' +
-              '<td><code>' + escapeHtml(visit.path) + '</code><br><span class="muted">' + escapeHtml(visit.referrer || "") + '</span></td>' +
-              '<td>' + escapeHtml(network || "-") + clientIsp + '</td>' +
-              '<td class="muted">' + escapeHtml(visit.user_agent || "-") + '</td>' +
-            '</tr>';
+            const browser = browserName(visit.user_agent);
+            const os = operatingSystem(visit.user_agent);
+            const device = deviceType(visit.user_agent);
+            const countryCode = String(visit.country || "XX").toUpperCase();
+            const detailId = "visit-detail-" + Number(visit.id || 0);
+            const newTag = Number(visit.is_new) === 1 ? '<span class="new-tag">New</span>' : "";
+            const locationControl = coordinates
+              ? '<button type="button" class="location-button" data-map-lat="' + escapeHtml(visit.latitude) + '" data-map-lng="' + escapeHtml(visit.longitude) + '" data-map-label="' + escapeHtml(location || "Visitor location") + '">' + escapeHtml(location || "Unknown location") + '</button>'
+              : '<strong>' + escapeHtml(location || "Unknown location") + '</strong>';
+            const edgeRoute = edgeDiffers
+              ? (edgeLocation || visit.edge_country || "Unknown edge") + (visit.edge_ip ? " / " + visit.edge_ip : "")
+              : "Same as resolved location";
+            const client = [visit.language, visit.screen, visit.client_timezone].filter(Boolean).join(" / ");
+            const networkDetail = [network, visit.client_isp ? "Client ISP: " + visit.client_isp : ""].filter(Boolean).join(" / ");
+            return '<tr class="visit-main">' +
+              '<td><div class="visit-identity"><span class="country-code">' + escapeHtml(countryCode) + '</span><div class="visit-label">' +
+                locationControl + '<span>' + newTag + number(visit.daily_pageviews || 1) + (Number(visit.daily_pageviews || 1) === 1 ? ' page view' : ' page views') + '</span></div></div></td>' +
+              '<td class="ua-cell"><strong>' + escapeHtml(browser) + '</strong><span>' + escapeHtml(device) + '</span></td>' +
+              '<td class="ua-cell"><strong>' + escapeHtml(os) + '</strong><span>' + escapeHtml(visit.client_timezone || visit.timezone || "") + '</span></td>' +
+              '<td><code>' + escapeHtml(visit.ip || "-") + '</code></td>' +
+              '<td class="time-cell"><strong>' + escapeHtml(relativeTime(visit.visited_at)) + '</strong><span>' + escapeHtml(formatDate(visit.visited_at, { short: true, time: true })) + '</span></td>' +
+              '<td><button type="button" class="expand-button" data-detail="' + detailId + '" aria-expanded="false" title="Show visit details">+</button></td>' +
+            '</tr>' +
+            '<tr id="' + detailId + '" class="visit-detail hidden"><td colspan="6"><div class="detail-grid">' +
+              '<div class="detail-item"><span>Page</span><code>' + escapeHtml(visit.path || "-") + '</code></div>' +
+              '<div class="detail-item"><span>Page title</span><strong>' + escapeHtml(visit.title || "-") + '</strong></div>' +
+              '<div class="detail-item"><span>Referrer</span><code>' + escapeHtml(visit.referrer || "Direct / unavailable") + '</code></div>' +
+              '<div class="detail-item"><span>Browser and OS</span><strong>' + escapeHtml(browser + " / " + os + " / " + device) + '</strong></div>' +
+              '<div class="detail-item"><span>IP address</span><code>' + escapeHtml(visit.ip || "-") + '</code></div>' +
+              '<div class="detail-item"><span>Network</span><strong>' + escapeHtml(networkDetail || "-") + '</strong></div>' +
+              '<div class="detail-item"><span>Coordinates</span><code>' + escapeHtml(coordinates || "-") + '</code></div>' +
+              '<div class="detail-item"><span>Location source</span><strong class="source-tag' + sourceClass + '">' + escapeHtml(locationSourceLabel(visit)) + '</strong></div>' +
+              '<div class="detail-item"><span>Edge route</span><strong>' + escapeHtml(edgeRoute) + '</strong></div>' +
+              '<div class="detail-item"><span>Client</span><strong>' + escapeHtml(client || "-") + '</strong></div>' +
+              '<div class="detail-item"><span>User agent</span><code>' + escapeHtml(visit.user_agent || "-") + '</code></div>' +
+            '</div></td></tr>';
           }).join("")
         : '<tr><td colspan="6" class="muted">No visits recorded yet.</td></tr>';
       renderPagination(data);
     }
 
     async function loadVisits(page) {
-      const data = await api("/api/admin/visits?page=" + encodeURIComponent(page));
+      const data = await api(withRange("/api/admin/visits?page=" + encodeURIComponent(page)));
       renderVisits(data);
     }
 
     async function refresh() {
-      if (state.refreshing) return;
+      if (state.refreshing) {
+        state.pendingRefresh = true;
+        return;
+      }
       state.refreshing = true;
+      state.pendingRefresh = false;
       $("#refresh-button").disabled = true;
       const trendInterval = state.trendInterval;
       const trendRequest = ++state.trendRequest;
       setTrendControls(trendInterval, true);
       try {
         const results = await Promise.all([
-          api("/api/admin/summary"),
-          api("/api/admin/visits?page=" + encodeURIComponent(state.page)),
-          api("/api/admin/trend?interval=" + encodeURIComponent(trendInterval))
+          api(withRange("/api/admin/summary")),
+          api(withRange("/api/admin/visits?page=" + encodeURIComponent(state.page))),
+          api(withRange("/api/admin/trend?interval=" + encodeURIComponent(trendInterval)))
         ]);
         renderSummary(results[0]);
         renderVisits(results[1]);
         if (trendRequest === state.trendRequest) renderTrend(results[2]);
       } finally {
+        const rerun = state.pendingRefresh;
         state.refreshing = false;
+        state.pendingRefresh = false;
         $("#refresh-button").disabled = false;
         if (trendRequest === state.trendRequest) setTrendControls(state.trendInterval, false);
+        if (rerun) refresh().catch((error) => { $("#visit-range").textContent = error.message; });
       }
     }
 
@@ -1338,6 +2041,51 @@ function adminPage(env) {
       const button = event.target.closest("button[data-page]");
       if (button) loadVisits(Number(button.dataset.page));
     });
+    $("#visits").addEventListener("click", (event) => {
+      const detailButton = event.target.closest("button[data-detail]");
+      if (detailButton) {
+        const detail = document.getElementById(detailButton.dataset.detail);
+        if (!detail) return;
+        const expanded = detailButton.getAttribute("aria-expanded") === "true";
+        detailButton.setAttribute("aria-expanded", String(!expanded));
+        detailButton.textContent = expanded ? "+" : "-";
+        detailButton.title = expanded ? "Show visit details" : "Hide visit details";
+        detail.classList.toggle("hidden", expanded);
+        return;
+      }
+      const mapButton = event.target.closest("button[data-map-lat]");
+      if (mapButton) focusMap(mapButton.dataset.mapLat, mapButton.dataset.mapLng, mapButton.dataset.mapLabel);
+    });
+    $("#geography").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-country]");
+      if (!button) return;
+      const expanded = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!expanded));
+      document.querySelectorAll("#geography tr[data-parent]").forEach((row) => {
+        if (row.dataset.parent === button.dataset.country) row.classList.toggle("hidden", expanded);
+      });
+    });
+    $("#range-presets").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-range]");
+      if (button) selectRange(rangeForPreset(button.dataset.range)).catch((error) => {
+        $("#range-error").textContent = error.message;
+        $("#range-error").classList.remove("hidden");
+      });
+    });
+    $("#apply-range").addEventListener("click", () => {
+      const from = $("#from-date").value;
+      const to = $("#to-date").value;
+      if (from && to && from > to) {
+        $("#range-error").textContent = "The start date must not be after the end date.";
+        $("#range-error").classList.remove("hidden");
+        return;
+      }
+      const range = from || to ? { from, to, preset: "custom" } : rangeForPreset("all");
+      selectRange(range).catch((error) => {
+        $("#range-error").textContent = error.message;
+        $("#range-error").classList.remove("hidden");
+      });
+    });
     $("#trend-controls").addEventListener("click", (event) => {
       const button = event.target.closest("button[data-interval]");
       if (button && button.dataset.interval !== state.trendInterval) loadTrend(button.dataset.interval);
@@ -1350,6 +2098,7 @@ function adminPage(env) {
       setLoggedIn(false);
     });
 
+    syncRangeControls();
     api("/api/admin/session")
       .then(async () => { setLoggedIn(true); await refresh(); })
       .catch(() => setLoggedIn(false));
