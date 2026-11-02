@@ -4,7 +4,8 @@
     lang: localStorage.getItem("kx-lang") || "en",
     theme: localStorage.getItem("kx-theme") || "light",
     publicationYear: "all",
-    publicationQuery: ""
+    publicationQuery: "",
+    newsExpanded: false
   };
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -31,10 +32,16 @@
       .replaceAll("'", "&#039;");
   }
 
+  function linkTargetAttributes(url) {
+    const href = String(url || "").trim().toLowerCase();
+    return href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")
+      ? ""
+      : ' target="_blank" rel="noopener noreferrer"';
+  }
+
   function linkList(links, className = "link-list") {
     return `<div class="${className}">${links.map((link) => {
-      const target = link.url.startsWith("http") ? ' target="_blank" rel="noreferrer"' : "";
-      return `<a href="${escapeHtml(link.url)}"${target}>${escapeHtml(textFor(link.label))}</a>`;
+      return `<a href="${escapeHtml(link.url)}"${linkTargetAttributes(link.url)}>${escapeHtml(textFor(link.label))}</a>`;
     }).join("")}</div>`;
   }
 
@@ -99,16 +106,6 @@
     )).join("");
   }
 
-  function renderStats() {
-    $("[data-stats]").innerHTML = data.stats.map((stat) => `
-      <article class="stat-card">
-        <strong>${escapeHtml(stat.value)}</strong>
-        <span>${escapeHtml(textFor(stat.label))}</span>
-        <p>${escapeHtml(textFor(stat.detail))}</p>
-      </article>
-    `).join("");
-  }
-
   function renderResearchThemes() {
     $("[data-research-themes]").innerHTML = data.researchThemes.map((theme) => `
       <article class="theme-card ${escapeHtml(theme.tone)}">
@@ -124,16 +121,25 @@
 
   function renderNews() {
     const newsItems = [...data.news].sort((left, right) => Number(Boolean(right.pinned)) - Number(Boolean(left.pinned)));
-    $("[data-news]").innerHTML = newsItems.map((item) => `
+    const visibleItems = state.newsExpanded ? newsItems : newsItems.slice(0, 5);
+    const toggle = newsItems.length > 5 ? `
+      <button class="news-toggle" type="button" data-news-toggle aria-expanded="${String(state.newsExpanded)}">
+        ${escapeHtml(translationFor(state.newsExpanded ? "news.showLess" : "news.showMore"))}
+        <span aria-hidden="true">${state.newsExpanded ? "↑" : "↓"}</span>
+      </button>
+    ` : "";
+    $("[data-news]").innerHTML = visibleItems.map((item) => `
       <article class="timeline-item ${item.highlight ? "highlight" : ""}">
-        <div class="timeline-date">${escapeHtml(textFor(item.date))}</div>
-        <div class="timeline-body">
+        <div class="timeline-meta">
+          <time class="timeline-date">${escapeHtml(textFor(item.date))}</time>
           <span class="type-pill">${escapeHtml(textFor(item.type))}</span>
+        </div>
+        <div class="timeline-body">
           <p>${escapeHtml(textFor(item.title))}</p>
           ${item.links ? linkList(item.links, "mini-links") : ""}
         </div>
       </article>
-    `).join("");
+    `).join("") + toggle;
   }
 
   function renderYearFilters() {
@@ -192,8 +198,7 @@
         </div>
         <div class="card-actions">
           ${pub.links.map((link) => {
-            const target = link.url.startsWith("http") ? ' target="_blank" rel="noreferrer"' : "";
-            return `<a href="${escapeHtml(link.url)}"${target}>${escapeHtml(textFor(link.label))}</a>`;
+            return `<a href="${escapeHtml(link.url)}"${linkTargetAttributes(link.url)}>${escapeHtml(textFor(link.label))}</a>`;
           }).join("")}
           <button type="button" data-copy-bib="${escapeHtml(pub.id)}">BibTeX</button>
         </div>
@@ -223,11 +228,11 @@
   function renderTimelineBlock(items) {
     return items.map((item) => `
       <article class="cv-item">
-        <time>${escapeHtml(item.period || item.date)}</time>
-        <h4>${escapeHtml(item.title)}</h4>
-        <p>${escapeHtml(item.institution || item.organization || "")}</p>
-        ${item.location ? `<span>${escapeHtml(item.location)}</span>` : ""}
-        ${item.link ? `<a href="${escapeHtml(item.link)}">View document</a>` : ""}
+        <time>${escapeHtml(textFor(item.period || item.date))}</time>
+        <h4>${escapeHtml(textFor(item.title))}</h4>
+        <p>${escapeHtml(textFor(item.institution || item.organization || ""))}</p>
+        ${item.location ? `<span>${escapeHtml(textFor(item.location))}</span>` : ""}
+        ${item.link ? `<a href="${escapeHtml(item.link)}"${linkTargetAttributes(item.link)}>View document</a>` : ""}
       </article>
     `).join("");
   }
@@ -261,7 +266,6 @@
 
   function renderAll() {
     renderProfileLinks();
-    renderStats();
     renderResearchThemes();
     renderNews();
     renderYearFilters();
@@ -269,6 +273,11 @@
     renderProjects();
     renderCv();
     renderContact();
+    $$("a[href]").forEach((link) => {
+      if (!linkTargetAttributes(link.getAttribute("href"))) return;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    });
   }
 
   function showToast(message) {
@@ -609,6 +618,12 @@
       state.publicationYear = button.dataset.year;
       renderYearFilters();
       renderPublications();
+    });
+
+    $("[data-news]").addEventListener("click", (event) => {
+      if (!event.target.closest("[data-news-toggle]")) return;
+      state.newsExpanded = !state.newsExpanded;
+      renderNews();
     });
 
     document.addEventListener("click", async (event) => {
