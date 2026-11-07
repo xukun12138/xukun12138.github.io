@@ -5,7 +5,9 @@
     theme: localStorage.getItem("kx-theme") || "light",
     publicationYear: "all",
     publicationQuery: "",
-    newsExpanded: false
+    newsExpanded: false,
+    publicationsExpanded: false,
+    projectsExpanded: false
   };
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -177,7 +179,14 @@
       return;
     }
 
-    list.innerHTML = publications.map((pub) => `
+    const visiblePublications = state.publicationsExpanded ? publications : publications.slice(0, 2);
+    const toggle = publications.length > 2 ? `
+      <button class="collection-toggle" type="button" data-publications-toggle aria-expanded="${String(state.publicationsExpanded)}" aria-controls="publication-list">
+        ${escapeHtml(translationFor(state.publicationsExpanded ? "publications.showLess" : "publications.showMore"))}
+        <span aria-hidden="true">${state.publicationsExpanded ? "↑" : "↓"}</span>
+      </button>
+    ` : "";
+    list.innerHTML = visiblePublications.map((pub) => `
       <article class="publication-card">
         <div class="pub-meta">
           ${(pub.badges || (pub.badge ? [pub.badge] : [])).map((badge) => (
@@ -203,11 +212,18 @@
           <button type="button" data-copy-bib="${escapeHtml(pub.id)}">BibTeX</button>
         </div>
       </article>
-    `).join("");
+    `).join("") + toggle;
   }
 
   function renderProjects() {
-    $("[data-projects]").innerHTML = data.projects.map((project) => `
+    const visibleProjects = state.projectsExpanded ? data.projects : data.projects.slice(0, 2);
+    const toggle = data.projects.length > 2 ? `
+      <button class="collection-toggle" type="button" data-projects-toggle aria-expanded="${String(state.projectsExpanded)}" aria-controls="project-list">
+        ${escapeHtml(translationFor(state.projectsExpanded ? "projects.showLess" : "projects.showMore"))}
+        <span aria-hidden="true">${state.projectsExpanded ? "↑" : "↓"}</span>
+      </button>
+    ` : "";
+    $("[data-projects]").innerHTML = visibleProjects.map((project) => `
       <article class="project-card">
         <figure>
           <img class="${project.imageFit === "contain" ? "contain" : ""}" src="${escapeHtml(project.image)}" alt="${escapeHtml(textFor(project.title))} visual summary" loading="lazy">
@@ -222,7 +238,7 @@
           ${linkList(project.links, "card-actions")}
         </div>
       </article>
-    `).join("");
+    `).join("") + toggle;
   }
 
   function renderTimelineBlock(items) {
@@ -609,6 +625,7 @@
 
     $("[data-publication-search]").addEventListener("input", (event) => {
       state.publicationQuery = event.target.value;
+      state.publicationsExpanded = Boolean(state.publicationQuery.trim());
       renderPublications();
     });
 
@@ -616,8 +633,21 @@
       const button = event.target.closest("button[data-year]");
       if (!button) return;
       state.publicationYear = button.dataset.year;
+      state.publicationsExpanded = state.publicationYear !== "all";
       renderYearFilters();
       renderPublications();
+    });
+
+    $("[data-publications]").addEventListener("click", (event) => {
+      if (!event.target.closest("[data-publications-toggle]")) return;
+      state.publicationsExpanded = !state.publicationsExpanded;
+      renderPublications();
+    });
+
+    $("[data-projects]").addEventListener("click", (event) => {
+      if (!event.target.closest("[data-projects-toggle]")) return;
+      state.projectsExpanded = !state.projectsExpanded;
+      renderProjects();
     });
 
     $("[data-news]").addEventListener("click", (event) => {

@@ -3,7 +3,7 @@ const SITE_DATA = {
     title: "Kun Xu | Academic Homepage",
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io",
-    lastUpdated: "2026-11-02"
+    lastUpdated: "2026-11-07"
   },
   analytics: {
     workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev",
@@ -64,8 +64,12 @@ const SITE_DATA = {
       "news.showLess": "Show fewer updates",
       "publications.title": "Publications and selected manuscripts",
       "publications.subtitle": "Filter by year, search by keyword, and copy BibTeX for each listed work.",
+      "publications.showMore": "Show all publications",
+      "publications.showLess": "Show fewer publications",
       "projects.title": "Research highlights",
       "projects.subtitle": "A more visual view of methods, artifacts, and active research directions.",
+      "projects.showMore": "Show all research highlights",
+      "projects.showLess": "Show fewer research highlights",
       "cv.title": "Academic timeline",
       "cv.subtitle": "A concise overview of my education, honors, academic service, and professional activities.",
       "cv.print": "Print / Save as PDF",
@@ -129,8 +133,12 @@ const SITE_DATA = {
       "news.showLess": "收起消息",
       "publications.title": "Publications and selected manuscripts",
       "publications.subtitle": "支持按年份筛选、关键词搜索，并可复制 BibTeX。",
+      "publications.showMore": "展开全部论文",
+      "publications.showLess": "收起论文",
       "projects.title": "研究亮点",
       "projects.subtitle": "以更可视化的方式展示方法、成果和正在推进的研究方向。",
+      "projects.showMore": "展开全部研究亮点",
+      "projects.showLess": "收起研究亮点",
       "cv.title": "学术经历",
       "cv.subtitle": "教育背景、荣誉、学术服务和专业活动的简要概览。",
       "cv.print": "打印 / 另存为 PDF",
@@ -211,6 +219,15 @@ const SITE_DATA = {
     }
   ],
   news: [
+    {
+      date: { en: "Nov 2026", zh: "2026 年 11 月" },
+      type: { en: "Submission", zh: "投稿" },
+      title: {
+        en: "A survey manuscript on toxic generated content detection has been submitted for peer review.",
+        zh: "一篇关于毒性生成内容检测的综述论文已提交同行评审。"
+      },
+      pinned: true
+    },
     {
       date: { en: "Oct 2026", zh: "2026 年 10 月" },
       type: { en: "Degree", zh: "博士学位" },

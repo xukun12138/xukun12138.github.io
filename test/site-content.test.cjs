@@ -27,7 +27,19 @@ test("news defaults to five items and exposes a bilingual folding control", () =
   assert.match(app, /data-news-toggle/);
   assert.equal(data.translations.en["news.showMore"], "Show all updates");
   assert.equal(data.translations.zh["news.showMore"], "展开全部消息");
-  assert.match(data.news[0].title.en, /received my Ph\.D\./);
+  assert.match(data.news[0].title.en, /survey manuscript on toxic generated content detection/);
+  assert.match(data.news[0].title.zh, /毒性生成内容检测的综述论文/);
+});
+
+test("publications and research highlights default to two items with bilingual controls", () => {
+  assert.match(app, /publications\.slice\(0, 2\)/);
+  assert.match(app, /data-publications-toggle/);
+  assert.match(app, /data\.projects\.slice\(0, 2\)/);
+  assert.match(app, /data-projects-toggle/);
+  assert.equal(data.translations.en["publications.showMore"], "Show all publications");
+  assert.equal(data.translations.zh["publications.showMore"], "展开全部论文");
+  assert.equal(data.translations.en["projects.showMore"], "Show all research highlights");
+  assert.equal(data.translations.zh["projects.showMore"], "展开全部研究亮点");
 });
 
 test("publication localization is limited to venues and summaries", () => {
