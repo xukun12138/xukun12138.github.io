@@ -141,7 +141,12 @@ button {
 }
 
 .brand-text {
-  font-size: 1rem;
+  font-size: 0.92rem;
+}
+
+.brand-name-chinese {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .site-nav {
@@ -253,18 +258,22 @@ button {
 }
 
 .hero h1 {
-  max-width: 15ch;
+  max-width: 18ch;
   margin: 0;
-  font-size: clamp(3.1rem, 8vw, 7.5rem);
-  line-height: 0.92;
+  font-size: 5.75rem;
+  line-height: 0.98;
   letter-spacing: 0;
+  white-space: nowrap;
 }
 
-.hero h1 span {
-  display: block;
-  margin-top: 0.3rem;
+.hero-name-latin {
+  color: inherit;
+}
+
+.hero h1 .hero-name-chinese {
+  margin-left: 0.12em;
   color: #f0d7a1;
-  font-size: 0.36em;
+  font-size: 0.48em;
   font-weight: 700;
 }
 
@@ -1455,6 +1464,10 @@ body.modal-open {
     padding-top: 4.8rem;
   }
 
+  .hero h1 {
+    font-size: 4.6rem;
+  }
+
   .profile-panel {
     max-width: 25rem;
   }
@@ -1512,7 +1525,7 @@ body.modal-open {
   }
 
   .hero h1 {
-    font-size: clamp(3rem, 18vw, 4.5rem);
+    font-size: 3rem;
   }
 
   .quick-facts,

@@ -3,7 +3,7 @@ const SITE_DATA = {
     title: "Kun Xu | Academic Homepage",
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io",
-    lastUpdated: "2026-11-07"
+    lastUpdated: "2026-11-11"
   },
   analytics: {
     workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev",
@@ -55,7 +55,8 @@ const SITE_DATA = {
       "about.p2": "From September 2025 to August 2026, I conducted visiting doctoral research in Milan, Italy, supported by the China Scholarship Council (CSC) Excellence Talent Programme and supervised by Prof. Elena Ferrari (IEEE/ACM Fellow) & Prof. Barbara Carminati. During the visit, I also engaged in academic exchange and research collaboration with Prof. Pierangela Samarati (IEEE/ACM Fellow) and Prof. Vincenzo Piuri (IEEE Fellow) at the University of Milan, further broadening my international research experience in trustworthy AI, security, and privacy.",
       "about.p3": "My research focuses on the safety, evaluation, and reliability of generative AI, including concept-level risk assessment, malicious and toxic content detection, uncertainty and calibration in diffusion models, privacy-aware synthesis, and deepfake forensics. My work has appeared in or been accepted by venues including IEEE TDSC and ACM Multimedia, and I am currently seeking postdoctoral or faculty opportunities.",
       "about.link.advisor": "Advisor",
-      "about.link.visitingSupervisor": "Former Visiting Supervisor",
+      "about.link.visitingSupervisorElena": "Prof. Elena Ferrari",
+      "about.link.visitingSupervisorBarbara": "Prof. Barbara Carminati",
       "research.title": "Research themes",
       "research.subtitle": "A compact map of the topics that connect my current work.",
       "news.title": "Recent updates",
@@ -124,7 +125,8 @@ const SITE_DATA = {
       "about.p2": "2025 年 9 月至 2026 年 8 月，我受国家留学基金委（CSC）卓越人才计划项目资助，在意大利米兰开展访问博士研究，由 Elena Ferrari 教授（IEEE/ACM Fellow）和 Barbara Carminati 教授指导。访学期间，我还与米兰大学 Pierangela Samarati 教授（IEEE/ACM Fellow）和 Vincenzo Piuri 教授（IEEE Fellow）开展学术交流与合作，进一步拓展了在可信人工智能、安全与隐私方向的国际研究经历。",
       "about.p3": "我的研究聚焦生成式人工智能的安全性、评估与可靠性，涵盖概念级风险评估、恶意与有害内容检测、扩散模型中的不确定性与校准、隐私感知生成以及深度伪造取证。相关成果已发表于或被 IEEE TDSC、ACM Multimedia 等期刊和会议接收，目前正在寻求博士后或高校教职机会。",
       "about.link.advisor": "导师",
-      "about.link.visitingSupervisor": "访学导师",
+      "about.link.visitingSupervisorElena": "Elena Ferrari 教授",
+      "about.link.visitingSupervisorBarbara": "Barbara Carminati 教授",
       "research.title": "研究主题",
       "research.subtitle": "以下主题共同构成了我当前研究工作的主线。",
       "news.title": "近期动态",
@@ -226,6 +228,12 @@ const SITE_DATA = {
         en: "A survey manuscript on toxic generated content detection has been submitted for peer review.",
         zh: "一篇关于毒性生成内容检测的综述论文已提交同行评审。"
       },
+      links: [
+        {
+          label: { en: "Website", zh: "项目网站" },
+          url: "https://xukun12138.github.io/toxicity-evidence/"
+        }
+      ],
       pinned: true
     },
     {

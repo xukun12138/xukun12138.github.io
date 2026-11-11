@@ -29,6 +29,20 @@ test("news defaults to five items and exposes a bilingual folding control", () =
   assert.equal(data.translations.zh["news.showMore"], "展开全部消息");
   assert.match(data.news[0].title.en, /survey manuscript on toxic generated content detection/);
   assert.match(data.news[0].title.zh, /毒性生成内容检测的综述论文/);
+  assert.deepEqual(data.news[0].links[0], {
+    label: { en: "Website", zh: "项目网站" },
+    url: "https://xukun12138.github.io/toxicity-evidence/"
+  });
+});
+
+test("the bilingual identity and About mentor links are current", () => {
+  assert.match(html, /class="brand-text">Kun Xu <span class="brand-name-chinese">\(许锟\)<\/span>/);
+  assert.match(html, /class="hero-name-chinese">\(许锟\)<\/span>/);
+  assert.doesNotMatch(html, /openreview\.net|semanticscholar\.org/);
+  assert.match(html, /data-i18n="about\.link\.visitingSupervisorElena">Prof\. Elena Ferrari/);
+  assert.match(html, /data-i18n="about\.link\.visitingSupervisorBarbara">Prof\. Barbara Carminati/);
+  assert.equal(data.translations.zh["about.link.visitingSupervisorElena"], "Elena Ferrari 教授");
+  assert.equal(data.translations.zh["about.link.visitingSupervisorBarbara"], "Barbara Carminati 教授");
 });
 
 test("publications and research highlights default to two items with bilingual controls", () => {
