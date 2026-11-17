@@ -606,6 +606,7 @@ const SITE_DATA = {
       category: "Journal Reviewer",
       items: [
         { label: "ACM TOMM", url: "https://dl.acm.org/journal/tomm" },
+        { label: "ASOC", url: "https://www.sciencedirect.com/journal/applied-soft-computing" },
         { label: "CVIU", url: "https://www.sciencedirect.com/journal/computer-vision-and-image-understanding"},
         { label: "SIGPRO", url: "https://www.sciencedirect.com/journal/signal-processing"},
         { label: "JSCI", url: "https://link.springer.com/journal/11390"},
@@ -618,12 +619,14 @@ const SITE_DATA = {
       category: "Conference Reviewer",
       items: [
         { label: "ACM MM", url: "https://2026.acmmm.org/"},
+        { label: "CVPR", url: "https://cvpr.thecvf.com/Conferences/2027"},
         { label: "ADFM", url: "https://adfmw.github.io/cvpr26/index.html"}
       ]
     },
     {
       category: "Membership",
       items: [
+        { label: "China Cyber Security Society", url: "https://www.ccss.org.cn/" }
         { label: "ACM Emerging Interest Groups on Trustworthy and Responsible Systems (EIGTRUST)", url: "https://eigtrust.acm.org/" },
         { label: "China Society of Image and Graphics (CSIG)", url: "https://www.csig.org.cn/" }
       ]
