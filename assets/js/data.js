@@ -3,7 +3,7 @@ const SITE_DATA = {
     title: "Kun Xu | Academic Homepage",
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io",
-    lastUpdated: "2026-11-11"
+    lastUpdated: "2026-11-17"
   },
   analytics: {
     workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev",
