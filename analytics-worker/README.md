@@ -88,13 +88,13 @@ Login with `ADMIN_PASSWORD`.
 The dashboard includes:
 
 - Today, yesterday, completed 7-day and 30-day period comparisons, plus all-time page views.
-- An interactive visitor map with switchable OpenStreetMap layers, recency markers, and date-range filtering.
+- A large full-world OpenStreetMap Visitor Map with geographic labels, recency markers, zooming, panning, and date-range filtering.
 - Quick ranges for Today, 7 days, 30 days, This year, and All time, plus an inclusive custom date range.
-- Expandable visitor activity rows with browser, operating system, IP, page, referrer, network, client, and edge-route details.
+- Expandable Recent Visitors rows with country flags, browser, operating system, IP, page, referrer, network, client, and edge-route details.
 - A China Mainland Coverage panel with province/region totals and likely proxy exits.
 - One PV/UV line chart with Live (latest 24 hours), Day, Week, Month, and Year interval controls.
-- A country-level vector heatmap and expandable country/region report with location count, visits, unique visitors, visit depth, traffic share, and latest activity.
-- Full country or region names with their ISO codes and English display names for recognized mainland cities.
+- A large interactive country-level heatmap using a Natural Earth projection, with its own Today, 7 days, 30 days, This year, All time, and custom date-range controls.
+- An expandable country/region report with country flags, full names, location count, visits, unique visitors, visit depth, traffic share, and latest activity.
 - All visit records in reverse chronological order, paginated at 10 records per page.
 - Top Pages and province/region summaries for the selected range.
 - A light theme by default with a persistent Dark mode / Light mode button in the dashboard header.

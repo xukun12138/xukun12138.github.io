@@ -889,8 +889,8 @@ function adminPage(env) {
   </script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    :root { color-scheme: light; --bg: #f5f7f6; --ink: #16201c; --muted: #66736d; --line: #d8dfdb; --line-strong: #c4cec8; --card: #ffffff; --soft: #eef3f0; --accent: #0f766e; --accent-dark: #0b514c; --accent-2: #b45309; --alert: #c2413a; --chart-grid: rgba(99, 112, 106, 0.18); }
-    :root[data-theme="dark"] { color-scheme: dark; --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --line-strong: #425048; --card: #161c19; --soft: #1d2521; --accent: #5eead4; --accent-dark: #2dd4bf; --accent-2: #fbbf24; --alert: #fb7185; --chart-grid: rgba(170, 181, 175, 0.16); }
+    :root { color-scheme: light; --bg: #f5f7f6; --ink: #16201c; --muted: #66736d; --line: #d8dfdb; --line-strong: #c4cec8; --card: #ffffff; --soft: #eef3f0; --map-water: #dce9e5; --accent: #0f766e; --accent-dark: #0b514c; --accent-2: #b45309; --alert: #c2413a; --chart-grid: rgba(99, 112, 106, 0.18); }
+    :root[data-theme="dark"] { color-scheme: dark; --bg: #101412; --ink: #f4f7f5; --muted: #aab5af; --line: #2d3833; --line-strong: #425048; --card: #161c19; --soft: #1d2521; --map-water: #18231f; --accent: #5eead4; --accent-dark: #2dd4bf; --accent-2: #fbbf24; --alert: #fb7185; --chart-grid: rgba(170, 181, 175, 0.16); }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     main { width: min(1280px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 48px; }
@@ -916,7 +916,8 @@ function adminPage(env) {
     .map-heading h2, .section-head h2 { margin-bottom: 2px; }
     .map-heading p, .section-head p { margin: 0; }
     .map-badge { flex: 0 0 auto; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
-    #visitor-map { width: 100%; height: 400px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #dce9e5; }
+    #visitor-map { width: 100%; height: 540px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--map-water); }
+    #visitor-map.leaflet-container { background: var(--map-water); }
     .map-legend { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px 18px; }
     .map-chip { display: inline-flex; gap: 7px; align-items: center; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--bg); font-size: 12px; }
     .map-chip strong { color: var(--accent); }
@@ -985,7 +986,8 @@ function adminPage(env) {
     .detail-item span { display: block; margin-bottom: 3px; color: var(--muted); font-size: 11px; font-weight: 750; text-transform: uppercase; }
     .detail-item strong, .detail-item code { overflow-wrap: anywhere; font-weight: 500; }
     .visit-identity { display: flex; gap: 10px; align-items: flex-start; }
-    .country-code { display: inline-grid; width: 34px; height: 24px; flex: 0 0 34px; place-items: center; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: var(--soft); font-size: 10px; font-weight: 800; }
+    .country-flag { display: block; width: 28px; height: 20px; flex: 0 0 28px; object-fit: cover; border: 1px solid var(--line-strong); border-radius: 2px; background: var(--soft); box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08); }
+    .country-flag-unknown { display: inline-grid; place-items: center; color: var(--muted); font-size: 12px; font-weight: 800; }
     .visit-label { min-width: 0; }
     .visit-label strong { display: block; }
     .visit-label span { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
@@ -1001,8 +1003,11 @@ function adminPage(env) {
     .trend-card { padding: 18px; }
     .geo-scale { display: flex; width: 180px; height: 7px; overflow: hidden; border-radius: 4px; background: linear-gradient(90deg, #d9ebe8, var(--accent)); }
     .geo-head-meta { display: grid; justify-items: end; gap: 8px; }
-    #geo-heatmap { position: relative; width: 100%; height: 300px; margin: 4px 0 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
+    .geo-range-bar { margin: 14px -18px 16px; border-bottom: 1px solid var(--line); }
+    #geo-heatmap { position: relative; width: 100%; height: 520px; margin: 4px 0 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
     #geo-heatmap.leaflet-container { background: var(--soft); }
+    .geo-map-svg { display: block; width: 100%; height: 100%; cursor: grab; }
+    .geo-map-svg:active { cursor: grabbing; }
     .geo-map-status { position: absolute; inset: 0; z-index: 500; display: grid; place-items: center; margin: 0; background: var(--soft); text-align: center; }
     .geo-table { min-width: 900px; }
     .geo-table .numeric { text-align: right; font-variant-numeric: tabular-nums; }
@@ -1019,11 +1024,11 @@ function adminPage(env) {
     .rank-row code { overflow-wrap: anywhere; }
     .rank-meta { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-    :root[data-theme="dark"] .leaflet-tile-pane { filter: brightness(0.72) saturate(0.72); }
+    :root[data-theme="dark"] #visitor-map .leaflet-tile-pane { filter: brightness(0.58) saturate(0.72) contrast(1.08); }
     @media (max-width: 1040px) { .overview-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); } .overview-item:nth-child(4) { border-right: 0; } .overview-item:nth-child(n+5) { border-top: 1px solid var(--line); } }
-    @media (max-width: 860px) { .stats, .grid, .mainland-metrics, .secondary-grid { grid-template-columns: 1fr; } .province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } header, .map-heading, .section-head, .overview-head { align-items: start; flex-direction: column; } #visitor-map { height: 320px; } .trend-chart-wrap { height: 300px; } .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 18px; } }
+    @media (max-width: 860px) { .stats, .grid, .mainland-metrics, .secondary-grid { grid-template-columns: 1fr; } .province-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } header, .map-heading, .section-head, .overview-head { align-items: start; flex-direction: column; } #visitor-map { height: 420px; } #geo-heatmap { height: 400px; } .trend-chart-wrap { height: 300px; } .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-left: 18px; } }
     @media (max-width: 620px) { .province-list { grid-template-columns: 1fr; } }
-    @media (max-width: 620px) { main { width: min(100% - 20px, 1280px); padding-top: 18px; } .overview-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .overview-item { border-top: 1px solid var(--line); } .overview-item:nth-child(-n+2) { border-top: 0; } .overview-item:nth-child(even) { border-right: 0; } .overview-item:nth-child(4) { border-right: 0; } .custom-range { width: 100%; } .date-field { flex: 1; } .date-field input { width: 100%; } .activity-table { min-width: 0; } .activity-table th:nth-child(2), .activity-table th:nth-child(3), .activity-table th:nth-child(4), .activity-table .visit-main td:nth-child(2), .activity-table .visit-main td:nth-child(3), .activity-table .visit-main td:nth-child(4) { display: none; } .activity-table th:nth-child(5), .activity-table .visit-main td:nth-child(5) { width: 112px; } .detail-grid { grid-template-columns: 1fr; padding: 15px 12px; } #geo-heatmap { height: 235px; } }
+    @media (max-width: 620px) { main { width: min(100% - 20px, 1280px); padding-top: 18px; } .overview-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } .overview-item { border-top: 1px solid var(--line); } .overview-item:nth-child(-n+2) { border-top: 0; } .overview-item:nth-child(even) { border-right: 0; } .overview-item:nth-child(4) { border-right: 0; } .custom-range { width: 100%; } .date-field { flex: 1; } .date-field input { width: 100%; } .activity-table { min-width: 0; } .activity-table th:nth-child(2), .activity-table th:nth-child(3), .activity-table th:nth-child(4), .activity-table .visit-main td:nth-child(2), .activity-table .visit-main td:nth-child(3), .activity-table .visit-main td:nth-child(4) { display: none; } .activity-table th:nth-child(5), .activity-table .visit-main td:nth-child(5) { width: 112px; } .detail-grid { grid-template-columns: 1fr; padding: 15px 12px; } #visitor-map { height: 320px; } #geo-heatmap { height: 320px; } }
     @media (max-width: 520px) { .trend-controls { width: 100%; } .trend-controls button { min-width: 0; flex: 1; padding-inline: 6px; } .range-presets { width: 100%; } .range-presets button { min-width: 0; flex: 1; } .header-actions { width: 100%; } .header-actions button { flex: 1; } }
   </style>
 </head>
@@ -1108,7 +1113,7 @@ function adminPage(env) {
       <article class="card activity-card">
         <div class="section-head">
           <div>
-            <h2>Visitor Activity</h2>
+            <h2>Recent Visitors</h2>
             <p id="visit-range">Loading visit records...</p>
           </div>
         </div>
@@ -1168,6 +1173,21 @@ function adminPage(env) {
             <div class="geo-scale" aria-hidden="true"></div>
           </div>
         </div>
+        <div class="range-bar geo-range-bar">
+          <div id="geo-range-presets" class="range-presets" role="group" aria-label="Geolocation date range">
+            <button type="button" data-geo-range="today" aria-pressed="false">Today</button>
+            <button type="button" data-geo-range="7d" aria-pressed="false">7 days</button>
+            <button type="button" data-geo-range="30d" aria-pressed="false">30 days</button>
+            <button type="button" data-geo-range="year" aria-pressed="false">This year</button>
+            <button type="button" data-geo-range="all" aria-pressed="true">All time</button>
+          </div>
+          <div class="custom-range">
+            <label class="date-field">From <input id="geo-from-date" type="date" aria-label="Geolocation start date"></label>
+            <label class="date-field">To <input id="geo-to-date" type="date" aria-label="Geolocation end date"></label>
+            <button id="apply-geo-range" type="button">Apply</button>
+          </div>
+          <p id="geo-range-error" class="range-error hidden" role="alert"></p>
+        </div>
         <div id="geo-heatmap" role="img" aria-label="World heatmap showing visits by country or region">
           <p id="geo-map-status" class="geo-map-status muted">Loading geographic heatmap...</p>
         </div>
@@ -1216,6 +1236,7 @@ function adminPage(env) {
   </main>
   <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script>
     const $ = (selector) => document.querySelector(selector);
@@ -1250,10 +1271,10 @@ function adminPage(env) {
       page: 1,
       totalPages: 1,
       map: null,
+      mapTileLayer: null,
       markerLayer: null,
       mapMarkers: [],
-      heatMap: null,
-      heatLayer: null,
+      mapRows: null,
       heatCountries: null,
       worldGeoJson: null,
       worldGeoJsonPromise: null,
@@ -1264,6 +1285,8 @@ function adminPage(env) {
       trendRequest: 0,
       theme: document.documentElement.dataset.theme === "dark" ? "dark" : "light",
       range: { from: "", to: "", preset: "all" },
+      geoRange: { from: "", to: "", preset: "all" },
+      geoRequest: 0,
       refreshTimer: null,
       refreshing: false,
       pendingRefresh: false
@@ -1292,10 +1315,11 @@ function adminPage(env) {
       }
       updateThemeControl();
       if (state.lastTrendData) renderTrend(state.lastTrendData);
+      if (state.map) setMapTiles();
+      if (state.mapRows) renderMap(state.mapRows);
       if (state.heatCountries) renderHeatMap(state.heatCountries);
       window.requestAnimationFrame(() => {
         if (state.map) state.map.invalidateSize();
-        if (state.heatMap) state.heatMap.invalidateSize();
       });
     }
 
@@ -1311,16 +1335,24 @@ function adminPage(env) {
     function countryLabel(value) {
       const code = String(value || "").trim().toUpperCase();
       if (!code) return "Unknown country or region";
-      if (specialRegions[code]) return specialRegions[code] + " (" + code + ")";
+      if (specialRegions[code]) return specialRegions[code];
       if (regionNames && /^[A-Z]{2}$/.test(code)) {
         try {
           const name = regionNames.of(code);
-          if (name && name !== code) return name + " (" + code + ")";
+          if (name && name !== code) return name;
         } catch (error) {
           // Fall through to a readable code when the runtime does not recognize it.
         }
       }
       return code;
+    }
+
+    function countryFlag(value) {
+      const code = String(value || "").trim().toUpperCase();
+      if (/^[A-Z]{2}$/.test(code) && !specialRegions[code]) {
+        return '<img class="country-flag" src="https://flagcdn.com/28x21/' + code.toLowerCase() + '.png" alt="" width="28" height="20" loading="lazy" referrerpolicy="no-referrer">';
+      }
+      return '<span class="country-flag country-flag-unknown" aria-hidden="true">?</span>';
     }
 
     function mapLocationLabel(row) {
@@ -1395,25 +1427,33 @@ function adminPage(env) {
       return new Intl.RelativeTimeFormat("en", { numeric: "auto" }).format(Math.round(seconds / range.size), range.unit);
     }
 
-    function rangeQuery() {
+    function rangeQuery(range = state.range) {
       const params = new URLSearchParams();
-      if (state.range.from) params.set("from", state.range.from);
-      if (state.range.to) params.set("to", state.range.to);
+      if (range.from) params.set("from", range.from);
+      if (range.to) params.set("to", range.to);
       return params.toString();
     }
 
-    function withRange(path) {
-      const query = rangeQuery();
+    function withRange(path, range = state.range) {
+      const query = rangeQuery(range);
       if (!query) return path;
       return path + (path.includes("?") ? "&" : "?") + query;
     }
 
-    function activeRangeLabel() {
-      if (state.range.preset !== "custom") return rangeNames[state.range.preset] || rangeNames.all;
-      if (state.range.from && state.range.to) return formatDate(state.range.from, { short: true }) + " - " + formatDate(state.range.to, { short: true });
-      if (state.range.from) return "Since " + formatDate(state.range.from, { short: true });
-      if (state.range.to) return "Through " + formatDate(state.range.to, { short: true });
+    function rangeLabel(range) {
+      if (range.preset !== "custom") return rangeNames[range.preset] || rangeNames.all;
+      if (range.from && range.to) return formatDate(range.from, { short: true }) + " - " + formatDate(range.to, { short: true });
+      if (range.from) return "Since " + formatDate(range.from, { short: true });
+      if (range.to) return "Through " + formatDate(range.to, { short: true });
       return rangeNames.all;
+    }
+
+    function activeRangeLabel() {
+      return rangeLabel(state.range);
+    }
+
+    function activeGeoRangeLabel() {
+      return rangeLabel(state.geoRange);
     }
 
     function syncRangeControls() {
@@ -1422,9 +1462,16 @@ function adminPage(env) {
       document.querySelectorAll("#range-presets button[data-range]").forEach((button) => {
         button.setAttribute("aria-pressed", String(button.dataset.range === state.range.preset));
       });
-      const label = activeRangeLabel();
-      $("#range-label").textContent = label;
-      $("#geo-range").textContent = label;
+      $("#range-label").textContent = activeRangeLabel();
+    }
+
+    function syncGeoRangeControls() {
+      $("#geo-from-date").value = state.geoRange.from;
+      $("#geo-to-date").value = state.geoRange.to;
+      document.querySelectorAll("#geo-range-presets button[data-geo-range]").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.geoRange === state.geoRange.preset));
+      });
+      $("#geo-range").textContent = activeGeoRangeLabel();
     }
 
     function rangeForPreset(preset) {
@@ -1442,6 +1489,17 @@ function adminPage(env) {
       $("#range-error").classList.add("hidden");
       syncRangeControls();
       await refresh();
+    }
+
+    function rangesEqual(left, right) {
+      return left.from === right.from && left.to === right.to;
+    }
+
+    async function selectGeoRange(range) {
+      state.geoRange = range;
+      $("#geo-range-error").classList.add("hidden");
+      syncGeoRangeControls();
+      await loadGeography();
     }
 
     function setLoggedIn(value) {
@@ -1464,30 +1522,38 @@ function adminPage(env) {
         : '<p class="muted">No data yet.</p>';
     }
 
+    function setMapTiles() {
+      if (!state.map || !window.L) return;
+      if (state.mapTileLayer) state.mapTileLayer.remove();
+      state.mapTileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+        noWrap: true
+      }).addTo(state.map);
+      state.mapTileLayer.bringToBack();
+    }
+
     function initializeMap() {
       if (state.map || !window.L) return state.map;
       state.map = L.map("visitor-map", {
-        minZoom: 1,
-        maxZoom: 9,
-        worldCopyJump: true,
-        zoomControl: true
+        minZoom: 0.5,
+        maxZoom: 6,
+        zoomSnap: 0.25,
+        zoomDelta: 0.5,
+        worldCopyJump: false,
+        zoomControl: true,
+        attributionControl: true,
+        scrollWheelZoom: false,
+        maxBounds: [[-85, -180], [85, 180]],
+        maxBoundsViscosity: 0.85
       }).setView([20, 0], 2);
-      const street = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 9,
-        noWrap: false
-      }).addTo(state.map);
-      const humanitarian = L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, tiles by HOT',
-        maxZoom: 9,
-        noWrap: false
-      });
-      L.control.layers({ "Street map": street, "Humanitarian map": humanitarian }, null, { position: "topright" }).addTo(state.map);
+      setMapTiles();
       state.markerLayer = L.layerGroup().addTo(state.map);
       return state.map;
     }
 
     function renderMap(rows) {
+      state.mapRows = rows;
       const totalVisits = rows.reduce((sum, row) => sum + Number(row.visits || 0), 0);
       $("#map-summary").textContent = rows.length
         ? number(rows.length) + " mapped country or region groups across " + number(totalVisits) + " visits."
@@ -1499,13 +1565,12 @@ function adminPage(env) {
 
       const map = initializeMap();
       if (!map) {
-        $("#visitor-map").innerHTML = '<p class="muted" style="padding:18px">Map tiles are temporarily unavailable. All country and region totals remain listed below.</p>';
+        $("#visitor-map").innerHTML = '<p class="muted" style="padding:18px">The visitor map is temporarily unavailable. All country and region totals remain listed below.</p>';
         return;
       }
 
       state.markerLayer.clearLayers();
       state.mapMarkers = [];
-      const bounds = [];
       rows.forEach((row) => {
         const latitude = Number(row.latitude);
         const longitude = Number(row.longitude);
@@ -1515,7 +1580,6 @@ function adminPage(env) {
         const coordinates = [latitude, longitude];
         const isRecent = row.last_visit && Date.now() - new Date(row.last_visit).valueOf() <= 86400000;
         const fillColor = isRecent ? "#c2413a" : "#0f766e";
-        bounds.push(coordinates);
         const marker = L.circleMarker(coordinates, {
           radius: Math.min(22, 7 + Math.log2(visits + 1) * 2.4),
           color: isRecent ? "#8f2d28" : "#0b514c",
@@ -1531,10 +1595,7 @@ function adminPage(env) {
         state.mapMarkers.push({ latitude, longitude, marker });
       });
 
-      if (bounds.length > 1) map.fitBounds(L.latLngBounds(bounds), { padding: [32, 32], maxZoom: 4 });
-      else if (bounds.length === 1) map.setView(bounds[0], 4);
-      else map.setView([20, 0], 2);
-      window.requestAnimationFrame(() => map.invalidateSize());
+      setWorldView(map);
     }
 
     function focusMap(latitude, longitude, label) {
@@ -1576,11 +1637,34 @@ function adminPage(env) {
 
     function countryGeoName(code) {
       const normalizedCode = String(code || "").toUpperCase();
-      const label = countryLabel(normalizedCode);
-      const suffix = " (" + normalizedCode + ")";
-      const name = label.endsWith(suffix) ? label.slice(0, -suffix.length) : label;
-      const normalized = normalizedGeoName(name);
+      const normalized = normalizedGeoName(countryLabel(normalizedCode));
       return geographicAliases[normalized] || normalized;
+    }
+
+    function loadWorldGeoJson() {
+      if (!window.topojson) return Promise.reject(new Error("World map renderer is unavailable."));
+      if (!state.worldGeoJsonPromise) {
+        state.worldGeoJsonPromise = fetch(worldTopologyUrl)
+          .then((response) => {
+            if (!response.ok) throw new Error("World map data could not be loaded.");
+            return response.json();
+          })
+          .then((topology) => window.topojson.feature(topology, topology.objects.countries))
+          .catch((error) => {
+            state.worldGeoJsonPromise = null;
+            throw error;
+          });
+      }
+      return state.worldGeoJsonPromise;
+    }
+
+    function setWorldView(map) {
+      window.requestAnimationFrame(() => {
+        map.invalidateSize();
+        const width = map.getSize().x;
+        const zoom = width >= 1000 ? 2 : width >= 700 ? 1.75 : width >= 480 ? 1.25 : 0.75;
+        map.setView([18, 0], zoom, { animate: false });
+      });
     }
 
     function heatColor(visits, maximum, dark) {
@@ -1592,77 +1676,66 @@ function adminPage(env) {
       return dark ? "#99f6e4" : "#b7dcd7";
     }
 
-    function initializeHeatMap() {
-      if (state.heatMap || !window.L) return state.heatMap;
-      state.heatMap = L.map("geo-heatmap", {
-        minZoom: 1,
-        maxZoom: 4,
-        zoomControl: false,
-        attributionControl: false,
-        dragging: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false,
-        keyboard: false,
-        tap: false
-      }).setView([18, 0], 1);
-      return state.heatMap;
-    }
-
     async function renderHeatMap(countries) {
       state.heatCountries = countries;
       const requestId = ++state.heatRequest;
-      const status = $("#geo-map-status");
-      const map = initializeHeatMap();
-      if (!map || !window.topojson) {
-        status.textContent = "The geographic heatmap is temporarily unavailable.";
-        status.classList.remove("hidden");
+      const container = $("#geo-heatmap");
+      const showStatus = (message) => {
+        container.innerHTML = '<p id="geo-map-status" class="geo-map-status muted">' + escapeHtml(message) + '</p>';
+      };
+      if (!window.d3 || !window.topojson) {
+        showStatus("The geographic heatmap is temporarily unavailable.");
         return;
       }
 
-      status.textContent = "Loading geographic heatmap...";
-      status.classList.remove("hidden");
-      if (!state.worldGeoJsonPromise) {
-        state.worldGeoJsonPromise = fetch(worldTopologyUrl)
-          .then((response) => {
-            if (!response.ok) throw new Error("World map data could not be loaded.");
-            return response.json();
-          })
-          .then((topology) => window.topojson.feature(topology, topology.objects.countries));
-      }
-
+      showStatus("Loading geographic heatmap...");
       try {
-        const world = await state.worldGeoJsonPromise;
+        const world = await loadWorldGeoJson();
         if (requestId !== state.heatRequest) return;
         state.worldGeoJson = world;
         const visitsByName = new Map();
         countries.forEach((row) => visitsByName.set(countryGeoName(row.country), Number(row.visits || 0)));
         const maximum = Math.max(1, ...countries.map((row) => Number(row.visits || 0)));
         const dark = state.theme === "dark";
-        if (state.heatLayer) state.heatLayer.remove();
-        state.heatLayer = L.geoJSON(world, {
-          style(feature) {
-            const visits = visitsByName.get(normalizedGeoName(feature.properties?.name)) || 0;
-            return {
-              color: dark ? "#48564f" : "#cbd5d0",
-              weight: 0.7,
-              fillColor: heatColor(visits, maximum, dark),
-              fillOpacity: 1
-            };
-          },
-          onEachFeature(feature, layer) {
-            const name = feature.properties?.name || "Unknown country or region";
-            const visits = visitsByName.get(normalizedGeoName(name)) || 0;
-            if (visits) layer.bindTooltip("<strong>" + escapeHtml(name) + "</strong><br>" + number(visits) + " visits");
-          }
-        }).addTo(map);
-        map.fitBounds(state.heatLayer.getBounds(), { padding: [4, 4], maxZoom: 2 });
-        status.classList.add("hidden");
-        window.requestAnimationFrame(() => map.invalidateSize());
+        const width = Math.max(320, container.clientWidth);
+        const height = Math.max(280, container.clientHeight);
+        const projection = d3.geoNaturalEarth1().fitExtent([[12, 12], [width - 12, height - 12]], world);
+        const path = d3.geoPath(projection);
+        const stroke = dark ? "#52615a" : "#c3cec8";
+        const graticule = dark ? "#34413b" : "#dce4e0";
+
+        container.innerHTML = "";
+        const svg = d3.select(container)
+          .append("svg")
+          .attr("class", "geo-map-svg")
+          .attr("viewBox", "0 0 " + width + " " + height)
+          .attr("preserveAspectRatio", "xMidYMid meet")
+          .attr("aria-hidden", "true");
+        const layer = svg.append("g");
+        layer.append("path")
+          .datum(d3.geoGraticule10())
+          .attr("d", path)
+          .attr("fill", "none")
+          .attr("stroke", graticule)
+          .attr("stroke-width", 0.7)
+          .attr("vector-effect", "non-scaling-stroke");
+        const paths = layer.selectAll("path.geo-country")
+          .data(world.features)
+          .join("path")
+          .attr("class", "geo-country")
+          .attr("d", path)
+          .attr("fill", (feature) => heatColor(visitsByName.get(normalizedGeoName(feature.properties?.name)) || 0, maximum, dark))
+          .attr("stroke", stroke)
+          .attr("stroke-width", 0.75)
+          .attr("vector-effect", "non-scaling-stroke");
+        paths.append("title").text((feature) => {
+          const name = feature.properties?.name || "Unknown country or region";
+          const visits = visitsByName.get(normalizedGeoName(name)) || 0;
+          return name + ": " + number(visits) + (visits === 1 ? " visit" : " visits");
+        });
+        svg.call(d3.zoom().scaleExtent([1, 8]).on("zoom", (event) => layer.attr("transform", event.transform)));
       } catch (error) {
-        state.worldGeoJsonPromise = null;
-        status.textContent = "The heatmap could not be loaded; geographic totals remain available below.";
-        status.classList.remove("hidden");
+        showStatus("The heatmap could not be loaded; geographic totals remain available below.");
       }
     }
 
@@ -1707,7 +1780,7 @@ function adminPage(env) {
             }).join("");
             return '<tr class="geo-country-row">' +
               '<td><button type="button" class="location-button geo-toggle" data-country="' + escapeHtml(code) + '" aria-expanded="false">' +
-                '<span class="country-code">' + escapeHtml(code) + '</span><strong>' + escapeHtml(countryLabel(code)) + '</strong></button></td>' +
+                countryFlag(code) + '<strong>' + escapeHtml(countryLabel(code)) + '</strong></button></td>' +
               '<td class="numeric">' + number(row.locations) + '</td>' +
               '<td class="numeric">' + number(visits) + '</td>' +
               '<td class="numeric">' + number(visitors) + '</td>' +
@@ -1717,6 +1790,18 @@ function adminPage(env) {
             '</tr>' + childRows;
           }).join("")
         : '<tr><td colspan="7" class="muted">No geolocation data is available for this range.</td></tr>';
+    }
+
+    async function loadGeography() {
+      const requestId = ++state.geoRequest;
+      $("#geo-summary").textContent = "Loading countries, regions, and visit depth...";
+      try {
+        const data = await api(withRange("/api/admin/summary", state.geoRange));
+        if (requestId === state.geoRequest) renderGeography(data.geography || {});
+      } catch (error) {
+        if (requestId === state.geoRequest) $("#geo-summary").textContent = error.message;
+        throw error;
+      }
     }
 
     function renderSummary(data) {
@@ -1745,7 +1830,6 @@ function adminPage(env) {
         " visits were resolved by the mainland lookup; " + number(mainland.likelyProxyVisitors) +
         " visitors currently have only a mainland browser signal and a non-CN edge exit.";
       renderMap(data.mapCountries || []);
-      renderGeography(data.geography || {});
       renderList("#provinces", data.provinces || [], (row) => {
         const code = row.region_code ? " (" + row.region_code + ")" : "";
         return (row.region || "Unknown province/region") + code;
@@ -2002,7 +2086,7 @@ function adminPage(env) {
             const client = [visit.language, visit.screen, visit.client_timezone].filter(Boolean).join(" / ");
             const networkDetail = [network, visit.client_isp ? "Client ISP: " + visit.client_isp : ""].filter(Boolean).join(" / ");
             return '<tr class="visit-main">' +
-              '<td><div class="visit-identity"><span class="country-code">' + escapeHtml(countryCode) + '</span><div class="visit-label">' +
+              '<td><div class="visit-identity">' + countryFlag(countryCode) + '<div class="visit-label">' +
                 locationControl + '<span>' + newTag + number(visit.daily_pageviews || 1) + (Number(visit.daily_pageviews || 1) === 1 ? ' page view' : ' page views') + '</span></div></div></td>' +
               '<td class="ua-cell"><strong>' + escapeHtml(browser) + '</strong><span>' + escapeHtml(device) + '</span></td>' +
               '<td class="ua-cell"><strong>' + escapeHtml(os) + '</strong><span>' + escapeHtml(visit.client_timezone || visit.timezone || "") + '</span></td>' +
@@ -2043,16 +2127,24 @@ function adminPage(env) {
       $("#refresh-button").disabled = true;
       const trendInterval = state.trendInterval;
       const trendRequest = ++state.trendRequest;
+      const geoRequest = ++state.geoRequest;
+      const geographyUsesGlobalRange = rangesEqual(state.geoRange, state.range);
       setTrendControls(trendInterval, true);
       try {
-        const results = await Promise.all([
+        const requests = [
           api(withRange("/api/admin/summary")),
           api(withRange("/api/admin/visits?page=" + encodeURIComponent(state.page))),
           api(withRange("/api/admin/trend?interval=" + encodeURIComponent(trendInterval)))
-        ]);
+        ];
+        if (!geographyUsesGlobalRange) requests.push(api(withRange("/api/admin/summary", state.geoRange)));
+        const results = await Promise.all(requests);
         renderSummary(results[0]);
         renderVisits(results[1]);
         if (trendRequest === state.trendRequest) renderTrend(results[2]);
+        if (geoRequest === state.geoRequest) {
+          const geographySummary = geographyUsesGlobalRange ? results[0] : results[3];
+          renderGeography(geographySummary.geography || {});
+        }
       } finally {
         const rerun = state.pendingRefresh;
         state.refreshing = false;
@@ -2133,6 +2225,27 @@ function adminPage(env) {
         $("#range-error").classList.remove("hidden");
       });
     });
+    $("#geo-range-presets").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-geo-range]");
+      if (button) selectGeoRange(rangeForPreset(button.dataset.geoRange)).catch((error) => {
+        $("#geo-range-error").textContent = error.message;
+        $("#geo-range-error").classList.remove("hidden");
+      });
+    });
+    $("#apply-geo-range").addEventListener("click", () => {
+      const from = $("#geo-from-date").value;
+      const to = $("#geo-to-date").value;
+      if (from && to && from > to) {
+        $("#geo-range-error").textContent = "The start date must not be after the end date.";
+        $("#geo-range-error").classList.remove("hidden");
+        return;
+      }
+      const range = from || to ? { from, to, preset: "custom" } : rangeForPreset("all");
+      selectGeoRange(range).catch((error) => {
+        $("#geo-range-error").textContent = error.message;
+        $("#geo-range-error").classList.remove("hidden");
+      });
+    });
     $("#trend-controls").addEventListener("click", (event) => {
       const button = event.target.closest("button[data-interval]");
       if (button && button.dataset.interval !== state.trendInterval) loadTrend(button.dataset.interval);
@@ -2150,6 +2263,7 @@ function adminPage(env) {
 
     updateThemeControl();
     syncRangeControls();
+    syncGeoRangeControls();
     api("/api/admin/session")
       .then(async () => { setLoggedIn(true); await refresh(); })
       .catch(() => setLoggedIn(false));

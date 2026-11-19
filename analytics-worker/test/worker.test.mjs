@@ -181,11 +181,19 @@ test("admin page includes reference-style overview, filters, maps, trends, and p
   assert.match(html, /:root\[data-theme="dark"\]/);
   assert.doesNotMatch(html, /prefers-color-scheme/);
   assert.match(html, /id="visitor-map"/);
+  assert.match(html, /#visitor-map \{ width: 100%; height: 540px/);
   assert.match(html, /Traffic Overview/);
+  assert.match(html, /<h2>Recent Visitors<\/h2>/);
   assert.match(html, /data-range="30d"/);
   assert.match(html, /id="from-date"/);
   assert.match(html, /id="geography"/);
   assert.match(html, /id="geo-heatmap"/);
+  assert.match(html, /#geo-heatmap \{[^}]*height: 520px/);
+  assert.match(html, /id="geo-range-presets"/);
+  assert.match(html, /data-geo-range="30d"/);
+  assert.match(html, /id="geo-from-date"/);
+  assert.match(html, /id="geo-to-date"/);
+  assert.match(html, /id="apply-geo-range"/);
   assert.match(html, /id="visits-trend"/);
   assert.match(html, /data-interval="hour"/);
   assert.match(html, /data-interval="day"/);
@@ -196,7 +204,15 @@ test("admin page includes reference-style overview, filters, maps, trends, and p
   assert.match(html, /id="provinces"/);
   assert.match(html, /leaflet@1\.9\.4/);
   assert.match(html, /topojson-client@3\.1\.0/);
+  assert.match(html, /d3@7\.9\.0/);
   assert.match(html, /chart\.js@4\.4\.7/);
+  assert.match(html, /flagcdn\.com\/28x21/);
+  assert.match(html, /class="country-flag"/);
+  assert.match(html, /tile\.openstreetmap\.org/);
+  assert.match(html, /geoNaturalEarth1/);
+  assert.match(html, /loadWorldGeoJson/);
+  assert.match(html, /withRange\("\/api\/admin\/summary", state\.geoRange\)/);
+  assert.doesNotMatch(html, /class="country-code"/);
   assert.doesNotMatch(html, /<h2>Top Countries<\/h2>/);
 
   const inlineScripts = [...html.matchAll(/<script(?: [^>]*)?>([\s\S]*?)<\/script>/g)]
