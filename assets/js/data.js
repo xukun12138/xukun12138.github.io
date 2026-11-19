@@ -3,7 +3,7 @@ const SITE_DATA = {
     title: "Kun Xu | Academic Homepage",
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io",
-    lastUpdated: "2026-11-17"
+    lastUpdated: "2026-11-19"
   },
   analytics: {
     workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev",
@@ -626,7 +626,7 @@ const SITE_DATA = {
     {
       category: "Membership",
       items: [
-        { label: "China Cyber Security Society", url: "https://www.ccss.org.cn/" }
+        { label: "China Cyber Security Society", url: "https://www.ccss.org.cn/" },
         { label: "ACM Emerging Interest Groups on Trustworthy and Responsible Systems (EIGTRUST)", url: "https://eigtrust.acm.org/" },
         { label: "China Society of Image and Graphics (CSIG)", url: "https://www.csig.org.cn/" }
       ]

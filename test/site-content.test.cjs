@@ -76,6 +76,25 @@ test("ACM TOMM is the first journal-review entry", () => {
   });
 });
 
+test("new Academic Service records are rendered from valid service data", () => {
+  const journalReview = data.services.find((group) => group.category === "Journal Reviewer");
+  const conferenceReview = data.services.find((group) => group.category === "Conference Reviewer");
+  const membership = data.services.find((group) => group.category === "Membership");
+
+  assert.deepEqual(journalReview.items.find((item) => item.label === "ASOC"), {
+    label: "ASOC",
+    url: "https://www.sciencedirect.com/journal/applied-soft-computing"
+  });
+  assert.deepEqual(conferenceReview.items.find((item) => item.label === "CVPR"), {
+    label: "CVPR",
+    url: "https://cvpr.thecvf.com/Conferences/2027"
+  });
+  assert.deepEqual(membership.items.find((item) => item.label === "China Cyber Security Society"), {
+    label: "China Cyber Security Society",
+    url: "https://www.ccss.org.cn/"
+  });
+});
+
 test("section subtitles below Research through CV are removed", () => {
   ["research", "news", "publications", "projects", "cv"].forEach((section) => {
     assert.doesNotMatch(html, new RegExp(`data-i18n="${section}\\.subtitle"`));
