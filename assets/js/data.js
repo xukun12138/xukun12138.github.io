@@ -3,7 +3,7 @@ const SITE_DATA = {
     title: "Kun Xu | Academic Homepage",
     url: "https://xukun12138.github.io/",
     repository: "https://github.com/xukun12138/xukun12138.github.io",
-    lastUpdated: "2026-11-19"
+    lastUpdated: "2026-11-24"
   },
   analytics: {
     workerUrl: "https://xukun-homepage-analytics.xukun930.workers.dev",
@@ -25,9 +25,19 @@ const SITE_DATA = {
       url: "https://dawsec.dicom.uninsubria.it/elena.ferrari/"
     },
     emails: [
-      "xukun930@nuaa.edu.cn",
-      "xukun930@gmail.com",
-      "xukun12138@outlook.com"
+      {
+        label: { en: "NUAA", zh: "NUAA" },
+        address: "xukun930@nuaa.edu.cn",
+        primary: true
+      },
+      {
+        label: { en: "Gmail", zh: "Gmail" },
+        address: "xukun930@gmail.com"
+      },
+      {
+        label: { en: "Outlook", zh: "Outlook" },
+        address: "xukun12138@outlook.com"
+      }
     ],
     links: [
       { label: "Google Scholar", url: "https://scholar.google.com.sg/citations?user=yDoybB0AAAAJ&hl=en" },
@@ -75,7 +85,15 @@ const SITE_DATA = {
       "cv.subtitle": "A concise overview of my education, honors, academic service, and professional activities.",
       "cv.print": "Print / Save as PDF",
       "cv.viewPdf": "View Full CV",
-      "contact.title": "Open to research conversations and collaboration.",
+      "email.trigger": "Email Me",
+      "email.menuTitle": "Choose an email address",
+      "email.primary": "Primary email",
+      "email.open": "Open mail",
+      "email.copy": "Copy",
+      "email.close": "Close email menu",
+      "email.copied": "Email address copied",
+      "email.copyFailed": "Copy failed",
+      "contact.title": "Open to research conversations and collaboration",
       "contact.subtitle": "I welcome conversations about trustworthy AIGC, generative model security, concept-level safety, uncertainty and calibration, and multimedia forensics.",
       "contact.availability": "I hold a Ph.D. in Cyberspace Security and welcome conversations about postdoctoral and faculty opportunities.",
       "contact.topicsLabel": "Current interests",
@@ -145,7 +163,15 @@ const SITE_DATA = {
       "cv.subtitle": "教育背景、荣誉、学术服务和专业活动的简要概览。",
       "cv.print": "打印 / 另存为 PDF",
       "cv.viewPdf": "查看完整简历",
-      "contact.title": "欢迎围绕研究问题和合作机会交流。",
+      "email.trigger": "邮件联系",
+      "email.menuTitle": "选择邮箱",
+      "email.primary": "主要邮箱",
+      "email.open": "打开邮箱",
+      "email.copy": "复制",
+      "email.close": "关闭邮箱菜单",
+      "email.copied": "邮箱地址已复制",
+      "email.copyFailed": "复制失败",
+      "contact.title": "欢迎围绕研究问题和合作机会交流",
       "contact.subtitle": "欢迎围绕可信 AIGC、生成模型安全、概念级安全、不确定性与校准以及多媒体取证开展交流。",
       "contact.availability": "我已获得网络空间安全专业博士学位，欢迎就博士后或高校教职机会与我联系。",
       "contact.topicsLabel": "交流方向",

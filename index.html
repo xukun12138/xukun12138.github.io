@@ -58,7 +58,38 @@
             </p>
             <div class="hero-actions">
               <a class="button primary" href="#publications">View Publications</a>
-              <a class="button secondary" href="mailto:xukun930@nuaa.edu.cn">Email Me</a>
+              <div class="email-picker" data-email-picker>
+                <button
+                  class="button secondary"
+                  type="button"
+                  data-email-trigger
+                  data-i18n="email.trigger"
+                  aria-haspopup="dialog"
+                  aria-expanded="false"
+                  aria-controls="hero-email-menu"
+                >Email Me</button>
+                <section
+                  class="email-popover"
+                  id="hero-email-menu"
+                  data-email-popover
+                  role="dialog"
+                  aria-labelledby="hero-email-menu-title"
+                  hidden
+                >
+                  <div class="email-popover-head">
+                    <strong id="hero-email-menu-title" data-i18n="email.menuTitle">Choose an email address</strong>
+                    <button
+                      class="email-popover-close"
+                      type="button"
+                      data-email-close
+                      data-i18n-aria-label="email.close"
+                      aria-label="Close email menu"
+                      title="Close email menu"
+                    >&times;</button>
+                  </div>
+                  <div class="email-options" data-email-options></div>
+                </section>
+              </div>
             </div>
             <ul class="quick-facts" aria-label="Quick facts">
               <li><strong>NUAA</strong><span data-i18n="hero.fact1">Ph.D. in Cyberspace Security</span></li>
@@ -171,7 +202,7 @@
       <section class="section contact-section" id="contact" aria-labelledby="contact-title">
         <div class="contact-header">
           <p class="section-kicker">Contact</p>
-          <h2 id="contact-title" data-i18n="contact.title">Open to research conversations and collaboration.</h2>
+          <h2 id="contact-title" data-i18n="contact.title">Open to research conversations and collaboration</h2>
           <div class="contact-summary">
             <div class="contact-copy">
               <p class="contact-lead" data-i18n="contact.subtitle">
@@ -230,7 +261,7 @@
         </button>
         <div class="update-stamp">
           <span class="update-stamp-label" data-i18n="footer.lastUpdated">Last updated</span>
-          <time data-last-updated datetime="2026-09-13">September 13, 2026</time>
+          <time data-last-updated datetime="2026-11-24">November 24, 2026</time>
           <span class="update-stamp-hint" data-i18n="footer.updateHint">Content revision date</span>
         </div>
       </div>

@@ -45,6 +45,29 @@ test("the bilingual identity and About mentor links are current", () => {
   assert.equal(data.translations.zh["about.link.visitingSupervisorBarbara"], "Barbara Carminati 教授");
 });
 
+test("the hero email picker exposes three bilingual email actions", () => {
+  assert.match(html, /data-email-trigger/);
+  assert.match(html, /data-email-popover/);
+  assert.match(html, /data-email-options/);
+  assert.deepEqual(data.profile.emails.map((email) => email.address), [
+    "xukun930@nuaa.edu.cn",
+    "xukun930@gmail.com",
+    "xukun12138@outlook.com"
+  ]);
+  assert.equal(data.profile.emails[0].primary, true);
+  assert.equal(data.translations.en["email.primary"], "Primary email");
+  assert.equal(data.translations.zh["email.primary"], "主要邮箱");
+  assert.match(app, /data-copy-email/);
+  assert.match(app, /data-email-open/);
+});
+
+test("the Contact title has no terminal punctuation in either language", () => {
+  assert.equal(data.translations.en["contact.title"], "Open to research conversations and collaboration");
+  assert.equal(data.translations.zh["contact.title"], "欢迎围绕研究问题和合作机会交流");
+  assert.match(html, />Open to research conversations and collaboration<\/h2>/);
+  assert.equal(data.site.lastUpdated, "2026-11-24");
+});
+
 test("publications and research highlights default to two items with bilingual controls", () => {
   assert.match(app, /publications\.slice\(0, 2\)/);
   assert.match(app, /data-publications-toggle/);

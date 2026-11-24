@@ -271,10 +271,51 @@
     `).join("");
   }
 
+  function emailAddress(email) {
+    return typeof email === "string" ? email : email.address;
+  }
+
+  function renderEmailMenu() {
+    const options = $("[data-email-options]");
+    if (!options) return;
+
+    options.innerHTML = data.profile.emails.map((email) => {
+      const address = emailAddress(email);
+      const label = typeof email === "string" ? address : textFor(email.label);
+      const primary = typeof email === "object" && email.primary
+        ? `<span class="email-primary">${escapeHtml(translationFor("email.primary"))}</span>`
+        : "";
+
+      return `
+        <article class="email-option">
+          <div class="email-option-copy">
+            <div class="email-option-title">
+              <strong>${escapeHtml(label)}</strong>
+              ${primary}
+            </div>
+            <span>${escapeHtml(address)}</span>
+          </div>
+          <div class="email-option-actions">
+            <a href="mailto:${escapeHtml(address)}" data-email-open>${escapeHtml(translationFor("email.open"))}</a>
+            <button type="button" data-copy-email="${escapeHtml(address)}">${escapeHtml(translationFor("email.copy"))}</button>
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    const closeButton = $("[data-email-close]");
+    if (closeButton) {
+      const closeLabel = translationFor("email.close");
+      closeButton.setAttribute("aria-label", closeLabel);
+      closeButton.title = closeLabel;
+    }
+  }
+
   function renderContact() {
-    $("[data-emails]").innerHTML = data.profile.emails.map((email) => `
-      <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>
-    `).join("");
+    $("[data-emails]").innerHTML = data.profile.emails.map((email) => {
+      const address = emailAddress(email);
+      return `<a href="mailto:${escapeHtml(address)}">${escapeHtml(address)}</a>`;
+    }).join("");
     $("[data-contact-links]").innerHTML = data.profile.links.map((link) => (
       `<a href="${escapeHtml(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`
     )).join("");
@@ -288,6 +329,7 @@
     renderPublications();
     renderProjects();
     renderCv();
+    renderEmailMenu();
     renderContact();
     $$("a[href]").forEach((link) => {
       if (!linkTargetAttributes(link.getAttribute("href"))) return;
@@ -301,6 +343,24 @@
     toast.textContent = message;
     toast.classList.add("visible");
     window.setTimeout(() => toast.classList.remove("visible"), 1800);
+  }
+
+  async function copyText(value) {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const field = document.createElement("textarea");
+    field.value = value;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.opacity = "0";
+    document.body.append(field);
+    field.select();
+    const copied = document.execCommand("copy");
+    field.remove();
+    if (!copied) throw new Error("Copy failed");
   }
 
   const visitorIdKey = "kx-visitor-id";
@@ -596,6 +656,23 @@
     document.body.classList.remove("modal-open");
   }
 
+  function setEmailMenu(open, returnFocus = false) {
+    const picker = $("[data-email-picker]");
+    const trigger = $("[data-email-trigger]");
+    const popover = $("[data-email-popover]");
+    if (!picker || !trigger || !popover) return;
+
+    popover.hidden = !open;
+    trigger.setAttribute("aria-expanded", String(open));
+    picker.classList.toggle("open", open);
+
+    if (open) {
+      window.requestAnimationFrame(() => $("[data-email-open]", popover)?.focus());
+    } else if (returnFocus) {
+      trigger.focus();
+    }
+  }
+
   async function loadVisitorLocation() {
     if (visitorLocationLoaded) return;
     setVisitorStatus("visitor.status.loading");
@@ -656,13 +733,35 @@
       renderNews();
     });
 
+    const emailPicker = $("[data-email-picker]");
+    const emailTrigger = $("[data-email-trigger]");
+    emailTrigger?.addEventListener("click", () => {
+      setEmailMenu(emailTrigger.getAttribute("aria-expanded") !== "true");
+    });
+
+    $("[data-email-close]")?.addEventListener("click", () => setEmailMenu(false, true));
+
     document.addEventListener("click", async (event) => {
-      const button = event.target.closest("[data-copy-bib]");
-      if (!button) return;
-      const pub = data.publications.find((item) => item.id === button.dataset.copyBib);
+      const copyEmailButton = event.target.closest("[data-copy-email]");
+      if (copyEmailButton) {
+        try {
+          await copyText(copyEmailButton.dataset.copyEmail);
+          showToast(translationFor("email.copied"));
+        } catch (error) {
+          showToast(translationFor("email.copyFailed"));
+        }
+        return;
+      }
+
+      if (event.target.closest("[data-email-open]")) setEmailMenu(false);
+      if (emailPicker && !emailPicker.contains(event.target)) setEmailMenu(false);
+
+      const bibButton = event.target.closest("[data-copy-bib]");
+      if (!bibButton) return;
+      const pub = data.publications.find((item) => item.id === bibButton.dataset.copyBib);
       if (!pub) return;
       try {
-        await navigator.clipboard.writeText(pub.bibtex);
+        await copyText(pub.bibtex);
         showToast("BibTeX copied");
       } catch (error) {
         showToast("Copy failed");
@@ -681,7 +780,11 @@
     });
 
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeVisitorModal();
+      if (event.key !== "Escape") return;
+      closeVisitorModal();
+      if (emailTrigger?.getAttribute("aria-expanded") === "true") {
+        setEmailMenu(false, true);
+      }
     });
 
     window.addEventListener("scroll", () => {

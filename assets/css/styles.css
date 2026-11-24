@@ -330,6 +330,137 @@ button {
   margin-top: 1.6rem;
 }
 
+.email-picker {
+  position: relative;
+  z-index: 12;
+}
+
+.email-popover[hidden] {
+  display: none;
+}
+
+.email-popover {
+  position: absolute;
+  bottom: calc(100% + 0.7rem);
+  left: 0;
+  width: min(31rem, calc(100vw - 2rem));
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+
+.email-popover-head {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.15rem 0.7rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.email-popover-head strong {
+  font-size: 0.95rem;
+}
+
+.email-popover-close {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.email-options {
+  display: grid;
+}
+
+.email-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 0.15rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.email-option:last-child {
+  padding-bottom: 0.15rem;
+  border-bottom: 0;
+}
+
+.email-option-copy {
+  min-width: 0;
+}
+
+.email-option-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.email-option-copy > span {
+  display: block;
+  margin-top: 0.2rem;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+}
+
+.email-primary {
+  padding: 0.16rem 0.4rem;
+  border-radius: 4px;
+  background: #f0d7a1;
+  color: #17201c;
+  font-size: 0.68rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.email-option-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.email-option-actions a,
+.email-option-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0.48rem 0.62rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.email-popover-close:hover,
+.email-option-actions a:hover,
+.email-option-actions button:hover {
+  border-color: color-mix(in srgb, var(--teal) 55%, var(--line));
+  color: var(--teal);
+}
+
 .button,
 .card-actions a,
 .card-actions button,
@@ -1526,6 +1657,19 @@ body.modal-open {
 
   .hero h1 {
     font-size: 3rem;
+  }
+
+  .email-popover {
+    width: min(28rem, calc(100vw - 2rem));
+  }
+
+  .email-option {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .email-option-actions > * {
+    flex: 1;
   }
 
   .quick-facts,
